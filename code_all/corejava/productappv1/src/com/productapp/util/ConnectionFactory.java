@@ -1,4 +1,4 @@
-package com.jdbcdemo.basics;
+package com.productapp.util;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
