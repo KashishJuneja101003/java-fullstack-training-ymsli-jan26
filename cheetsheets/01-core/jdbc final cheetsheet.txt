@@ -1,0 +1,865 @@
+JDBC
+###################
+	==> JDBC Introduction
+	==> JDBC Architecture
+	==> JDBC Drivers
+	==> Hello World 
+	==> JDBC Statements, Preparedstatement, ResultSet types
+	==>DAO DTO design pattern
+	==> CRUD Operations
+	
+	==> Calling Stored Procedures
+	==> Getting resultset meta data
+	==> Auto key generation
+	==> Batch Processing
+	==> Transactions
+
+JDBC Introduction
+==================
+
+	What is JDBC?
+	-------------
+		==>API to intract with RDBMS
+
+		==>JDBC API has two major packages:- java.sql.* and javax.sql.*
+
+ 	JDBC Architecture
+ 	-----------------
+	Driver
+	---------
+		==>Ensure consistent and uniform access to any database
+		==>Driver act as a translator bw client request and database access
+
+	Driver Manager
+	--------------
+		==>Class that manages establishment of connection
+		==>Driver Manager need to told which JDBC driver it should try to connect
+
+
+	Type of Driver:
+	----------------
+	1. Type 1 Driver (Jdbc-Odbc bridge driver or bridge driver)
+	
+	2. Type 2 Driver(Native API- partially Java driver or Native driver)
+
+	3. Type 3 Driver (All Java net protocol driver or network protocol driver
+			or middleware driver)
+
+	4. Type 4 Driver (Pure java driver or native protocol driver or thin driver)
+
+
+
+
+	1. Type 1 Driver (Jdbc-Odbc bridge driver or bridge driver)
+	------------------------------------------------------------
+
+	Java <=====>Type1 <=====> ODBC	<====> DB
+	App	    driver	  driver
+
+
+	*Jdbc-Odbc bridge driver or bridge driver
+	* sun microsoft responsible to provide type 1 driver (discountunied from java 8)
+
+	Adv:
+	* No seprate installation is required (as part of jdk)
+	* Easy to use
+	* Communicate with the help of ODBC not directly so it is independent of database
+	* Only avaliable for window system :(
+
+
+
+
+	2. Type 2 Driver(Native API- partially Java driver or Native driver)
+	---------------------------------------------------------
+
+	Java <=====>Type2 <=====> vendor provided	<====> DB
+	App	    driver	  database specific native
+				  lib
+
+
+	*Jdbc-Odbc bridge replace with vendor provided database specific lib
+	* type 2 driver convert call to vendor specific native lib
+
+	Adv:
+	* speed better then type 1
+	Dis:
+	* Native lib need to install on client machine
+	* Not every db vendor not provide type 2 driver : mysql dont provide, oracle provide
+	* Plateform dependent
+
+
+	2. Type 3 Driver (All Java net protocol driver or network protocol driver
+			or middleware driver)
+	-----------------------------------------------------------------
+
+	Java <=====>Type3 <=====> middleware	<====> DB
+	App	    driver	  server
+				 (IDS server)
+	<--------------->\<------------------->\<---------->
+	  client machine    middleware machine	   database machine
+			
+	* Used in enterprise application, PI and Database independent :)
+	* Its only driver that is plateform and vendor independent
+	* middleware can communicate to DB using type 1,2,4 driver
+	* follow 3 tier arch
+
+	
+
+
+	4. Type 4 Driver (Pure java driver or native protocol driver or thin driver)
+	-------------------------------------------------------------------------
+
+	Java <=====>Type4	<====> DB
+	App	    driver	  
+
+
+	* Directly intract with database ( hence fast), using native protocol
+	* Convert java call to database call directly
+	* Also know pure java driver( completly written in java, hence plateform independent)
+	* Light weight driver
+
+	Adv:
+	* Only one conversion is required (very fast)
+	* Plateform independent
+
+	Dis:
+	* It is database dependent ie for differnt database we have to download
+	different driver for eg: for mysql mysql-jdbc-connector-j.jar file
+
+
+
+
+Hello World
+============
+
+mysql -u root -p
+
+	Create database employee_jdbc;
+	use  employee_jdbc;
+
+
+	create table employee(
+		employeeId int not null primary key auto_increment,
+		employeeName varchar(40) not null,
+		employeeSalary int not null
+	);
+
+	insert into employee(employeeId ,employeeName ,employeeSalary)  
+	values(121,'raja',23366.5);
+
+	insert into employee(employeeId ,employeeName ,employeeSalary )  
+	values(11,'amit',55366.5);
+
+
+
+
+	preparedStatement = con.prepareStatement
+		(insert into employee(employeeId ,employeeName ,employeeSalary)  values(?,?,?));
+
+	
+	Connection properties
+	---------------------
+	"jdbc:mysql://127.0.0.1:3306/employee_jdbc","root","root"
+
+	Reading all records
+	----------------------
+
+			Connection con=DriverManager.getConnection
+			("jdbc:mysql://127.0.0.1:3306/employee_jdbc","root","root");
+			stmt=con.createStatement();
+			rs=stmt.executeQuery("select * from employee");
+			while(rs.next()){
+				System.out.print(rs.getInt("employeeId")+" ");
+				System.out.print(rs.getString("employeeName")+" ");
+				System.out.println(rs.getDouble("employeeSalary"));
+				
+		        }
+
+
+ 
+
+
+	Type of statement:
+	================
+
+	Statement==>used to create conneciton object
+
+	PreparedStatement==>
+	used to execute precompiled  SQL statementand retrive data into RS
+	=> faster
+	=> safer from sql injection
+
+	CallableStatement==>used for calling stored procedure
+
+
+	executeQuery()		 vs		 executeUpdate();
+	-----------------------------------------------------------
+	retrun type is RS		return type is int
+	give u rs			give u no of rows effected
+	for gettting data		for updating/deleting/adding data
+
+	
+Doing CRUD		
+===========
+
+	Step 1: Create DTO
+
+	public class Employee {
+		private int employeeId;
+		private String employeeName;
+		private double employeeSalary;
+
+
+
+	Step 2: Create DAO interface ( Design to interface )
+
+
+
+	public interface EmployeeDao {
+		public List<Employee>getAllEmployee();
+		public void addEmployee(Employee employee);
+		public void deleteEmployee(int employeeId);
+		public void updateEmployee(Employee employee);
+		public Employee getEmployeeById(int employeeId);
+	}
+
+
+
+
+
+	Provide implementation
+	=======================
+
+	public class EmployeeDaoImp implements EmployeeDao {
+
+		Connection con;
+
+		public EmployeeDaoImp(Connection con) {
+			this.con = con;
+		}
+		//.......
+		//......
+ 	}
+
+
+	Reading all records
+	-------------------
+
+
+			Connection con=DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/employee_jdbc","root","root");
+			stmt=con.createStatement();
+			rs=stmt.executeQuery("select * from employee");
+			while(rs.next()){
+				System.out.print(rs.getInt("employeeId")+" ");
+				System.out.print(rs.getString("employeeName")+" ");
+				System.out.println(rs.getDouble("employeeSalary"));
+				
+		        }
+
+
+
+
+
+
+
+	Adding record
+	-------------
+
+			con=DriverManager.getConnection
+		("jdbc:mysql://127.0.0.1:3306/employee_jdbc","root","root");
+			stmt=con.prepareStatement
+			("insert into employee(employeeId ,employeeName ,employeeSalary) values(?,?,?))");
+			stmt.setInt(1, 2);
+			stmt.setString(2, "rajiv");
+			stmt.setDouble(3, 3333.6);
+			stmt.executeUpdate();
+
+
+	Update record
+	---------------
+			con=DriverManager.getConnection
+			("jdbc:mysql://127.0.0.1:3306/employee_jdbc","root","root");
+			stmt=con.prepareStatement
+			("update employee set employeeName=? ,employeeSalary=? where employeeId=?");
+		
+			stmt.setString(1, "rajiv again");
+			stmt.setDouble(2, 3333.6);
+			stmt.setInt(4, 2);
+			stmt.executeUpdate();
+			
+
+	Delete record
+	--------------
+			stmt=con.prepareStatement("delete from employee where employeeId=?");
+			stmt.setInt(1, 2);
+			stmt.executeUpdate();
+
+
+
+	Get Employee as per id
+	----------------------- 
+			con=DriverManager.getConnection
+			("jdbc:mysql://127.0.0.1:3306/employee_jdbc","root","root");
+			stmt=con.prepareStatement("select * from employee where employeeId=?");
+
+			// 1 is position no of empId field 
+			stmt.setInt("employeeId", 11);
+			 rs=stmt.executeQuery();
+			
+			if(rs.next()){
+				System.out.println("employeeId:"+rs.getInt(1));
+			}
+
+
+
+
+
+jdbc:mysql://localhost:3306/hcl_batch6?user=root&password=root
+	
+
+
+
+
+GPP practices:
+-------------
+
+reading configuration information from properties files:
+db.properties
+-------------------
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3306/UserDB
+user=root
+password=root
+
+Create an connection factory
+-------------------------
+	
+	public class ConnectionFactory {
+		private static Connection connection;
+	
+		public static Connection getConnection() {
+			// read the property file, and load into Properties object
+			InputStream is =ConnectionFactory
+					.class.getClassLoader()
+					.getResourceAsStream("db1.properties");
+			
+			Properties properties = new Properties();
+	
+			try {
+				properties.load(is);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			String driver = properties.getProperty("jdbc.driver");
+			String url = properties.getProperty("jdbc.url");
+			String username = properties.getProperty("jdbc.username");
+			String password = properties.getProperty("jdbc.password");
+			
+			// load the driver
+			try {
+				Class.forName(driver);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			// create a connection and
+			try {
+				connection = DriverManager.getConnection(url, 
+						username, password);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			// return the connection
+			return connection;
+		}
+	}
+
+
+
+Different way to use DriverManager.getConnection()
+-----------------------------------------------------
+DriverManager.getConnection(String)
+DriverManager.getConnection(String, String, String)
+DriverManager.getConnection(String,Properties)
+
+
+	
+		//Conn
+		try {
+			Properties properties=new Properties();
+			properties.setProperty("user", "root");
+			properties.setProperty("password", "root");
+			properties.setProperty("useSSL", "false");
+			
+			//dbc:oracle:driver:username/password@database
+			//DriverManager.getConnection("jdbc:mysql://localhost/test?" + "user=minty&password=greatsqldb");
+			Connection connection=DriverManager.getConnection
+					("jdbc:mysql://localhost:3306/hcl_batch6?useSSL=false",properties);
+			System.out.println("work");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+
+
+
+
+
+
+Difference bw execute() vs executeQuery() vs executeUpdate()
+-----------------------------------------------------------------
+		 executeQuery()
+		---------------
+			* Return resultset
+			* dont change state of database
+		executeUpdate()
+		-------------
+			* return no of row effected
+			* used for add/del/update operation
+		execute()
+		---------
+			* can be used for both operations
+			* return T/F: T if it return RS, false if do update operation to db
+			*should be used if query is taken at run time
+
+	Example:
+	----------
+	
+		Connection connection = ConnectionFactory.getConnection();
+
+		System.out.println("PE a query");
+		String query;
+		Scanner scanner = new Scanner(System.in);
+		query = scanner.nextLine();
+
+		System.out.println(query);
+		try {
+			PreparedStatement pstmt = connection.prepareStatement(query);
+			boolean val = pstmt.execute();
+			// if val is true that means it is select kind of query
+			if (val) {
+				ResultSet rs = pstmt.getResultSet();
+				while (rs.next()) {
+					System.out.println(rs.getInt(1) + ":" +rs.getString(2));
+				}
+			} else {
+				//pstmt.executeUpdate();//bad code
+				int count=pstmt.getUpdateCount();
+				System.out.println(count);
+			}
+			System.out.println(val);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+
+
+
+
+
+
+Callable Statement
+=====================
+ 	==> For stored procedure
+	==> Hello World store procedure
+
+
+DELIMITER // 
+Create PROCEDURE AllEmployees()
+BEGIN
+Select * from employee;
+END
+// 
+DELIMITER ;
+
+
+
+delimiter // 
+create procedure addNum2(in num1 int, in num2 int ,out param1 int) 
+begin 
+set param1 := num1 + num2; 
+end 
+// 
+delimiter ;
+
+
+
+
+
+
+
+Check store procedure
+---------------------
+CALL test(3,6,@a);
+select @a; 
+
+Calling store procdure
+----------------------
+
+		con=DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/raj","root","root");
+		cstmt=con.prepareCall("call test(?,?,?)");
+		cstmt.setInt(1, 3);
+		cstmt.setInt(2, 44);
+		cstmt.registerOutParameter(3, Types.INTEGER);
+		cstmt.execute();
+		System.out.println("Result:"+cstmt.getInt(3));
+
+
+
+
+	
+Getting resultset meta data
+-------------------------
+
+			ResultSetMetaData rsMeta=rs.getMetaData();
+			System.out.println("No of column:"+rsMeta.getColumnCount());
+			
+			for(int i=1;i<=rsMeta.getColumnCount();i++){
+				System.out.println(rsMeta.getColumnClassName(i));
+			}
+
+
+	DatabaseMetaData dbmd=con.getMetaData();  
+  
+	System.out.println("Driver Name: "+dbmd.getDriverName());  
+	System.out.println("Driver Version: "+dbmd.getDriverVersion());  
+	System.out.println("UserName: "+dbmd.getUserName());  
+	System.out.println("Database Product Name: "+dbmd.getDatabaseProductName());  
+	System.out.println
+	("Database Product Version: "+dbmd.getDatabaseProductVersion());
+
+prints total number of tables :
+--------------------------
+	DatabaseMetaData dbmd=con.getMetaData();  
+	String table[]={"TABLE"};  
+	ResultSet rs=dbmd.getTables(null,null,null,table);  
+  
+	while(rs.next()){  
+		System.out.println(rs.getString(3));  
+	}  
+
+
+  
+Auto key generation
+-------------------
+Consider:
+
+create table customer
+(
+	customerId int not null primary key AUTO_INCREMENT,
+	customerName varchar(60) not null,
+	customerAddress varchar(80) not null
+);
+
+
+fetching autogenerated key:
+-----------------------------
+
+
+
+
+String sql = "INSERT INTO table (column1, column2) values(?, ?)";
+stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+			PreparedStatement pstmt = connection
+					.prepareStatement(ADD_Book_Query, Statement.RETURN_GENERATED_KEYS);
+				
+			//
+			 pstmt.executeUpdate();
+			
+			//We want to get autogen key in java app
+			 ResultSet rs = pstmt.getGeneratedKeys();
+			 if(rs.next()) {
+				 System.out.println(rs.getInt(1));
+				 
+			 }
+
+
+
+
+
+
+
+Jdbc Performance consideration:
+---------------------------
+
+jdbc batch :
+-----------
+10000-> mytemp(name)
+connection = ConnectionFactory.getConnection();
+
+	PreparedStatement pstmt = connection.prepareStatement("insert into mytemp(name) values (?)");
+			
+	connection.setAutoCommit(false);
+			
+	for (long i = 0; i < 10000; i++) {
+		pstmt.setString(1, "foo:" + i);
+		   pstmt.addBatch();
+			if (i % 200 == 0) {
+				pstmt.executeBatch();
+			}
+		}
+	connection.commit();
+
+
+	//if something bad happens:
+
+	connection.rollback();
+
+
+
+
+
+jdbc batch :
+-----------
+
+	PreparedStatement pstmt = connection.prepareStatement("insert into mytemp(name) values (?)");
+			// add rec in batch
+	connection.setAutoCommit(false);
+			
+	pstmt.setString(1, "foo");
+	pstmt.addBatch();
+		
+	pstmt.setString(1, "bar");
+	pstmt.addBatch();
+
+	pstmt.setString(1, "jar");
+	pstmt.addBatch();
+
+	int[] executeBatch = pstmt.executeBatch();
+	System.out.println(Arrays.toString(executeBatch));
+			
+	connection.commit();
+			
+	//If something goes bad, rollback
+	connection.rollback();
+
+
+
+https://mkyong.com/jdbc/jdbc-preparedstatement-example-batch-update/
+
+
+
+
+jdbc fetch size:
+----------------
+
+	=> JDBC fetch size parameter can significantly reduce the result set fetching time. 
+
+	=> It can be set on any Statement or PreparedStatement object. 
+
+
+	Lets see what happens if fetchSize property is set to 10. 
+	When rs.next() is called for first time, the  driver fetches first 10 records from database 
+	and store them in a memory buffer. 
+
+	So, for next 9 calls to rs.next() records are retrieved from this buffer.
+	 After the buffer is fully read, subsequent rs.next() will force driver to fetch a new bunch of rows (10) into the buffer.
+
+	So if we want to read 10k rows with fetch size set to 10, the driver will make 1000
+	round trips to the database using the underlying connection. If we set the fetchSize
+	to 500 the driver will perform only 20 round trips to our database.
+
+
+	 stmt = conn. prepareStatement("select a, b, c from table");
+	stmt.setFetchSize(200);
+	rs = stmt.executeQuery();
+	 while (rs.next()) {
+
+	}
+	}
+
+
+
+
+
+
+Transations (ACID): 
+==================
+
+
+	Need of transaction:
+	-------------------
+	A:Atomicity
+	C:Consistancy
+	I:Isolation
+	D:Durability
+
+	"jdbc programming approch" XX
+	"declerative approach": "spring tx mgt" -> with the annotations
+		@Transactional :)
+	
+		using code (programmatic approaching)  5%
+		    using annotation (declerative approach) 95%
+
+	Steps for making an transactions:
+	--------------------------------
+	
+	1. connection.setAutoCommit(false);
+
+	2. If everything goes well then 
+			connection.commit();
+	3. If something goes wrong then
+			connection.rollback();
+
+
+	try{
+		conn.setAutoCommit(false);
+		
+		....
+		...
+		
+		conn.commit();
+	}catch(SQLEx e){
+		conn.rollback();
+	}
+
+
+
+
+	Connection connection = ConnectionFactory.getConnection();
+
+		try {
+			 connection = ConnectionFactory.getConnection();
+			//by default jdbc is auto commit:
+			connection.setAutoCommit(false);
+			// what is default value of auto-commit : true , hibernate :false
+			
+			PreparedStatement pstmt = connection
+					.prepareStatement("update account set balance=balance-10 where id=?");
+			pstmt.setInt(1, 1);
+			pstmt.executeUpdate();
+
+			pstmt = connection.prepareStatement("update acount set balance=balance+10 where id=?");
+			pstmt.setInt(1, 2);
+			pstmt.executeUpdate();
+			
+			connection.commit();
+
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+
+
+
+
+Getting isolation information:
+-----------------------------
+	Connection con = ConnectionFactory.getConnection();
+	System.out.println("Connection established: " + con);
+	System.out.println("TRANSACTION_NONE: " + Connection.TRANSACTION_NONE);
+	System.out.println("TRANSACTION_READ_COMMITTED:" + Connection.TRANSACTION_READ_COMMITTED);
+	System.out.println("TRANSACTION_READ_UNCOMMITTED: " + Connection.TRANSACTION_READ_UNCOMMITTED);
+	System.out.println("TRANSACTION_REPEATABLE_READ: " + Connection.TRANSACTION_REPEATABLE_READ);
+	System.out.println("TRANSACTION_SERIALIZABLE: " + Connection.TRANSACTION_SERIALIZABLE);
+
+
+A
+C 
+I : isolation level
+D 
+
+Settting isolation information:
+-----------------------------
+	connection = DriverManager.getConnection(url, username, password);
+	connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+
+join example:
+------------
+http://www.java-school.net/jdbc/JDBC-Join
+
+
+how to add millions rec in jdbc
+-----------------------------
+https://stackoverflow.com/questions/38135973/how-to-insert-million-data-into-database
+
+
+
+
+Scrollable resultSet
+--------------------
+	CreateStatement accept some constants:
+
+	stmt=con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+
+	What is the meaning of SCROLL_SENSITIVE?
+          ------------------------------------------------------------
+		==>A ResultSet thats scroll-sensitive is live.
+		==> As other users modify the data reflected in the ResultSet, 
+			the ResultSet can be changed to reflect the revised view of the data
+
+	What is the meaning of Scroll-Insensitive?
+         ---------------------------------------------------------
+	==>A ResultSet thats scroll-insensitive is a static view of the data
+	==> ie If the data in the ResultSet is changed by other clients, 
+		the ResultSet isnt updated accordingly
+
+
+			con=DriverManager.
+				getConnection("jdbc:mysql://localhost:3306/employee_jdbc","root","root");
+			stmt=con.createStatement
+				(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			rs=stmt.executeQuery("select * from employee");
+			
+			while(rs.next()){
+				System.out.println(rs.getString(2));
+			}
+			rs.absolute(1);
+			
+			rs.updateString(2, "ttt");
+			rs.updateRow();
+			rs.beforeFirst();
+			
+			System.out.println("===============");
+			while(rs.next()){
+				System.out.println(rs.getString(2));
+			}
+			
+
+
+
+
+
+https://www.codejava.net/java-se/jdbc/how-to-use-scrollable-result-sets-with-jdbc
+
+
+
+
+how to handle isolation level:
+---------------------------
+connection = DriverManager.getConnection(url, username, password);
+connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+
+
+https://docs.oracle.com/cd/E19226-01/820-7695/beamv/index.html
+
+
+
+
+http://stackoverflow.com/questions/1376218/is-there-a-way-to-retrieve-the-autoincrement-id-from-a-prepared-statement
+long key = -1L;
+Statement statement = connection.createStatement();
+statement.executeUpdate(YOUR_SQL_HERE, Statement.RETURN_GENERATED_KEYS);
+ResultSet rs = statement.getGeneratedKeys();
+if (rs != null && rs.next()) {
+    key = rs.getLong(1);
+}
+
+
+
+
+
+
+https://www.javatpoint.com/DatabaseMetaData-interface
