@@ -1,0 +1,138 @@
+SW development tools:
+-------------------------
+1. Introduction to Maven
+2. Logging
+3. Junit and mockito
+
+
+Introduction to Maven:
+-------------------
+Maven is a build + dependency manager that makes Java projects predictable, portable, and professional.
+
+Why maven?
+----------
+Automatic dependency management
+	Maven downloads required libraries and their dependencies automatically—no manual JAR copying.
+
+Standard project structure
+	Enforces a common folder layout so any developer or tool can understand the project instantly.
+
+One-command build
+	A single command can compile, test, and package the application consistently.
+
+Eliminates version conflicts
+	Maven manages library versions centrally, reducing “works on my machine” issues.
+
+Clean source control
+	Only configuration files are committed; binaries are fetched when needed.
+
+Consistent builds everywhere
+	Same build output on developer machines, servers, and CI pipelines.
+
+Easy IDE and CI/CD integration
+	Works seamlessly with IDEs and build servers without extra setup.
+
+Scales from small to large projects
+	Suitable for simple student projects and complex enterprise systems alike.
+
+
+Configumation of maven:
+--------------------------
+
+<properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+</properties>
+
+
+
+
+Introduction to Log4j2
+---------------------------
+Logging – Basics
+-------------------
+Logging is mandatory for debugging and production support.
+
+System.out.println() is bad practice:
+	Hard to remove later
+	Pollutes production logs
+	No control (enable/disable, level, destination)
+	Logging can be turned ON/OFF and redirected to files, DB, email, etc.
+
+What is Log4j?
+--------------
+A logging/tracing framework mainly for production environments.
+
+Captures:
+	Info, warnings, errors, fatal issues
+	Class name, method, line number, date/time
+	Logs can go to:
+	Console (temporary)
+	File (.log)
+	Database, Email, Network, etc.
+	Logging Frameworks
+
+Common options:
+	Log4j
+	Logback
+	Commons Logging
+	java.util.logging
+
+Best Practice Use SLF4J (Simple Logging Facade for Java)
+--------------------------------------------------------
+Your Code → SLF4J → Log4j / Logback / JUL
+
+
+Why?
+	Decouples code from logging implementation
+	Swap logging frameworks without changing code
+	
+
+Configuration log4j2:
+-------------------
+lo4j2 dependencies
+--------------------
+
+<dependencies>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.7</version>
+		</dependency>
+	</dependencies>
+		
+	
+log4j2.xml
+-----------
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
+    <Appenders>
+        <File name="FILE" fileName="logfile.log" append="true">
+            <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n"/>
+        </File>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+   <Logger name="com.bankapp.service" level="debug"/>
+        <Root level="OFF">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="FILE"/>
+        </Root>
+    </Loggers>
+</Configuration>
+
+
+
+

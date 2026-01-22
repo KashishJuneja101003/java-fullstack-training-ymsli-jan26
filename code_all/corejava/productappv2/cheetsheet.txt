@@ -1,0 +1,196 @@
+
+
+step 1: dir structure
+com.productapp.dao
+com.productapp.service
+com.productapp.controller
+com.productapp.exceptions
+com.productapp.dto
+com.productapp.util
+
+step 2: start from dao layer
+
+step 2.1: create dto (like thali to trasfer food from K to DT)
+public class Product {
+	private int id;
+	private String name;
+	private double price;
+	//assume all methods
+	
+}
+
+step 2.2 : create dao interface
+
+public interface ProductDao {
+	List<Product>getAll();
+	void addProduct(Product product);
+}
+
+step 2.3 : create dao interface impl using jdbc
+	next day sir will replace with jpa*
+	
+	
+
+public class ProductDaoImplJdbc implements ProductDao {
+
+	private Connection connection;
+
+	public ProductDaoImplJdbc() {
+		connection = ConnectionFactory.getConnection();
+	}
+
+	@Override
+	public List<Product> getAll() {
+		List<Product> products = new ArrayList<>();
+		try {
+
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery("select * from product");
+			while (rs.next()) {
+				products.add(new Product(rs.getInt(1), rs.getString(2), rs.getDouble(3)));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return products;
+	}
+
+	@Override
+	public void addProduct(Product product) {
+		try {
+			PreparedStatement pstmt = connection.prepareStatement("insert into product(name,price)values (?,?)");
+			pstmt.setString(1, product.getName());
+			pstmt.setDouble(2, product.getPrice());
+
+			pstmt.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+
+
+step 2.4 : Oh i forget i need to create a connection factory taht is not 
+	very good in perforamce (latter we use connection pool framework)
+	
+	
+public class ConnectionFactory {
+	private static Connection connection;
+	static String driver;
+	static String url;
+	static String username;
+	static String password;
+
+	
+	public static Connection getConnection() {
+		InputStream is = null;
+		Properties properties = new Properties();
+		try {
+			is = new FileInputStream("db.properties");
+
+			properties.load(is);
+			driver = properties.getProperty("jdbc.driver");
+			url = properties.getProperty("jdbc.url");
+			username = properties.getProperty("jdbc.username");
+			password = properties.getProperty("jdbc.password");
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			Class.forName(driver);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		try {
+			connection = DriverManager.getConnection(url, username, password);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return connection;
+	}
+}
+
+but it use prop file:
+jdbc.driver=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/ymsli26?useSSL=false
+jdbc.username=root
+jdbc.password=root
+
+
+now we need to address : serice layer : aka brain of our app
+	
+3.1: create service interface
+
+public interface ProductService {
+	List<Product>getAll();
+	void addProduct(Product product);
+}
+
+
+//SL brain of ur app== BL + CCC*
+public class ProductServiceImpl implements ProductService{
+	
+	private ProductDao productDao;
+	private ProductValidation productValidation;
+	
+	public ProductServiceImpl() {
+		productDao=new ProductDaoImplJdbc();
+		productValidation=new ProductValidationImpl();
+	}
+	@Override
+	public List<Product> getAll() {
+		long start= System.currentTimeMillis();
+		List<Product> products=productDao.getAll();
+		long end= System.currentTimeMillis();
+		System.out.println("time taken is : "+ (end-start)+" ms");
+		return products;
+	}
+
+	@Override
+	public void addProduct(Product product) {
+		if(productValidation.isValid(product)) {
+			productDao.addProduct(product);
+		}
+	}
+
+}
+
+3.3 : we may need data validation (i need to learn regex)
+
+public interface ProductValidation {
+	public boolean isValid(Product product);
+}
+
+
+3.3.2: 
+
+public class ProductValidationImpl implements ProductValidation{
+
+	@Override
+	public boolean isValid(Product product) {
+		//regex in java
+		return true;
+	}
+
+}
+
+
+step 4: now it time to test it
+
+//REST controller : mean expressjs routes: Spring boot: spring REST
+public class ProductController {
+
+	public static void main(String[] args) {
+		ProductService productService=new ProductServiceImpl();
+		List<Product> products=productService.getAll();
+		products.forEach(p->System.out.println(p));
+	}
+}
+
+dont forget to create db and table first
