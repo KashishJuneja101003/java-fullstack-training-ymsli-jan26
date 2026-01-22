@@ -1,0 +1,4 @@
+INFO  | 2026-01-22 11:08:01 | [main] demoapp.Demo (Demo.java:10) - code is working..
+ERROR | 2026-01-22 11:08:01 | [main] demoapp.Demo (Demo.java:15) - string can not be parse to int
+ERROR | 2026-01-22 11:08:34 | [main] demoapp.Demo (Demo.java:15) - string can not be parse to int
+ERROR | 2026-01-22 11:48:39 | [main] demoapp.Demo (Demo.java:15) - string can not be parse to int
