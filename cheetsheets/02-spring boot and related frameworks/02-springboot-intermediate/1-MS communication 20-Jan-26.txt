@@ -1,0 +1,463 @@
+MICROSERVICE INTERACTION OVERVIEW
+====================================
+microservice → microservice interaction happens using:
+-----------------------------------------------
+1. RestTemplate (Legacy)
+2. OpenFeign (Declarative)
+3. WebClient (Reactive)
+4. Spring HTTP Interface Client (Recommended)
+
+Let’s imagine two microservices:
+
+Product-Service (your app)
+----------------------
+GET /products
+GET /products/{id}
+POST /products
+
+Order-Service
+-------------------
+Needs to call Product-Service to fetch product details.
+We will implement calls from Order-Service → Product-Service using all 4 approaches.
+
+Product app Target API
+---------------
+
+@RestController
+public class ProductController {
+
+    private ProductService productService;
+
+    @Autowired
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @GetMapping("products")
+    public List<Product> findAll() {
+        return productService.findAll();
+    }
+
+    @GetMapping("products/{id}")
+    public Product findById(@PathVariable int id) {
+        return productService.getById(id);
+    }
+
+    @PostMapping("products")
+    public Product addProduct(@RequestBody Product product) {
+        return productService.addProduct(product);
+    }
+}
+
+1. RestTemplate (Legacy — Not for Boot 3.2)
+-----------------------------------------
+Good for legacy
+Blocking
+Deprecated for new development
+
+Config in Order-Service
+--------------------------
+@Bean
+public RestTemplate restTemplate() {
+    return new RestTemplate();
+}
+
+Client Class
+----------------
+@Service
+public class ProductRestTemplateClient {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    private final String BASE_URL = "http://PRODUCT-SERVICE";
+
+    public Product getById(int id) {
+        return restTemplate.getForObject(BASE_URL + "/products/" + id, Product.class);
+    }
+
+    public List<Product> findAll() {
+        return restTemplate.exchange(
+                BASE_URL + "/products",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<Product>>() {}
+        ).getBody();
+    }
+
+    public Product addProduct(Product product) {
+        return restTemplate.postForObject(BASE_URL + "/products", product, Product.class);
+    }
+}
+
+2. OpenFeign (Declarative HTTP Client)
+---------------------------
+Very popular.
+Great for distributed systems.
+
+Step 1: Add Feign to Order-Service
+---------------------
+@EnableFeignClients
+
+@SpringBootApplication
+@EnableFeignClients
+public class OrderServiceApplication {}
+
+Step 2: Feign Client Interface
+------------------------------
+@FeignClient(name = "product-service")
+public interface ProductFeignClient {
+
+    @GetMapping("/products/{id}")
+    Product getById(@PathVariable int id);
+
+    @GetMapping("/products")
+    List<Product> findAll();
+
+    @PostMapping("/products")
+    Product addProduct(Product product);
+}
+
+Use Feign Client
+---------------------
+
+@Service
+public class ProductFeignService {
+
+    @Autowired
+    private ProductFeignClient client;
+
+    public Product getById(int id) {
+        return client.getById(id);
+    }
+
+    public List<Product> findAll() {
+        return client.findAll();
+    }
+
+    public Product addProduct(Product p) {
+        return client.addProduct(p);
+    }
+}
+
+3. WebClient (Reactive & Non-Reactive Usage)
+------------------------------------------------
+Non-blocking
+Modern
+Lightweight
+Best for streaming & high concurrency
+
+Step 1: Config webClient
+-------------------------
+@Bean
+public WebClient webClient() {
+    return WebClient.builder()
+            .baseUrl("http://PRODUCT-SERVICE")
+            .build();
+}
+
+Step 2: Use for Reactive Client
+---------------------------------
+@Service
+public class ProductWebClientService {
+
+    @Autowired
+    private WebClient webClient;
+
+    public Mono<Product> getById(int id) {
+        return webClient.get()
+                .uri("/products/{id}", id)
+                .retrieve()
+                .bodyToMono(Product.class);
+    }
+
+    public Flux<Product> findAll() {
+        return webClient.get()
+                .uri("/products")
+                .retrieve()
+                .bodyToFlux(Product.class);
+    }
+
+    public Mono<Product> addProduct(Product p) {
+        return webClient.post()
+                .uri("/products")
+                .bodyValue(p)
+                .retrieve()
+                .bodyToMono(Product.class);
+    }
+}
+
+4. Spring Boot HTTP Interface Client
+---------------------------------------------------
+⭐ RECOMMENDED (replaces Feign, RestTemplate)
+⭐ Declarative
+⭐ Fast, Native-Image Friendly
+⭐ Boot 3.2 auto-creates HttpServiceProxyFactory
+⭐ Works for synchronous + reactive
+
+Step 1: Define the Interface (simple & powerful)
+--------------------------------------------
+@HttpExchange("/products")
+public interface ProductHttpClient {
+
+    @GetExchange("/{id}")
+    Product getById(@PathVariable int id);
+
+    @GetExchange
+    List<Product> findAll();
+
+    @PostExchange
+    Product addProduct(@RequestBody Product p);
+}
+
+Step 2: Register the Client (Boot 3.2 Shortcut)
+--------------------------------------------
+@Bean
+public ProductHttpClient productHttpClient(RestClient.Builder builder) {
+
+    return builder
+            .baseUrl("http://PRODUCT-SERVICE")
+            .build()
+            .create(ProductHttpClient.class);   // <-- Boot 3.2 magic
+}
+
+Step 3: Use It
+-----------------
+@Service
+public class ProductHttpClientService {
+
+    @Autowired
+    private ProductHttpClient client;
+
+    public Product getById(int id) {
+        return client.getById(id);
+    }
+
+    public List<Product> findAll() {
+        return client.findAll();
+    }
+
+    public Product addProduct(Product p) {
+        return client.addProduct(p);
+    }
+}
+
+FINAL COMPARISON TABLE
+--------------------------
+Feature			RestTemplate	Feign	WebClient	Boot 3.2 HTTP Interface
+-----------------------------------------------------------------------------
+Blocking		Yes				Yes		No			Yes/No (depends on backend)
+Reactive		❌				❌		✔			✔ (if using WebClient backend)
+Declarative		❌				✔		❌			✔
+Native Image Ready	❌			⚠		✔			⭐ Best
+Recommended?	❌ Legacy		⚠ Ok	✔ Yes		⭐ Best choice
+
+
+
+
+
+
+
+
+old tut:
+---------
+RestTemplate tutorial:
+______________________
+
+	=> RestTemplate is used to communication bw different spring boot application
+	=> key for microservice project development
+
+	=> Microservices communication is possible using RestTemplate
+	=> RestTemplate various method to intract bw diff microservices
+		=> methods:
+			xxxForObject()-getForObject(), postForObject(), getForEntity(), postForEntity()
+			xxxForEntity()
+			exchange()-calling Http POST/PUT/DELETE endpoint 
+
+	=> How to add base URL in RestTemplate
+	=> How to Add timout in RestTemplate
+	=> How to add interceptor in RestTemplate for centralized logging of request and response
+
+
+Example:
+________
+Refer product application
+
+
+getForObject method:
+==================
+
+getting an object :
+____________________
+Product product=restTemplate.getForObject("http://localhost:8082/productapp/products/2", Product.class);
+
+getting an Product by id :
+_________________________
+
+String productById="http://localhost:8082/productapp/products/{id}";
+Map<String, String> prop=new HashMap<>();
+prop.put("id", id);
+Product product=restTemplate.getForObject(productById,Product.class, prop);
+	
+
+getting an object as string:
+____________________________
+String productString=restTemplate.getForObject("http://localhost:8082/productapp/products/2", String.class);
+
+
+getting all products:
+________________
+https://stackoverflow.com/questions/23674046/get-list-of-json-objects-with-spring-resttemplate
+
+List products = restTemplate.getForObject("http://localhost:8082/productapp/products", List.class);
+
+
+
+adding new product:
+_______________________
+Product productAdded=restTemplate.postForObject("http://localhost:8082/productapp/products",product, Product.class);
+
+
+
+
+xxxForEntity()-calling Http POST/PUT/DELETE endpoint 
+_____________________________________
+
+
+getList:
+_________
+ResponseEntity<List> productEntity = 
+				restTemplate
+				.getForEntity("http://localhost:8082/productapp/products",List.class);
+	
+		System.out.println(productEntity.getStatusCodeValue());
+		System.out.println(productEntity.getHeaders());
+		return productEntity.getBody();
+
+
+ getSingleObject
+_________________
+	Map<String, String> prop=new HashMap<>();
+		
+		prop.put("id", id);
+		ResponseEntity<Product> productEntity = restTemplate
+				.getForEntity("http://localhost:8082/productapp/products/{id}",
+				Product.class, prop);
+		return productEntity.getBody();
+
+
+ postForEntity:
+ ______________
+	ResponseEntity<Product> productEntity = restTemplate
+			.postForEntity("http://localhost:8082/productapp/products",
+				product, Product.class);
+		return productEntity.getBody();
+
+  
+deleteProduct: delete
+_________
+
+  	Map<String, String> uriVariables = new HashMap<>();
+	uriVariables.put("id", id);
+
+	restTemplate.delete("http://localhost:8082/productapp/products/{id}", uriVariables);
+
+updateProduct
+___________
+
+  	Map<String, String> uriVariables = new HashMap<>();
+	uriVariables.put("id", id);
+
+        restTemplate.put("http://localhost:8082/productapp/products/{id}", product, uriVariables);
+       	System.out.println("updated....");
+
+Feign
+___________
+=> The Feign is a declarative web service (HTTP client) developed by Netflix. 
+Its aim is to simplify the HTTP API clients. It is a Java to HTTP client binder. 
+If you want to use Feign, create an interface, and annotate it. 
+
+
+=> It is a library for creating REST API clients. It makes web service clients easier. 
+The developers can use declarative annotations to call the REST
+ services instead of writing representative boilerplate code.
+
+=> Spring Cloud OpenFeign provides OpenFeign integrations for Spring Boot 
+apps through auto-configuration and binding to the Spring Environment. 
+Without Feign, in Spring Boot application, we use RestTemplate to call the User service.
+ To use the Feign, we need to add spring-cloud-starter-openfeign dependency in the pom.xml file.
+
+
+Step 1:
+put openfeign dependency
+
+step 2: Apply @EnableFeignClients to bootstrap class
+
+@EnableFeignClients("com.product.model.service")
+@SpringBootApplication
+public class ProductApplication  {
+}
+
+
+
+step 3: create ProductServiceProxy
+
+@FeignClient(name="product-service", url="http://localhost:8082/productapp")  
+public interface ProductServiceProxy {
+	@GetMapping(path = "products")
+	public ResponseEntity<List<Product>> findAll();
+	
+	@GetMapping(path = "products/{id}")
+	public ResponseEntity<Product> findById(@PathVariable(name = "id") int id);
+	
+	@PostMapping(path = "products")
+	public ResponseEntity<Product> addProduct( @RequestBody Product product);
+	
+	@DeleteMapping(path = "products/{id}")
+	public ResponseEntity<Void> deleteProduct(@PathVariable(name = "id") int id);
+	
+	@PutMapping(path = "products/{id}")
+	public ResponseEntity<Product> updateProduct
+	(@PathVariable(name = "id") int id, @RequestBody Product product);
+	
+}
+
+
+step 4: use ProductServiceProxy
+
+@RestController
+public class ProductClientController {
+
+	@Autowired
+	private ProductServiceProxy productServiceProxy;
+	
+	@GetMapping(path = "products")
+	public ResponseEntity<List<Product>> getAll() {
+		return productServiceProxy.findAll();
+	}
+
+	@GetMapping(path = "products/{id}")
+	public ResponseEntity<Product> getById(@PathVariable(name = "id") int id) {
+		return productServiceProxy.findById(id);
+	}
+
+	@PostMapping(path = "products")
+	public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+		return productServiceProxy.addProduct(product);
+	}
+
+	@DeleteMapping(path = "products/{id}")
+	public ResponseEntity<Void> deleteProduct(@PathVariable(name = "id") int id) {
+		return productServiceProxy.deleteProduct(id);
+	}
+
+
+}
+
+
+
+step 5: in case of eureka server: no need to provide url :)
+
+@FeignClient(name="product-service")
+
+

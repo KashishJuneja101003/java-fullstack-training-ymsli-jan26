@@ -1,0 +1,214 @@
+API-First Approach
+=====================
+
+Introduction to api first approach
+----------------------------------
+https://medium.com/@konstde00/guide-to-api-first-development-with-spring-boot-and-openapi-543b2a431a07
+https://www.youtube.com/watch?v=xgD0gKATlSE&list=PLpQuPreMkT6AObXbKiqCOxuRj4fg8X8fh&ab_channel=NLJUG
+https://www.baeldung.com/spring-boot-openapi-api-first-development
+
+	refers to designing and developing your APIs before writing the actual application code or
+	implementing business logic. 
+	
+Advantages of API-First Approach
+---------------------------------
+	Clear Contract First: 
+			API specifications (like OpenAPI/Swagger) act as a contract between teams, 
+			ensuring alignment before development starts.
+
+	Parallel Development: 
+		Frontend and backend teams can work simultaneously 
+		using mock APIs based on the specification.
+
+	Improved Consistency: 
+		Encourages consistent design across all APIs using defined standards and naming conventions.
+
+	Better Documentation: 
+		API specs often auto-generate comprehensive documentation, improving onboarding and usability.
+
+	Early Testing: 
+		Enables mocking and automated testing early in the development cycle.
+
+	Improved Collaboration: 
+		Facilitates better communication among developers, QA, DevOps, and stakeholders.
+
+	Reusable Components: 
+		Encourages building reusable API definitions and libraries.
+
+	Faster Time-to-Market: 
+		By enabling parallel workflows and early feedback, products can be delivered quicker.
+
+
+
+step 1: download api.yaml from the last step
+
+step 2: configure 
+
+	<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.10</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.productapp</groupId>
+	<artifactId>productappv1</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>productappv8_swagger2</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>17</java.version>
+		<maven.encoding>UTF-8</maven.encoding>
+		<maven.source.compiler>${java.version}</maven.source.compiler>
+		<maven.target.compiler>${java.version}</maven.target.compiler>
+	</properties>
+
+	<dependencies>
+
+		<!-- Spring Boot 3.4.10 compatible SpringDoc OpenAPI dependencies -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+		<!-- OpenAPI Tools for Jackson Nullable support -->
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.34</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- Maven Compiler Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.12.1</version>
+				<configuration>
+					<source>${maven.source.compiler}</source>
+					<target>${maven.target.compiler}</target>
+					<encoding>${maven.encoding}</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>7.4.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								${project.basedir}/src/main/resources/api.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<packageName>com.productapp</packageName>
+							<apiPackage>com.productapp.api</apiPackage>
+							<modelPackage>com.productapp.model</modelPackage>
+							<generateSupportingFiles>true</generateSupportingFiles>
+							<generateApiDocumentation>true</generateApiDocumentation>
+							<generateModels>true</generateModels>
+							<generateApis>true</generateApis>
+							<configOptions>
+								<useSpringBoot3>true</useSpringBoot3>
+								<interfaceOnly>true</interfaceOnly>
+								<useTags>true</useTags>
+								<useSpringController>true</useSpringController>
+								<dateLibrary>java8</dateLibrary>
+								<modelAnnotations>@lombok.Data</modelAnnotations>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>
+									${project.build.directory}/generated-sources/openapi/src/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Spring Boot Maven Plugin -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.4.10</version>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+Step 3: maven build, the code is generated.
