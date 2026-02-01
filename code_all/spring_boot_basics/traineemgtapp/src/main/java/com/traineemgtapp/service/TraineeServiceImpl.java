@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.traineemgtapp.dto.TraineeDto;
 import com.traineemgtapp.entities.Trainee;
@@ -11,7 +12,6 @@ import com.traineemgtapp.exceptions.ResourceNotFoundAcception;
 import com.traineemgtapp.repo.TraineeRepo;
 import com.traineemgtapp.util.TraineeConverter;
 
-import jakarta.transaction.Transactional;
 
 @Service
 @Transactional

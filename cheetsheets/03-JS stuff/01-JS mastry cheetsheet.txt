@@ -1,0 +1,3584 @@
+JS mastary:
+==========
+
+Ground-Up Coverage Plan (Short & Honest)
+-------------------------------------------
+JS Fundamentals → Mandatory foundation
+Variables, types, functions, arrays, objects, this, scope. No shortcuts.
+
+Callbacks & Promises → Pain before relief
+First understand callback hell, then promises. Otherwise async will feel like magic (bad magic).
+
+Event Loop → Core JS brain
+Call stack, Web APIs, task queue, microtask queue. This is non-negotiable for serious devs.
+
+ES6+ → Modern survival kit
+let/const, arrow functions, destructuring, spread, modules, classes. Industry baseline.
+
+TypeScript → JS with seatbelts
+Types, interfaces, enums, generics. Required for Angular and large codebases.
+
+Ajax / jQuery → Historical context only
+Teach briefly. Why it existed, why we moved on. Don’t camp here.
+
+Node.js & MEAN intro → Runtime + backend mindset
+JS outside browser, async I/O, basic server concepts.
+
+
+
+Session 1-introduction to js classical
+Session 2-ES 6 cheetsheet
+Session 3-js async programming
+Session4-TypeScript javascript
+
+
+
+
+
+Session 1-introduction to js classical
+--------------------------------------
+Basics of javascript
+javascript functions
+javascript oo
+DOM processing
+Form validation
+javascript regular expression
+
+
+
+Basics of javascript
+--------------------
+	=> java sript procedural ,object based client side scripting language
+	=> everything is object
+	=> DOM(way to represent data in the form of tree
+	=> data type : no , boolean, string ,objects
+
+
+JS hello World
+External JS file
+
+JavaScript Data Types (with Examples)
+------------------------------
+1. Primitive Data Types
+------------------------
+These are immutable and passed by value.
+
+a. Number
+--------
+let age = 30;
+let price = 99.99;
+console.log(typeof age);   // "number"
+
+b. String
+------------
+let name = "Alice";
+console.log(typeof name);  // "string"
+
+c. Boolean
+----------
+let isActive = true;
+console.log(typeof isActive);  // "boolean"
+
+d. Undefined
+----------
+let notAssigned;
+console.log(typeof notAssigned);  // "undefined"
+
+e. Null
+----------
+let value = null;
+console.log(typeof value);  // ⚠️ "object" (this is a JS quirk)
+
+ 
+a. Object
+------------
+let person = { name: "Bob", age: 25 };
+console.log(typeof person);  // "object"
+
+b. Array
+-------------
+let scores = [10, 20, 30];
+console.log(typeof scores);      // "object"
+console.log(Array.isArray(scores)); // true
+
+c. Function
+---------
+function greet() {
+  return "Hello!";
+}
+console.log(typeof greet);  // "function"
+
+
+
+
+
+Some String manipulation
+------------------------
+
+let str = " JavaScript is fun! ";
+
+console.log(str.trim());                   // "JavaScript is fun!"
+console.log(str.toUpperCase());           // " JAVASCRIPT IS FUN! "
+console.log(str.includes("Script"));      // true
+console.log(str.indexOf("is"));           // 12
+console.log(str.slice(1, 11));            // "JavaScript"
+console.log(str.replace("fun", "awesome"));// " JavaScript is awesome!
+
+
+
+	var first_str="first string";
+	var sec_str="second string";
+	var combined=first_str+sec_str;
+	document.write(combined+"<br/>");
+	document.write(combined.substring(6, 12)+"<br/>");
+	document.write(combined.charAt(combined.length-1));
+
+	var str_var="5":
+	var num_val=10;
+	var total=num_val+str_var;
+	var nul_total=nul_total*str_var;
+
+	document.write(total+"<br/>");
+	document.write(nul_total);
+	var total=num_val+Number(str_var);
+
+	document.write(total+"<br/>");
+
+
+
+
+float manupulation
+-----------------
+	var float_var=3.1415954646564542432;
+	var float_str=float_var.toFixed(5);
+	document.write(float_str+"<br/>");
+	document.write(typeof(float_str)+"<br/>");
+
+	var num1,num2;
+	num1=5;
+	num2=10;
+	document.write("Is 5>10"+(num1>num2)+"<br/>");
+	document.write("Is 5>=10"+(num1>=num2)+"<br/>");
+	document.write("Is 5<10"+(num1<num2)+"<br/>");
+	document.write("Is 5<=10"+(num1<=num2)+"<br/>");
+	document.write("Is 5==10"+(num1==num2)+"<br/>");
+	document.write("Is 5!=10"+(num1>num2)+"<br/>");
+
+
+	check basic operators etc.......
+	such as && ||  ! 
+
+
+
+JS basic programming
+-------------------
+	if .....else
+	switch
+	looping
+
+Arrays
+------
+	var vehicles=new Array("car","bus","van");
+
+	document.write("the sec item is :"+vehicles[1]+"<br/>");
+	for(i in vehicles)
+	{
+		document.write(vehicles[i]+"<br/>");
+
+	}
+
+	var someArray=new Array();
+	someArray[0]="foo";
+	someArray[1]="bar";
+	someArray[2]=36;
+
+	for(i in someArray){
+		document.write(someArray[i]);
+	}
+
+
+
+
+	var someArray2=new Array("raj","212 delhi",45);
+	var someArray3=["foo","31 delhi",50];
+	someArray4=someArray.concat(someArray2);
+	for(i in someArray4){
+		document.write(someArray4[i]+"<br/>");
+	}
+
+
+	var numList=[2,8,1,7,6,5,3,4];
+	document.write("Sort array:"+ numList.sort()+"</br>");
+	document.write("spliced array"+numList.splice(0,3)+"</br>");
+	document.write("After splice"+numList+"</br>");
+	
+	
+Removing Elements from an Array
+--------------------------------
+
+pop() – Removes from end
+---------------------
+let week = ["sun", "mon", "tue", "wed"];
+week.pop();       // removes "wed"
+alert(week);      // Output: sun,mon,tue
+
+
+shift() – Removes from beginning
+-------------------------
+let nums = [3, 4, 5, 6];
+nums.shift();     // removes 3
+alert(nums);      // Output: 4,5,6
+
+Modifying Array with splice()
+----------------------------------
+array.splice(startIndex, deleteCount, item1, item2, ...)
+
+Replace 1 item
+--------------------
+let nums = [3, 4, 5, 6];
+nums.splice(2, 1, 10);      // Replace index 2 (5) with 10
+alert(nums);               // Output: 3,4,10,6
+
+Remove 1 item
+-----------------
+let nums = [3, 4, 5, 6];
+nums.splice(2, 1);          // Remove index 2 (5)
+alert(nums);               // Output: 3,4,6
+
+Add multiple items
+--------------------
+let nums = [3, 4, 5, 6];
+nums.splice(1, 2, 11, 12, 13);  // Remove 2 items from index 1 (4,5) and add 11,12,13
+alert(nums);                   // Output: 3,11,12,13,6
+
+
+function in js
+-------------
+
+define in addfun.js file
+------------------------
+	function addThese(numberOne,numberTwo){
+		var total=numberOne+numberTwo;
+		return total;
+	}
+	
+put inside head tag
+-------------------
+		<script language="javascript" src="addfun.js"></script>
+
+
+calling function
+------------------
+	document.write(addThese(49,33));
+
+
+
+Another example:
+------------------
+	function addMany(a,b,c,d,e,f)
+	{
+		var i=1;
+		var sum=1;
+		document.write("argument length"+arguments.length+"<br/>");
+		while(i<arguments.length)
+		{
+			sum=sum+arguments[i];
+			i++;
+		}
+		document.write("sum of arguments"+sum);
+	}
+
+	addMany(1, 2, 3);
+
+
+
+No function overloading is possible in js
+------------------------------------------
+	<body>
+		<script type="text/javascript">
+			display("hello");
+			display();
+
+			function display(x)
+			{
+				if(x==null)
+				x="Greetings";
+				alert(x) ;
+			}
+
+			function display(){
+				alert("Greet") ;
+			}
+		</script>
+	</body>
+
+	
+DOM processing
+-----------------
+	The DOM is the Document Object Model, a tree-like structure of all HTML elements.
+	
+	JavaScript uses the DOM to read, modify, and interact with the webpage.
+	
+	DOM is an API for valid HTML and well-formed XML documents 
+	
+	It is a way in which elements of HTML, XHTML and XML can be parsed, 
+			accessed and modified
+			
+	JavaScript provides API for DOM using which we can access HTML elements
+
+	Node:
+	--------
+
+		==> Every element/tag is considered as a NODE
+		==> A DOM tree can be built using the nodes
+
+	Example:
+
+		<html>
+			<head>
+   				<title>DOMtree</title>
+			 </head>
+
+			<body>
+  				<p> Hi</p>
+  			</body>
+		</html>
+
+
+
+
+		html
+		  |
+	-----------------
+	|			|
+	head		body
+	|			|
+	title		p
+	|			|
+	DOMtree		Hi
+
+
+
+
+Selecting Elements
+-------------------
+ getElementById()
+ -------------------
+
+<p id="demo"></p>
+<script>
+  document.getElementById("demo").innerText = "Hello using getElementById";
+</script>
+
+querySelector() — CSS selector style
+-----------------------------
+
+<p class="info">Text</p>
+<script>
+  document.querySelector(".info").innerText = "Hello using querySelector";
+</script>
+
+C. querySelectorAll() — for multiple elements
+-----------------------------------
+<ul>
+  <li class="item">One</li>
+  <li class="item">Two</li>
+</ul>
+<script>
+  const items = document.querySelectorAll(".item");
+  items.forEach(el => el.style.color = "blue");
+</script>
+
+
+
+
+Changing Content and HTML
+-------------------------------
+
+textContent vs innerHTML
+--------------------
+
+<div id="content"></div>
+<script>
+  document.getElementById("content").textContent = "<b>Hello</b>";  // shows as plain text
+  document.getElementById("content").innerHTML = "<b>Hello</b>";   // renders as bold
+</script>
+
+
+Styling Elements with JS
+----------------------------
+
+Using style property
+--------------------
+
+<p id="styleMe">Style me</p>
+<script>
+  document.getElementById("styleMe").style.color = "green";
+  document.getElementById("styleMe").style.fontSize = "24px";
+</script>
+
+	
+
+
+Event Handling
+----------------
+
+addEventListener()
+-----------------
+<button id="clickBtn">Click Me</button>
+<script>
+  document.getElementById("clickBtn").addEventListener("click", () => {
+    alert("Button was clicked!");
+  });
+</script>
+
+
+Example 2:
+-----------
+<p id="hoverText">Hover over me!</p>
+
+<script>
+document.getElementById("hoverText").addEventListener("mouseover", function() {
+  this.innerText = "Mouse is over me!";
+});
+</script>
+
+
+Example 3:
+-----------
+<input type="text" id="inputBox" placeholder="Type something">
+
+<script>
+document.getElementById("inputBox").addEventListener("keydown", function(event) {
+  console.log("Key pressed:", event.key);
+});
+</script>
+
+
+
+DOM Exmple
+-------------
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Change DOM Content</title>
+  <script>
+    function change() {
+      const name = prompt("Enter your name", "");
+      const food = prompt("Enter your favourite food", "");
+
+      const container = document.getElementById("sec");
+
+      // Clear existing content
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+
+      // Create new <p> elements
+      const p1 = document.createElement("p");
+      p1.textContent = "Name: " + name;
+
+      const p2 = document.createElement("p");
+      p2.textContent = "Food: " + food;
+
+      // Append to div
+      container.appendChild(p1);
+      container.appendChild(p2);
+    }
+
+    window.onload = change; // Run after page loads
+  </script>
+</head>
+<body>
+  <div id="sec">
+    <p>Name: XXXX</p>
+    <p>Food: YYYY</p>
+  </div>
+</body>
+</html>
+
+
+
+OO in classical javasrcript
+---------------------------------
+JavaScript is prototype-based but supports 
+object-oriented programming through:
+
+	Object literals
+	Constructor functions
+	Prototypes
+	ES6 Classes
+	
+object creation in js:
+-----------------------
+
+1. Object Creation: Basic Literal Style
+--------------------------------------
+var myObj={};
+console.log(myObj);
+
+
+adding properties:
+--------------
+var myObj={"name":"raja",
+       "age":30,
+       "address":{
+           "street":"a 2",
+           "city":"delhi"
+       }
+
+
+2. Object Creation via Property Assignment:
+--------------------------------------
+    var emp1={};
+    emp1.name="ekta";
+     emp1.address="delhi";
+     emp1.city="delhi";
+     emp1.salary=45000;
+
+
+     var emp2={};
+     emp2.name="raj";
+     emp2.address="delhi";
+     emp2.city="delhi";
+     emp2.salary=49000;
+     
+
+
+    console.log(emp1);
+    console.log(emp2);
+
+
+3. Factory Function (Non-constructor Way):
+--------------------------------------
+     function createEmp(name, address, city, salary){
+         var newObj={};
+         newObj.name=name;
+         newObj.address=name;
+         newObj.city=name;
+         newObj.salary=name;
+         return newObj;
+     }
+
+     var emp3=createEmp("raja","kn","delhi",5000);
+    
+    console.log(emp3);
+
+
+4. Constructor Function (Traditional OOP)
+-----------------------------------------
+
+Javascript provide shortcut to create object : constructor function
+
+in above code first line and last line is common
+ var newObj={};	// create object
+return newObj; //returing object
+
+Javascript provide syntex we can skip first and list line: constructor mode, just apply new
+	before creating object
+
+ var emp3="new" createEmp("raja","kn","delhi",5000);
+
+
+
+
+function createEmp(name, address, city, salary){
+         //var this={};
+         this.name=name;
+         this.address=name;
+         this.city=name;
+         this.salary=name;
+        // return this;
+     }
+
+  var emp3=new createEmp("raja","kn","delhi",5000);
+    
+
+
+Constructor vs non constructor way difference:
+---------------------------------------------
+//NOTE: 1. must apply new keyword
+	if you are not calling js function with new in constructor mode then 
+	it will not return anything and op is undefined
+
+	2. Calling a regular function in constructor mode still works
+
+
+	3. Coding convension: write constructor start with capital letter
+
+
+
+5. Prototype Inheritance (Memory Efficient)
+----------------------------------------
+Understanding prototype:
+-----------------------
+	What if i am looking for common behaviour for all classes created with new keyword
+	If i don't apply "prototype" every object is with own copy of display method!
+
+	
+	  function Emp(name){
+            this.name=name;
+            this.display=function(){
+                console.log(this.name);
+            }
+        }
+        
+
+        var emp1=new Emp('raja');
+        var emp2=new Emp('amit');
+
+        emp1.display();
+        emp2.display();
+
+	console.log(emp1.display === emp2.display); //  false (two different function instances)
+
+	Each instance (emp1, emp2) has its own copy of the display() function — leading to memory inefficiency.
+
+	console.log(e1.display === e2.display); //  true (shared function)
+
+	Now, display() is shared among all instances via the prototype chain 
+	 better memory usage and proper use of JavaScript's prototype system.
+
+
+how to force js to add display() method to the prototype object:
+-------------------------------------------
+	
+	Emp.prototype.display=function(){
+		console.log(this.name);
+	}
+
+	var e1=new Emp('raj');
+	var e2=new Emp('sumit');
+
+	e1.display();
+	e2.display();
+
+
+
+Prototype Chain Visualization:
+-----------------------
+emp1
+  ↓ [[Prototype]]
+Emp.prototype
+  ↓ [[Prototype]]
+Object.prototype
+  ↓ [[Prototype]]
+null
+
+
+// Constructor function
+function Emp(name) {
+    this.name = name;
+}
+
+// Add method to Emp prototype
+Emp.prototype.display = function () {
+    console.log("Name:", this.name);
+};
+
+// Add method to Object prototype
+Object.prototype.sayHello = function () {
+    console.log("Hello from Object prototype!");
+};
+
+// Create an instance
+const emp1 = new Emp("Raj");
+
+// Method from Emp.prototype
+emp1.display();      // Output: Name: Raj
+
+// Method from Object.prototype
+emp1.sayHello();     // Output: Hello from Object prototype!
+
+// Default method from Object.prototype
+console.log(emp1.toString()); // Output: [object Object]
+
+// Confirm the prototype chain
+console.log(Object.getPrototypeOf(emp1) === Emp.prototype); // true
+console.log(Object.getPrototypeOf(Emp.prototype) === Object.prototype); // true
+console.log(Object.getPrototypeOf(Object.prototype) === null); // true
+
+
+
+
+
+Example: Object orientation in javasrcript
+--------------------------------------------
+	<SCRIPT type="text/JavaScript">
+
+	function Person(name,eid)
+	{
+		this.name=name;
+		this.eid=eid;
+	}
+
+	Person.prototype.display = function()
+	{
+		alert(this.name+ "("+ this.eid+")");
+	}
+
+	Person.prototype.change = function(name)
+	{
+		this.name=name;
+	}
+
+	p=new Person("Ram",100);
+	p.display();
+	p.change("Ramakrishna");
+	p.display();
+
+	</SCRIPT>
+
+
+
+
+6. Modern ES6 Class Syntax (Preferred Today)
+----------------------------------------
+
+class Person {
+  constructor(name, eid) {
+    this.name = name;
+    this.eid = eid;
+  }
+
+  display() {
+    console.log(`${this.name} (${this.eid})`);
+  }
+
+  change(newName) {
+    this.name = newName;
+  }
+}
+
+const p = new Person("Ram", 100);
+p.display();            // Ram (100)
+p.change("Ramakrishna");
+p.display();            // Ramakrishna (100)
+
+
+
+
+
+Note : function decleration vs function expression:
+--------------------------------------------------
+Function Declaration vs Expression
+
+Function Declaration (hoisted)
+-------------------------------
+greet(); // Works
+
+function greet() {
+  console.log("Hello from declaration");
+}
+
+
+Function Expression (not hoisted)
+--------------------------------
+
+// greet(); Error: Cannot access before initialization
+
+const greet = function () {
+  console.log("Hello from expression");
+};
+
+greet(); // works
+
+
+
+
+
+Ways of Calling Functions (Understanding this)
+-----------------------------------------
+A. Global Context (non-strict)
+-------------------------------
+
+function foo() {
+  console.log(this); // window (in browser)
+}
+foo();
+
+
+B. Method Call on Object
+----------------------
+const obj = {
+  name: "JS",
+  greet: function () {
+    console.log("Hello", this.name); // 'this' refers to obj
+  }
+};
+obj.greet();
+
+
+C. Constructor Call
+-------------------
+
+function Foo() {
+  this.value = 42;
+  console.log(this); // new object created by 'new'
+}
+new Foo();
+
+
+
+
+Form validation
+---------------
+
+Attempt 1:
+--------------
+
+	create form:
+	------------
+	<form action="#" method="get">
+
+		Enter name:<input type="text" name="name" id="nameId"/><br/>
+		Enter password:<input type="text" name="pass" id="passId"/><br/>
+		<input type="submit" onclick="return validate();">
+	</form>
+
+
+	validate:
+	------------
+
+		function validate(){
+
+			var name=document.getElementById("nameId").value;
+			var pass=document.getElementById("passId").value;
+			
+			if(name==""){
+				alert("name is blank");
+				return false;
+			}
+				
+			if(pass==""){
+				alert("pass is blank");
+				return false;
+			}
+			
+			return true;
+
+
+	}
+
+
+
+Attempt 2:
+--------------
+
+
+<form action="#" method="get">
+
+		<table>
+			<tr>
+				<td>Enter name:</td>
+				<td><input type="text" name="name" id="nameId" /></td>
+				<td><label id="nameMsg"></label></td>
+			</tr>
+
+			<tr>
+				<td>Enter password:</td>
+				<td><input type="text" name="password" id="passwordId" /></td>
+				<td><label id="passwordMsg"></label></td>
+			</tr>
+
+			<tr>
+				<td><input type="submit" onclick="return validate();" /></td>
+
+			</tr>
+		</table>
+
+
+	</form>
+
+
+function validate(){
+   let name =document.getElementById("nameId").value;
+   let pass =document.getElementById("passwordId").value;
+
+   if(name==""){
+       document.getElementById("nameMsg").innerHTML="Enter name";
+       document.getElementById("nameMsg").style.color="red";
+       return false;
+   }else if(pass==""){
+    document.getElementById("passwordMsg").innerHTML="Enter password";
+    document.getElementById("passwordMsg").style.color="red";
+    return false;
+}
+return true;
+}
+
+
+
+Now we want to validate phone and email:
+-------------------------------------
+ 	<tr>
+            <td>Enter phoneno </td>
+            <td><input type="text" name="phoneno" id="phoneno"/> </td>
+            <td><label id="phonenoMsg"></label></td>
+        </tr>
+  
+        <tr>
+            <td>Enter email id </td>
+            <td><input type="text" name="emailid" id="emailId"/> </td>
+            <td><label id="emailidMsg"></label></td>
+        </tr>
+  
+
+
+
+Basics of regular ex in javascript
+------------------------------------
+
+basics of reg expression
+----------------------
+	==> A regular expression is a series of codes used  to describe a series of characters
+
+	==>Just like you surround strings with quotes, 
+		you surround a regex with slashes /
+
+	// var regPat = /[0-9]{1,5}\s[A-Z]{2}\b[a-z]{2,}/
+	767 RA tarun
+
+	// String that starts with 1 to 5 Numbers, a space, 2 Uppercase letters, Word Boundary, 2 or 
+	more lowercase char.......
+
+Basic Syntax ^ and $
+-------------------------------------
+ ^ ===> indicate the beginning of the string
+ $===>  is used to mark the end
+
+
+[] used to define set of characters that may match
+-------------------------------------------------------------------------
+
+[12345] 		// Matches "1" and "3", but not "a" or "12"
+[1-5] 			// Same as the previous example
+[a-z] 			// Matches any lowercase letter (from the English alphabet)
+[0-9a-zA-Z] 		// Matches any letter or digit
+
+[^  ]  ==> invert the meaning
+-------------------------------------
+[^a-zA-Z]		// Matches anything except a letter
+
+
+The characters ?, +, and * 
+============================
+	? ===> “the preceding character is optional”, 			optinal
+	+ ====> “one or more of the previous character”			1 to m
+	* ====> means “zero or more of the previous character”.		0 to m
+
+
+bana*na	
+banaaana
+
+// Matches "banana" and "banna",
+		// but not "banaana".
+
+bana+na	// Matches "banana" and "banaana",
+		// but not "banna".
+
+bana*na	// Matches "banna", "banana", and "banaaana",
+		// but not "bnana".
+
+^[a-zA-Z]+$ // Matches any string of one or more
+	   // letters and nothing else.
+
+	
+( ) ====> used to group strings together to apply ?, +, or * to them as a whole
+----------------------------------------------------------------------------------
+ba(na)+na  // Matches "banana" and "banananana",
+	// but not "bana" or "banaana".
+
+
+
+
+
+using the pipe (|) character to separate them.
+-------------------------------------------------------------------
+^(ba|na)+$		// Matches "banana", "nababa", "baba",
+		 	// "nana", "ba", "na", and others.
+
+
+Some special code for matching one char
+------------------------------------------
+\n // A newline character
+\r // A carriage return character
+\t // A tab character
+\b // A word boundary (the start or end of a word)
+\B // Anything but a word boundary
+\d // Any digit (same as [0-9])
+\D // Anything but a digit (same as [^0-9])
+\s // Single whitespace (space, tab, newline, etc.)
+\S // Single nonwhitespace
+\w // A "word character" (same as [A-Za-z0-9_])
+\W // A "nonword character" (same as [^A-Za-z0-9_])
+
+Using Regular Expressions In JavaScript
+--------------------------------------
+
+creating regex in javascript
+var myRE = /regexp/;
+
+
+reg for ^(ba|na)+$	
+------------------------
+var myRE = /^(ba|na)+$/;
+
+
+
+ g (for global) and i (for ignore case) 
+ ---------------------------------------
+ By default javascript regular expressions are case sensitive and only search for the first match in any given string. 
+
+adding the g (for global) and i (for ignore case) modifers after the second /, you can make a regular expression search
+for all matches in the string and ignore case, respectively. Here are a few example regular expressions.
+
+	test1 Test2 TEST3
+/Test[0-9]+/ 			“Test2” only
+/Test[0-9]+/i 			“test1” only
+/Test[0-9]+/gi 			“test1”, “Test2”, and “TEST3”
+
+
+Match()
+----------------
+	=> match() takes a regular expression as a parameter and returns an array of all the matching strings
+	 found in the string under consideration. 
+
+	=> If no matches are discovered, then match() returns false. 
+
+	=> Reg ex for 10 digit mobile no  number 
+
+	^[2-9]{2}[0-9]{8}$
+
+
+670000000
+
+function checkPhoneNumber(phoneNo) {
+	var phoneRE = /^[6-9]{2}[0-9]{8}$/;
+	if (phoneNo.match(phoneRE)) {
+	return true;
+	} else {
+	alert( "The phone number entered is invalid!" );
+	return false;
+	}
+}
+
+
+
+<body>
+	<script type="text/javascript">
+	checkPhoneNumber("9958543988")
+	</script>
+</body>
+
+
+
+
+Session 2-ES 6 cheetsheet
+==============================
+1. var hoisting and function scope
+2. const in ES6
+3. Arrow function, functional programming in JS
+4. Default value to function arguments
+5. Rest operation in ES6 (aka variable argument methods in Java)
+6. Spread operator in ES6
+7. Spread operator with object literals
+8. Destructuring array
+9. Destructuring objects
+10. String templates
+11. for...of loop (used with iterables)
+12. ES6 Classes
+   - Types of functions in a class
+   - Class inheritance
+13. Set and Map in ES6
+
+
+
+ES6 Tutorial – Topic 1
+---------------------------
+
+ var, let, const — Scope, Hoisting, and Redeclaration
+------------------------------------------------------
+
+Variable Declarations in JS
+--------------------------
+Traditionally, JavaScript used var to declare variables.
+ES6 introduced let and const to overcome the scoping and hoisting issues of var.
+
+Problem with var — Scoping Issue
+---------------------------------
+JavaScript uses function-level scope for var, unlike C/Java/C++ which are block-scoped.
+
+Example 1:
+--------------
+
+var flag = true;
+if (flag) {
+	var fname = "rajeev";
+}
+console.log(fname); // Accessible — not block scoped
+
+Our understanding from C/Java is that fname should be 
+restricted to the block, but not in JS using var.
+
+
+
+
+Example 2:
+------------------
+
+for (var i = 0; i < 10; i++) {
+	var fname = "rajeev";
+	console.log(fname + ": " + i);
+}
+console.log(i); // Still accessible
+
+var does not respect block scope.
+i leaks out of the loop block.
+
+Conclusion:
+------------ 
+var is function-scoped, not block-scoped.
+Advantage of let
+
+
+let introduces block scope — just like C/Java.
+
+Variables declared inside {} are not accessible outside.
+---------------------------------------------------
+if (flag) {
+	let fname = "rajeev";
+	console.log(fname); // Works
+}
+console.log(fname); // ReferenceError
+
+
+
+Hoisting Issue with var
+--------------------------
+Example:
+
+console.log(x); // Output: undefined
+var x = 33;
+JavaScript hoists var declarations to the top (declaration only, not assignment).
+
+
+
+So, above code is interpreted as:
+------------------------------
+var x;
+console.log(x); // undefined
+x = 33;// let is not hoisted like var
+
+
+
+console.log(x);
+let x = 33; //  ReferenceError: Cannot access 'x' before initialization
+
+Technically, let is hoisted, but it is in a Temporal Dead Zone (TDZ) 
+from start of block to declaration line.
+
+
+
+
+
+Redeclaring variables
+----------------------
+With var:
+----------
+var greeting = "good morning";
+var greeting = "good evening"; //  No error
+console.log(greeting); // Output: "good evening"
+
+//This may cause bugs when accidentally re-declaring variables.
+
+With let:
+-----------
+let greeting = "good morning";
+let greeting = "good evening"; //  SyntaxError: Identifier has already been declared
+
+✅ Safer, avoids silent bugs.
+✅ Summary Table – var vs let
+
+Feature		var											let
+--------------------------------------------------------------
+Scope			Function-scoped							Block-scoped
+Hoisting		Yes (initialized as undefined)			Yes (in TDZ)
+Redeclaration	Allowed									Not allowed
+Use in Loops	Variable leaks outside					Confined to block
+
+
+
+Example – var vs let inside a function
+-----------------------------------------
+Using var:
+---------
+function greetPerson(name) {
+	if (name === "rajeev") {
+		var greet = "hello programmer";
+	} else {
+		var greet = "hello person";
+	}
+	console.log(greet); //  Works
+}
+
+var can be redeclared, and the declaration is hoisted to the top of the function.
+
+
+
+Using let:
+-----------
+function greetPerson(name) {
+	if (name === "rajeev") {
+		let greet = "hello programmer";
+	} else {
+		let greet = "hello person";
+	}
+	console.log(greet); //  ReferenceError
+}
+
+Solution:
+---------
+function greetPerson(name) {
+	let greet;
+	if (name === "rajeev") {
+		greet = "hello programmer";
+	} else {
+		greet = "hello person";
+	}
+	console.log(greet); //  Works
+}
+
+
+ Wrong usage of let (temporal dead zone):
+---------------------------------------------
+
+function greetPerson(name) {
+	if (name === "rajeev") {
+		greet = "hello programmer";
+	} else {
+		greet = "hello person";
+	}
+	console.log(greet);
+	let greet; //  ReferenceError
+}
+
+
+
+Summary: const vs let vs var
+------------------------------
+Feature					var				let				const
+Scope					Function		Block			Block
+Hoisting				Yes				Yes (TDZ)		Yes (TDZ)
+Reassignable			Yes				Yes				❌ No
+Redeclarable			Yes				❌ No			❌ No
+Must initialize?		No				No				✅ Yes
+
+
+
+Topic 2: const in ES6 
+-----------------------
+Const in ES6 – Constant Declarations and Object Behavior
+---------------------------------------------
+const = Constant Binding
+------------------------------
+	const creates block-scoped variables just like let, 
+	but you cannot reassign them.
+
+Think of it as similar to final in Java or const in C++.
+---------------------------------------------
+Basic Example
+-----------------
+const pi = 3.1415;
+console.log(pi);
+pi = 3.14; //  TypeError: Assignment to constant variable
+
+Note:
+----
+ pi is read-only and must be initialized during declaration.
+ Cannot be re-declared or reassigned.
+
+Important Note
+const does not make objects immutable, it just makes the reference to the object constant.
+You can still mutate the internal properties.
+
+Example: const with Objects
+------------------
+const obj1 = {
+    name: "raj"
+};
+obj1.name = "rajeev"; // Allowed
+console.log(obj1.name); // "rajeev"
+
+Trying to reassign the object reference:
+-----------------------------------
+obj1 = {
+    name: "ravi"
+}; 
+// TypeError: Assignment to constant variable
+
+You can change the contents of the object but cannot reassign the object reference.
+
+
+Example: const in Arrays
+------------------------
+const colors = ["Red", "Blue"];
+colors.push("Green"); //  Works
+console.log(colors); // ["Red", "Blue", "Green"]
+
+colors = ["Yellow"]; // TypeError
+
+
+Arrays declared with const can still be mutated.
+
+
+
+Summary: When to use const?
+----------------------------
+	Use const by default for all variables that don’t need reassignment.
+	Use let only when reassignment is necessary.
+	Avoid var in ES6+ code.
+
+Final Notes:
+-----------------------------------
+Feature						const
+Scope						Block
+Hoisting					Yes (in TDZ)
+Must initialize				Yes
+Redeclaration allowed?		No
+Reassignment allowed?		No
+Object mutation allowed?	Yes (but reference is fixed)
+
+
+Topic 3: Arrow Functions & Functional Programming
+-------------------------------------------------
+Arrow Functions & Functional Programming in JavaScript
+
+Arrow Functions – The Shorthand Syntax
+	ES6 introduced arrow functions as a more concise way to write function expressions.
+
+Traditional function:
+-----------------------
+var a = function() {
+    return 10;
+}
+
+ES6 Arrow function:
+-----------------
+var b = () => 10;
+
+Implicit return is allowed when there's only one expression (no {} needed).
+
+Another example:
+---------------
+const adder = (a, b) => a + b;
+
+
+Benefits of Arrow Functions
+-------------------------
+	Concise syntax
+	Implicit return (no need for return keyword)
+	No own this binding (lexical this)
+	Ideal for callback functions and functional programming
+
+
+
+Console Output
+--------------
+console.log(b); // b is a function, prints the function body
+
+
+
+Functional Programming with JavaScript
+-------------------------------------------
+	Functional programming = Writing code using pure functions, 
+	immutability, and data transformations.
+
+ES6 arrow functions make this style easier.
+-----------------------------------------
+Dataset Example:
+-----------------
+const companies = [
+	{name: "Company One", category: "Finance", start: 1981, end: 2003},
+	{name: "Company Two", category: "Retail", start: 1992, end: 2008},
+	{name: "Company Three", category: "Auto", start: 1999, end: 2007},
+	{name: "Company Four", category: "Retail", start: 1989, end: 2010},
+	{name: "Company Five", category: "Technology", start: 2009, end: 2014},
+	{name: "Company Six", category: "Finance", start: 1987, end: 2010},
+	{name: "Company Seven", category: "Auto", start: 1986, end: 1996},
+	{name: "Company Eight", category: "Technology", start: 2011, end: 2016},
+	{name: "Company Nine", category: "Retail", start: 1981, end: 1989}
+];
+
+const ages = [33, 12, 20, 16, 5, 54, 21, 44, 61, 13, 15, 45, 25, 64, 32];
+
+
+
+
+forEach – Print all companies
+----------------------------
+Traditional:
+------------
+for(let i = 0; i < companies.length; i++) {
+	console.log(companies[i]);
+}
+
+
+Functional:
+-----------
+companies.forEach(function(company) {
+	console.log(company);
+});
+
+With Arrow:
+-----------
+companies.forEach(company => console.log(company));
+
+
+
+
+
+
+
+
+filter() – Returns a subset of data
+--------------------------------
+
+Ages 21 and above
+------------------
+const selectedAges = ages.filter(function(age) {
+	if(age >= 21) {
+		return true;
+	}
+});
+
+const selectedAges = ages.filter(age => age >= 21);
+console.log(selectedAges);
+
+
+Filter Retail Companies
+-------------------------
+const retailCompanies = companies.filter(function(company) {
+	return company.category === "Retail";
+});
+
+const retailCompanies = companies.filter(company => company.category === "Retail");
+console.log(retailCompanies);
+
+Companies from 1980s
+---------------------
+const companies80 = companies.filter(company => 
+	company.start >= 1980 && company.start <= 1990
+);
+console.log(companies80);
+
+
+Companies lasting 10+ years
+---------------------------
+const companiesMore10 = companies.filter(company => 
+	(company.end - company.start) >= 10
+);
+console.table(companiesMore10);
+
+
+map() – Transform data into new arrays
+-------------------------------
+
+Just company names
+--------------------
+const companyNameArr = companies.map(company => company.name);
+console.log(companyNameArr);
+
+Company name with duration
+--------------------------------
+const companyNameArr2 = companies.map(company => 
+	`${company.name} [${company.start}--${company.end}]`
+);
+console.table(companyNameArr2);
+
+
+sort() – Sort elements
+---------------------
+
+By start year
+----------
+const sortedCompanies = companies.sort((c1, c2) => 
+	c1.start > c2.start ? 1 : -1
+);
+console.table(sortedCompanies);
+
+
+Bonus: reduce()
+----------------
+You didn’t add it, but it fits here perfectly:
+
+Sum of all ages:
+----------------
+const ageSum = ages.reduce((total, age) => total + age, 0);
+console.log(ageSum);
+
+
+Summary Table: Functional Utilities
+----------------------------------
+
+Method				Use Case
+-------------------------------
+forEach			Looping through items
+filter			Getting a subset
+map				Transforming elements
+sort			Ordering elements
+reduce			Aggregating to single value
+
+
+
+Topic 4: Default Function Parameters in ES6
+---------------------------------------
+What are Default Parameters?
+	ES6 allows default values for function parameters, similar to Java and C++.
+
+	This makes your function definitions more flexible and safer by reducing 
+	the need to check for undefined inside the function.
+
+Without Default Parameters
+--------------------------
+let getValue = function(a) {
+    console.log(a);
+}
+
+getValue();         // undefined
+getValue(5);        // 5
+
+You had to manually assign defaults:
+
+let getValue = function(a) {
+    a = a || 10;
+    console.log(a);
+}
+
+
+With ES6 Default Parameters
+-------------------------
+let getValue = function(a = 10) {
+    console.log(a);
+}
+
+getValue();         // 10
+getValue(5);        // 5
+
+Cleaner and more readable code.
+
+
+Multiple Parameters with Defaults
+-----------------------
+let getValue = function(a = 10, b = 4) {
+    console.log(a, b);
+}
+
+getValue();              // 10 4
+getValue(20);            // 20 4
+getValue(undefined, 12); // 10 12
+
+⚠If you skip a parameter, use undefined explicitly to trigger the default.
+
+Use Cases
+-----------
+	Optional arguments
+	Safer API design
+	Cleaner fallback logic
+
+
+
+Best Practices
+	Always put default parameters after non-default ones.
+	Combine with rest or destructuring for powerful patterns.
+
+
+
+Topic 5: Rest Operator (...args) – Variable Arguments in ES6
+------------------------------------------------------------
+
+Before ES6, JavaScript functions could access extra passed 
+arguments using the special arguments object:
+-----------------------------------------
+function show() {
+  console.log(arguments); // not a real array
+}
+show(1, 2, 3);
+
+Problems with arguments:
+	Not a real array (no .map(), .filter(), etc.)
+	Confusing to read and maintain
+	Doesn’t work in arrow functions
+	Less expressive
+
+ES6 Solution: Rest Parameter (...args)
+---------------------------------------
+The rest operator collects remaining arguments into a real array.
+
+function showColors(message, ...colors) {
+  console.log(message);
+  console.log(colors); // ['Red', 'Blue']
+}
+
+showColors("Available colors:", "Red", "Blue");
+
+Advantages:
+	Real array → can use .map(), .filter(), etc.
+	Cleaner and expressive
+	Works with arrow functions
+	Matches features in other languages (e.g., *args in Python, varargs in Java)
+	
+	
+
+Internal Behavior:
+-------------------
+// Behind the scenes:
+function show(...args) {
+    console.log(args); // all extra args as array
+}
+show(1, 2, 3); //Automatically converted to array [1, 2, 3]
+
+Note:
+
+Only One Rest Parameter Per Function
+
+The rest parameter must be the last one.
+-----------------------------------
+function sum(a, ...nums, b) {
+    //  SyntaxError: Rest parameter must be last
+}
+
+
+
+
+
+Topic 6: Spread Operator (...) in ES6
+------------------------------------
+What is the Spread Operator?
+	The spread operator (...) spreads the elements of 
+	an array (or object) into individual items.
+
+Use cases:
+	Pass array elements as individual arguments
+	Clone or merge arrays/objects
+	Expand iterable elements
+
+// REST: packs into array
+---------------------------
+function sum(...nums) {
+  return nums.reduce((a, b) => a + b);
+}
+
+// SPREAD: unpacks array
+-----------------------
+let arr = [1, 2, 3];
+console.log(...arr);  // 1 2 3
+
+Problem Without Spread
+------------------------
+let colorArray = ['Orange', 'Yellow', 'Indigo'];
+
+displayColors(message, colorArray); 
+
+// Passes entire array as one argument
+
+Solution: Spread Operator
+----------------------------
+let colorArray = ['Orange', 'Yellow', 'Indigo'];
+
+displayColors(message, ...colorArray); 
+// Passes each color as a separate argument
+
+Example: Array Expansion
+-------------------------
+let arr1 = [1, 2, 3];
+let arr2 = [...arr1, 4, 5];
+console.log(arr2); // [1, 2, 3, 4, 5]
+
+
+Copying Arrays
+----------------
+const original = [10, 20, 30];
+const copy = [...original];
+
+console.log(copy); // [10, 20, 30]
+
+Creates a shallow copy
+
+Combining Arrays
+-----------------
+const nums1 = [1, 2];
+const nums2 = [3, 4];
+
+const merged = [...nums1, ...nums2];
+console.log(merged); // [1, 2, 3, 4]
+
+
+Spread in Function Calls
+-------------------------
+function add(a, b, c) {
+    return a + b + c;
+}
+
+let nums = [1, 2, 3];
+console.log(add(...nums)); // 6
+
+
+Spread ≠ Rest
+------------------
+Feature			Spread									Rest
+Use case		Expanding elements						Gathering elements
+Used in			Function call, literals, arrays			Function definition
+Syntax	...iterable	...args
+
+
+
+Topic 7: Spread Operator with Object Literals
+-------------------------------------------
+
+Object Literals Before ES6
+
+You had to manually map variables to properties:
+-------------------------------------------
+let firstname = "rajeev";
+let lastname = "gupta";
+
+let person = {
+    firstname: firstname,
+    lastname: lastname
+};
+
+console.log(person.firstname); // rajeev
+
+
+ES6 Enhancement – Property Shorthand
+-----------------------------
+If key and variable names are the same, you can omit the key.
+
+let firstname = "rajeev";
+let lastname = "gupta";
+
+let person = {
+    firstname,
+    lastname
+};
+
+console.log(person.firstname); // rajeev
+console.log(person.lastname);  // gupta
+
+
+Returning Object Literals from Functions
+------------------------------------------
+
+function createPerson(firstname, lastname, age) {
+    let fullname = firstname + " " + lastname;
+    return { firstname, lastname, fullname };
+}
+
+let p = createPerson("rajeev", "gupta", 62);
+console.log(p.firstname);  // rajeev
+console.log(p.fullname);   // rajeev gupta
+
+
+Function Shorthand in Objects
+------------------------------
+Define methods without the function keyword:
+-----------------------------
+function createPerson(firstname, lastname, age) {
+    let fullname = firstname + " " + lastname;
+    return {
+        firstname,
+        lastname,
+        fullname,
+        isSenior() {
+            return age > 60;
+        }
+    };
+}
+
+let p = createPerson("rajeev", "gupta", 62);
+console.log(p.isSenior()); // true
+
+
+Spread Operator with Objects
+----------------------------
+Introduced in ES2018 (still considered ES6+).
+
+Cloning an Object
+----------------
+const user1 = {
+    name: "Rajeev",
+    role: "Trainer"
+};
+
+const user2 = { ...user1 };
+
+console.log(user2); // { name: "Rajeev", role: "Trainer" }
+
+Merging Objects
+---------------------
+const obj1 = { a: 1 };
+const obj2 = { b: 2 };
+
+const merged = { ...obj1, ...obj2 };
+console.log(merged); // { a: 1, b: 2 }
+
+
+Overriding Properties
+-------------------------
+const base = { role: "user", active: true };
+const override = { role: "admin" };
+
+const updated = { ...base, ...override };
+console.log(updated); // { role: "admin", active: true }
+
+
+Order matters: properties in later objects override earlier ones.
+
+
+
+Topic 8: Destructuring Arrays
+-------------------------------
+What is Destructuring?
+	Destructuring allows you to unpack values from arrays
+	(or objects) into distinct variables — 
+	like tuple unpacking in Python or pattern matching in Scala.
+
+Simple Array Destructuring
+----------------------------
+let employee = ["rajeev", "gupta", "Male"];
+
+let [fname, lname, gender] = employee;
+
+console.log(fname);   // rajeev
+console.log(lname);   // gupta
+console.log(gender);  // Male
+
+Unpacks values in order into variables.
+
+Default Values in Destructuring
+---------------------------------
+What if a value is missing from the array?
+
+let employee = ["rajeev", "gupta"];
+
+let [fname, lname, gender = "Male"] = employee;
+
+console.log(gender);  // Male (default)
+
+Skipping Elements
+-----------------
+You can skip unwanted values using commas:
+
+let employee = ["rajeev", "gupta", "Male"];
+
+let [, , gender] = employee;
+
+console.log(gender); // Male
+
+Collecting Remaining Elements (Rest)
+-----------------------------------
+Use the rest operator to gather remaining elements into an array:
+
+
+let employee = ["rajeev", "gupta", "Male", "Trainer", "Delhi"];
+
+let [fname, ...rest] = employee;
+
+console.log(fname); // rajeev
+console.log(rest);  // [ 'gupta', 'Male', 'Trainer', 'Delhi' ]
+
+
+Very useful in cases where only the first few elements matter.
+
+
+Best Practices
+-------------
+	Use default values to prevent undefined.
+	Combine with rest operator for flexible assignments.
+	Always respect order when destructuring arrays.
+
+
+Topic 9: Object Destructuring
+-------------------------------
+ What is Object Destructuring?
+	Object destructuring is a convenient way to extract multiple properties 
+	from an object and assign them to variables.
+
+Original Way (Before Destructuring)
+--------------------------------
+const msg = {
+    name: "rajeev gupta",
+    desi: "trainer",
+    hobby: "traveling",
+    social: {
+        twitter: "@rajeev_gupta76",
+        facebook: "https://www.facebook.com/profile.php?id=100021806671318"
+    }
+};
+
+// Traditional way
+const name = msg.name;
+const desi = msg.desi;
+const hobby = msg.hobby;
+const twitter = msg.social.twitter;
+
+console.log(name);
+console.log(hobby);
+console.log(twitter);
+
+Problem: Code is repetitive and hard to read.
+
+ES6 Object Destructuring (Cleaner)
+----------------------------------
+
+const { name, desi, hobby, social } = msg;
+
+console.log(name);   // rajeev gupta
+console.log(hobby);  // traveling
+console.log(social); // entire nested object
+
+Nested Destructuring
+-----------------------
+You can destructure nested objects like social:
+
+const {
+    name,
+    desi,
+    hobby,
+    social: { twitter, facebook }
+} = msg;
+
+console.log(twitter);  // @rajeev_gupta76
+console.log(facebook); // https://facebook.com/...
+
+Renaming Variables
+----------------------
+Assign properties to different variable names:
+
+const { name: fullName, desi: role } = msg;
+
+console.log(fullName); // rajeev gupta
+console.log(role);     // trainer
+
+
+Providing Default Values
+---------------------------
+const { company = "Busy Coder Academy" } = msg;
+
+console.log(company); // Busy Coder Academy
+
+
+
+
+Topic 10: Template Literals ?
+-----------------------------------
+Template Literals (aka String Templates)
+Problem with Old-Style String Concatenation (ES5)
+
+const person = {
+	name: "rajeev gupta",
+	address: "delhi",
+	phone: "43544344444"
+};
+
+let strMsg = "my name is " + person.name + ": " + " my address is " + person.address;
+
+Hard to read and maintain. Breaks easily when adding variables or formatting.
+
+
+ES6 Template Literals – Backtick Syntax
+-----------------------------------
+let strMsg2 = `my name is ${person.name} and my address is ${person.address}`;
+console.log(strMsg2);
+
+
+Multiline String Support (No \n Needed)
+-------------------------------------
+const strMsg3 = `
+	my name is ${person.name}
+	my address is ${person.address}
+	my phone is ${person.phone}
+`;
+
+console.log(strMsg3);
+
+Automatically preserves formatting, tabs, line breaks — no \n or \t needed.
+
+
+
+Topic 11: for...of Loop 
+------------------------
+for...of Loop: Used with Iterables
+
+Problem with for...in Loop (ES5)
+----------------------------------
+let colors = ['Red', 'Blue', 'Green'];
+
+for (let index in colors) {
+    console.log(colors[index]);
+}
+
+	for...in is meant for enumerating object keys, not array elements.
+	It iterates over enumerable properties, which may include inherited ones.
+
+
+ES6 Solution: for...of
+--------------------------
+	Introduced in ES6, for...of is the right loop for iterables like arrays,
+	strings, sets, maps, etc.
+
+
+let colors = ['Red', 'Blue', 'Green'];
+
+for (let color of colors) {
+    console.log(color);
+}
+
+	 Cleaner
+	 No indexing needed
+	 Works only on actual values, not keys or indexes
+
+
+Works on Strings Too
+---------------------
+let letters = "ABC";
+
+for (let letter of letters) {
+    console.log(letter);
+}
+
+Output:
+A
+B
+C
+
+
+
+Topic 12: ES6 Classes 
+---------------------
+What are JavaScript Classes?
+	JavaScript classes are syntactic sugar over JavaScript's 
+	existing prototype-based inheritance.
+
+	Before ES6, JS did not have a formal class keyword — 
+	developers used constructor functions and prototypes.
+
+	ES6 introduced the class keyword to make OOP-style development easier and more familiar 
+	(especially for Java/ C# developers).
+
+
+
+Basic Class Example
+----------------
+class Person {
+    greet() {}
+}
+
+let p = new Person();
+
+console.log(p.greet === Person.prototype.greet); // true
+
+Note:
+-------
+	Under the hood, classes are just functions.
+	Classes are not hoisted like regular functions.
+
+
+
+Function vs Class Hoisting Behavior
+--------------------------------------
+
+employee(); // Works (function hoisting)
+function employee() {}
+
+
+let p1 = new Employee(); // ReferenceError
+class Employee {}
+
+Function declarations are hoisted, but class declarations are not.
+
+
+
+Prior to ES6: Constructor Function + Prototype
+-----------------------------------------------
+function Animal(type) {
+    this.type = type;
+}
+
+Animal.prototype.identify = function () {
+    console.log(this.type);
+};
+
+var cat = new Animal('Cat');
+cat.identify(); // Cat
+
+
+
+Same in ES6 Using class
+--------------------------
+class Animal {
+    constructor(type) {
+        this.type = type;
+    }
+
+    identify() {
+        console.log(this.type);
+    }
+}
+
+let cat = new Animal('Cat');
+cat.identify(); // Cat
+
+
+Note:
+typeof Animal is still "function" — just syntactic sugar!
+console.log(typeof Animal); // function
+
+
+
+Class vs Funcation constructor Differences
+------------------------------------------
+Behavior				Function Constructor		ES6 Class
+Hoisted					✅ Yes						❌ No
+Called without new		✅ Yes						❌ Error
+syntax					function X()				class X {}
+Prototype method 		Explicit					Built-in with {} block
+definition
+
+
+let dog = new Animal('Dog'); // Works
+let duck = Animal('Duck');   // Error: must use 'new'
+
+
+
+JavaScript Class Expressions
+--------------------------
+let Animal = class {
+    constructor(type) {
+        this.type = type;
+    }
+
+    identify() {
+        console.log(this.type);
+    }
+};
+
+let duck = new Animal('Duck');
+
+console.log(duck instanceof Animal); // true
+console.log(duck instanceof Object); // true
+console.log(typeof Animal);          // function
+
+Classes can be anonymous and used in expressions — just like functions.
+
+
+Getter and Setter in Classes
+--------------------------------
+
+class Person {
+    constructor(firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    get fullName() {
+        return this.firstName + ' ' + this.lastName;
+    }
+
+    set fullName(str) {
+        let names = str.split(' ');
+        if (names.length === 2) {
+            this.firstName = names[0];
+            this.lastName = names[1];
+        } else {
+            throw 'Invalid name format';
+        }
+    }
+}
+
+let mary = new Person('rajeev', 'Gupta');
+console.log(mary.fullName); // rajeev Gupta
+
+mary.fullName = 'Rajeev Gupta';
+console.log(mary.fullName); // Rajeev Gupta
+
+
+Static Methods
+---------------
+class Animal {
+    constructor(type) {
+        this.type = type;
+    }
+
+    identify() {
+        console.log(this.type);
+    }
+
+    static create(type) {
+        return new Animal(type);
+    }
+}
+
+var mouse = Animal.create('Mouse');
+mouse.identify(); // Mouse
+
+// mouse.create('Monkey'); //  Error: mouse.create is not a function
+
+Static methods are called on the class, not on instances.
+
+
+Inheritance in ES6
+----------------------
+JavaScript uses prototype inheritance, but ES6 class simplifies it.
+
+Basic Inheritance Example
+-----------------------
+class Animal {
+    constructor(legs) {
+        this.legs = legs;
+    }
+
+    walk() {
+        console.log('walking on ' + this.legs + ' legs');
+    }
+}
+
+class Bird extends Animal {
+    constructor(legs) {
+        super(legs); // must call parent constructor
+    }
+
+    fly() {
+        console.log('flying');
+    }
+}
+
+let bird = new Bird(2);
+bird.walk(); // walking on 2 legs
+bird.fly();  // flying
+
+
+
+Inheritance with Additional Properties
+-----------------------------------
+class Bird extends Animal {
+    constructor(legs, color) {
+        super(legs);
+        this.color = color;
+    }
+
+    fly() {
+        console.log('flying');
+    }
+
+    getColor() {
+        console.log(this.color);
+    }
+}
+
+let pigeon = new Bird(2, 'white');
+console.log(pigeon.getColor()); // white
+
+
+Shadowing Methods (Method Overriding)
+----------------------------------------
+class Dog extends Animal {
+    constructor() {
+        super(4);
+    }
+
+    walk() {
+        console.log(`go walking`);
+    }
+}
+
+let bingo = new Dog();
+bingo.walk(); // go walking
+
+
+
+Calling Super Method (Base Class Method)
+---------------------------------------
+class Dog extends Animal {
+    constructor() {
+        super(4);
+    }
+
+    walk() {
+        super.walk(); // base class method
+        console.log(`go walking`);
+    }
+}
+
+let bingo = new Dog();
+bingo.walk();
+// Output:
+// walking on 4 legs
+// go walking
+
+
+
+Getter and setter in a class. This is commonly used to encapsulate 
+private data and control how it's accessed or modified.
+-------------------------------------------------------
+
+
+Example: getter and setter in ES6
+--------------------------------
+
+class Employee {
+  constructor(name, salary) {
+    this._name = name;
+    this._salary = salary;
+  }
+
+  // getter for name
+  get name() {
+    return this._name;
+  }
+
+  // setter for name
+  set name(newName) {
+    if (newName.length > 0) {
+      this._name = newName;
+    } else {
+      console.log("Name can't be empty!");
+    }
+  }
+
+  // getter for salary
+  get salary() {
+    return this._salary;
+  }
+
+  // setter for salary
+  set salary(newSalary) {
+    if (newSalary > 0) {
+      this._salary = newSalary;
+    } else {
+      console.log("Salary must be positive!");
+    }
+  }
+}
+
+// usage
+------------
+const emp = new Employee("Rajeev", 50000);
+
+console.log(emp.name);     // Rajeev
+emp.name = "Ravi";         // update name
+console.log(emp.name);     //  Ravi
+
+emp.salary = 60000;        // update salary
+console.log(emp.salary);   //  60000
+
+emp.salary = -2000;        // invalid update
+						// Salary must be positive!
+
+
+Notes:
+	Properties are accessed like normal (emp.name), but internally go through the getter/setter.
+	We use _name and _salary to simulate private variables (common JS pattern).
+	get/set provide encapsulation, validation, and abstraction.
+
+
+Note: The underscore (_) does not make the property private in JavaScript — it is just a naming convention.
+
+If You Want True Privacy (ES2022+) Use JavaScript Private Fields with #:
+----------------------------------------------
+class Person {
+  #name;
+
+  constructor(name) {
+    this.#name = name;
+  }
+
+  getName() {
+    return this.#name;
+  }
+}
+
+const p = new Person("Bob");
+console.log(p.#name); //  SyntaxError: Private field '#name' must be declared
+
+
+
+
+
+Session 3: Modern JavaScript Async Programming
+===============================================
+
+Topics includes:
+-----------------
+	Callbacks (sync & async)
+	Callback hell
+	Promises
+	Chaining & error handling
+	Async/Await
+	Fetch API with AJAX
+	Advanced Promise methods (all, race, allSettled)
+
+Callbacks – Sync & Async
+--------------------------
+What is a Callback?
+	A callback is a function passed as an argument 
+	to another function to be “called back” later.
+
+Example:
+---------
+
+function greet(name, callback) {
+  console.log("Hello " + name);
+  callback();
+}
+
+function bye() {
+  console.log("Goodbye!");
+}
+
+greet("Rajeev", bye);
+
+
+
+
+Asynchronous Callback Example:
+-----------------------------
+console.log("Start");
+
+setTimeout(() => {
+  console.log("Inside setTimeout");
+}, 1000);
+
+console.log("End");
+
+
+Calculator with Callback
+-----------------------
+
+Bad code:
+---------
+function calculator(n1, n2, operation) {
+
+  if (operation === "add") {
+    return n1 + n2;
+
+  } else if (operation === "multiply") {
+    return n1 * n2;
+
+  } else if (operation === "subtract") {
+    return n1 - n2;
+
+  } else if (operation === "divide") {
+    return n1 / n2;
+
+  } else {
+    throw new Error("Invalid operation");
+  }
+}
+
+
+console.log(calculator(2, 3, "multiply")); // 6
+console.log(calculator(2, 3, "add"));      // 5
+
+
+Good code:
+----------
+const multiply = (a, b) => a * b;
+const add = (a, b) => a + b;
+
+function calculator(n1, n2, operationCallback) {
+  if (typeof operationCallback === "function") {
+    return operationCallback(n1, n2);
+  }
+}
+
+console.log(calculator(2, 3, multiply)); // 6
+
+
+Callback Hell & Why We Need Promises
+-----------------------------------
+Callback Hell (Pyramid of Doom)
+---------------------
+
+setTimeout(() => {
+  console.log("Task 1");
+  setTimeout(() => {
+    console.log("Task 2");
+    setTimeout(() => {
+      console.log("Task 3");
+    }, 1000);
+  }, 1000);
+}, 1000);
+
+Hard to maintain, scale, and debug.
+
+
+
+
+Promise Basics & Lifecycle
+--------------------------
+What is a Promise?
+A Promise is an object representing the eventual
+ completion or failure of an async operation.
+
+Promise Lifecycle:
+-----------------
+	pending
+	fulfilled (resolved)
+	rejected
+	
+	
+	
+Creating a Promise: 
+----------------------
+
+Ex: let ur kid promise to clean the room....
+
+let promiseToCleanTheRoom=new Promise(function(resolved, reject){
+	//cleanning the room
+
+	let isClean=false;
+	if(isClean){
+		resolved('clean');
+	}else{
+		reject('not clean');
+	}
+
+});
+
+promiseToCleanTheRoom.then(function(fromResolve){
+	console.log('the room is '+ fromResolve);
+}).catch(function(fromReject){
+	console.log('the room is '+ fromReject);
+});
+
+
+With arrow function:
+--------------------
+
+promiseToCleanTheRoom.then(fromResolve=>console.log('the room is '+ fromResolve)).catch(fromReject=>
+	console.log('the room is '+ fromReject)
+);
+
+
+
+Promise Chaining & Error Handling
+----------------------------------
+Now consider :
+	if kid clean the room ==> remove the garbage ==> then win the ice cream
+
+
+function cleanRoom() {
+  return Promise.resolve("Cleaned Room");
+}
+
+function removeGarbage(previousTask) {
+  return Promise.resolve(previousTask + " → Garbage Removed");
+}
+
+function winIceCream(previousTask) {
+  return Promise.resolve(previousTask + " → Won Ice Cream");
+}
+
+cleanRoom()
+  .then(removeGarbage)
+  .then(winIceCream)
+  .then((result) => console.log("Finished:", result))
+  .catch((err) => console.error(err));
+
+
+Example : rejecting job
+----------------------
+function cleanRoom() {
+  return Promise.resolve("Cleaned Room");
+}
+
+function removeGarbage(previousTask) {
+  // simulate error condition
+  if (!previousTask.includes("Cleaned")) {
+    throw new Error("Room is not clean yet!");
+	// return Promise.reject(new Error("Room is not clean yet!"));
+  }
+  return Promise.resolve(previousTask + " → Garbage Removed");
+}
+
+function winIceCream(previousTask) {
+  return Promise.resolve(previousTask + " → Won Ice Cream");
+}
+
+cleanRoom()
+  .then(removeGarbage)
+  .then(winIceCream)
+  .then((result) => console.log("Finished:", result))
+  .catch((err) => console.error("Caught Error:", err.message));
+
+
+
+
+
+
+.finally() usage
+----------------------
+
+new Promise((resolve, reject) => {
+  setTimeout(() => resolve("Done"), 1000);
+})
+  .then(console.log)
+  .catch(console.error)
+  .finally(() => console.log("Always runs"));
+  
+  
+  
+  
+async/await – Writing Promises Like Synchronous Code
+------------------------------------------------------
+async returns a promise
+---------------------
+
+async function getData() {
+  return "Hello";
+}
+getData().then(console.log); // Hello
+
+await waits for promise to resolve
+---------------------------------
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function demo() {
+  console.log("Start");
+  await wait(2000);
+  console.log("End after 2 sec");
+}
+demo();
+
+
+Example with await on custom functions
+----------------------------------
+
+const add = (a, b) =>
+  new Promise((resolve) => setTimeout(() => resolve(a + b), 1000));
+
+async function calc() {
+  let result = await add(10, 20);
+  result = await add(result, 30);
+  console.log("Final result:", result);
+}
+calc();
+
+
+
+
+How Promise Chaining Works 
+----------------------------
+Example:
+
+function step1() {
+  return new Promise((resolve) => setTimeout(() => resolve("Step 1"), 1000));
+}
+
+function step2(data) {
+  return new Promise((resolve) => setTimeout(() => resolve(data + " → Step 2"), 1000));
+}
+
+function step3(data) {
+  return new Promise((resolve) => setTimeout(() => resolve(data + " → Step 3"), 1000));
+}
+
+step1()
+  .then(step2)
+  .then(step3)
+  .then(console.log)
+  .catch(console.error);
+  
+ 
+Promise Chaining Works 
+--------------------
+ 
+✅ Works well for a few steps
+❌ Gets hard to read with nested logic
+❌ Harder to trace errors in .then()
+❌ Each .then() creates a new scope
+
+Same Code Using async/await
+----------------------------
+async function runSteps() {
+  try {
+    const res1 = await step1();
+    const res2 = await step2(res1);
+    const res3 = await step3(res2);
+    console.log(res3);
+  } catch (err) {
+    console.error("Error occurred:", err);
+  }
+}
+runSteps();
+
+
+Example:
+--------
+
+Let’s assume each function returns a promise with a setTimeout internally.
+-------------------------------------------------------------------------
+function boilWater() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Boiled water");
+      resolve();
+    }, 1000);
+  });
+}
+
+function addTeaLeaves() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Added tea leaves");
+      resolve();
+    }, 1000);
+  });
+}
+
+function waitTwoMins() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Waited 2 mins");
+      resolve();
+    }, 2000);
+  });
+}
+
+function strainTea() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Strained tea");
+      resolve();
+    }, 1000);
+  });
+}
+
+function serve() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Served tea");
+      resolve();
+    }, 1000);
+  });
+}
+
+
+Using Promises:
+---------------
+boilWater()
+  .then(() => addTeaLeaves())
+  .then(() => wait(2 mins))
+  .then(() => strainTea())
+  .then(() => serve())
+  .catch((err) => console.log("Spilled tea!"));
+  
+  
+  
+  
+  
+Using Async/Await:
+------------------- 
+
+async function makeTea() {
+  try {
+    await boilWater();
+    await addTeaLeaves();
+    await wait(2 * 60 * 1000);
+    await strainTea();
+    await serve();
+  } catch (e) {
+    console.log("Spilled tea!");
+  }
+}
+
+
+if one operation need to wait for another do not it is synchronos 
+----------------------------------------------------------------
+	At first glance — Yes, it looks synchronous.
+	But under the hood — No, it’s still asynchronous.
+
+Let explain clearly and deeply.
+------------------------------
+Synchronous vs Asynchronous — Key Difference
+
+Feature						Synchronous						Asynchronous (Promise/.then/await)
+----------------------------------------------------------------------------------------
+Execution Flow			Step-by-step, blocking			Step-by-step, but non-blocking
+Main Thread Behavior		Locked until task finishes		Main thread continues; tasks handled later
+Underlying Mechanism		Normal function stack			Event loop, task queue, Web APIs
+
+Let’s Take an Example
+----------------------------
+Synchronous (Blocking):
+------------------------
+function boilWater() {
+  console.log("Boiling water...");
+  sleep(5000); // blocks for 5 sec
+  console.log("Water boiled");
+}
+
+	In this:Main thread is blocked for 5 seconds
+	Nothing else can happen during that time
+	Truly synchronous
+
+Asynchronous (Non-Blocking but Ordered):
+----------------------------------------
+function boilWater() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Water boiled");
+      resolve();
+    }, 5000);
+  });
+}
+
+Now:boilWater() returns immediately
+The rest of the code continues to run
+After 5 seconds, the callback runs (thanks to the event loop)
+
+
+
+Even though addTeaLeaves() starts only after boilWater() resolves in:
+boilWater().then(() => addTeaLeaves())
+
+It’s not synchronous, because:
+	The waiting happens outside the main thread
+	It doesn't block your UI or event listeners
+
+
+Analogy: Synchronous vs Asynchronous Cooking
+---------------------------------------------
+Synchronous:
+You’re alone. You boil water. You stand still and stare at it till it boils.
+Only then you move to the next step.
+
+Asynchronous with Promises:
+You start boiling water, set a timer for 5 mins, and go cut vegetables while waiting.
+When water boils, you get a notification, and continue.
+
+Waiting happens, but your main thread (the chef) is free!
+
+Final Answer:
+----------------
+	Just because one task logically depends on another, doesn't mean the program is synchronous.
+	With Promises or async/await, JS is still non-blocking and async, even if it looks sequential.
+
+
+
+
+Real Application with Fetch API (AJAX)
+---------------------------------------
+
+What is AJAX?
+
+"Making asynchronous HTTP requests without reloading the page."
+
+ terms: Async, JSON, HTTP methods
+ 
+ 
+XHR is the old way of making AJAX calls	
+-------------------------------------------
+	Syntax is verbose and callback-based	
+	Useful for interview knowledge or legacy codebases	
+	Not recommended for new development
+
+
+let xhr = new XMLHttpRequest();
+xhr.open("GET", "https://jsonplaceholder.typicode.com/posts/1");
+xhr.onload = function () {
+  if (xhr.status === 200) {
+    console.log(JSON.parse(xhr.responseText));
+  }
+};
+xhr.send();
+
+
+What is fetch()?
+------------------
+	fetch() is a modern Web API that returns a 
+	promise to perform HTTP requests.
+
+
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then((response) => response.json())
+  .then((data) => console.log("Post:", data))
+  .catch((err) => console.error("Error fetching:", err));
+
+
+fetch()           → resolves to → Response object
+   ↓
+response.json()   → resolves to → Actual data (as JSON)
+   ↓
+Your logic on the data
+
+
+With async/await:
+----------------------
+async function getPost() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts/1");
+    const data = await response.json();
+    console.log("Post:", data);
+  } catch (e) {
+    console.error("Fetch error:", e);
+  }
+}
+getPost();
+
+Advantage of  async/await
+----------------------------
+Looks like synchronous code.
+Easier for beginners and pros to follow the logic step by step.
+No deeply nested .then() callbacks (avoids "callback hell")
+Better Error Handling with try/catch
+
+
+Advanced Promise APIs
+--------------------
+
+Promise.all
+---------------
+Waits for all promises to resolve. Fails if any fail.
+
+
+Promise.all([
+  Promise.resolve("One"),
+  Promise.resolve("Two"),
+  Promise.resolve("Three"),
+])
+  .then((values) => console.log("All resolved:", values))
+  .catch((err) => console.log("One failed:", err));
+
+
+use case Load multiple API calls in parallel:
+-------------------------------------------
+Promise.all([
+  fetch('/user'),
+  fetch('/posts'),
+  fetch('/notifications')
+])
+  .then(responses => Promise.all(responses.map(r => r.json())))
+  .then(data => {
+    const [user, posts, notifications] = data;
+    console.log(user, posts, notifications);
+  })
+  .catch(err => console.error("One request failed:", err));
+  
+  
+async/await version (cleanest)
+try {
+  const [user, posts, notifications] = await Promise.all([
+    fetch('/user').then(r => r.json()),
+    fetch('/posts').then(r => r.json()),
+    fetch('/notifications').then(r => r.json())
+  ]);
+} catch (e) {
+  console.error("One failed");
+}
+
+
+Same behavior. Cleaner brain.
+
+
+
+
+
+
+
+Promise.race
+----------------
+Resolves as soon as the first promise resolves or rejects.
+
+Promise.race([
+  new Promise((res) => setTimeout(() => res("1st"), 1000)),
+  new Promise((res) => setTimeout(() => res("2nd"), 2000)),
+])
+  .then(console.log)
+  .catch(console.error);
+
+
+Promise.allSettled
+------------------------
+Waits for all promises to complete regardless of success/failure.
+
+
+Promise.allSettled([
+  Promise.resolve("Success"),
+  Promise.reject("Failure"),
+])
+  .then((results) => {
+    results.forEach((r) => console.log(r.status, r.value || r.reason));
+  });
+
+
+
+
+
+
+let cleanRoom=function(){
+	return new Promise(function(resolve, reject){
+		resolve('clean the room')
+	});
+};
+
+let removeGarbage=function(message){
+	return new Promise( function(resolve, reject){
+		resolve(message+ 'remove the garbage');
+	});
+}
+
+let winTheIceCream=function(message){
+	return new Promise( function(resolve, reject){
+		resolve(message+ 'win icecream');
+	});
+}
+
+cleanRoom().then(function(result){
+	return removeGarbage(result);
+}).then(function(result){
+	return winTheIceCream(result);
+}).then(function(result){
+	console.log('finished'+ result);
+});
+
+
+
+
+ //want to do everything in ||, when all are done do something
+Promise.all([cleanRoom(), removeGarbage(), winTheIceCream()]).then(
+	function(){
+		console.log('all finished....');
+	}
+);
+
+//want if u wnat one of them to finished , when all are done do something
+Promise.race([cleanRoom(), removeGarbage(), winTheIceCream()]).then(
+	function(){
+		console.log('all finished....');
+	}
+);
+
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/race
+
+
+
+
+
+
+Typescript tutorial
+_________________
+https://stackoverflow.com/questions/12694530/what-is-typescript-and-why-would-i-use-it-in-place-of-javascript#:~:text=The%20goal%20of%20TypeScript%20is,standardized%20through%20the%20ECMAScript%20standards.
+
+	What is typescript?
+	_______________________
+	=> TypeScript is an open-source programming language developed and maintained by Microsoft
+	
+	=>  As TypeScript is a superset of JavaScript, existing JavaScript programs are also valid 				
+	TypeScript programs. 
+
+	=> TypeScript may be used to develop JavaScript applications for both
+		 client-side and server-side (Node.js) execution
+
+	Why typescript?
+	_________________
+	=> adds optional static typing to the language
+
+	=>  TypeScript is designed for development of large applications 
+		and transcompiles to JavaScript
+
+	=> TypeScript makes code easier to read and understand. 
+
+	=> huge improvement over plain JavaScript. 
+
+	=> TypeScript gives us all the benefits of ES6 (ECMAScript 6), plus more productivity.
+
+
+	Advantage:
+	___________
+	=> easy code management
+	=> Support ecma script
+	=> oo wrapper looks like java, c#
+	=> ide support
+
+
+
+
+gettting started
+_______________
+
+installation: 
+npm install -g typescript
+
+tsc demo.ts --watch
+
+
+
+run tsc command to check version
+
+
+greet.ts
+-----------
+function greet(person:string) {
+    return "Hello, " + person;
+}
+
+let user = "rajeev gupta";
+
+greet(user);
+
+
+converting to js: tsc greet.ts
+
+
+it error to do:
+let user=11;
+
+
+
+Typescript datatypes/Variable decleration
+________________________________________
+what is types ? how to use type? number, boolean, string etc
+
+//boolean
+let isJobDone:boolean = false;
+//Number
+let myNum:number = 4;
+
+//text string
+
+let myName:string = "raj";
+
+//template strings
+let greeting : strign ="hello,"+myName;
+
+let greeting : strign =`hello ${myName}';
+
+
+//arrays
+let count : Array<number> = [1,2,3,4];
+
+
+// if you dont know the type
+ let anything : any = 4;
+ anything ="some text";
+
+ anything = false;
+
+//return nothing
+
+ function greet(name: string) : void {
+	console.log(`hello ${name}`);
+ }
+
+//enums
+ let joyStStatus=  1;
+ enum Directions{UP, DOWN, LEFT, RIGHT};
+  if(joyStStatus ===1){
+
+  }
+
+  if(joyStStatus ===Directions.UP){
+
+  }
+ enum Color{RED, BLUE, GREEN};
+ 
+ IF(Color === 1){
+
+ }
+
+Note typescript array:
+____________________
+
+When we declare the array:
+
+let data=['hello','bye'];
+
+and then add 66(number ts gives error)
+
+data[1]=66;
+
+in below case ts dont give error:
+____________________
+let data=['hello','bye',55];
+data[1]=66;
+
+
+
+
+
+typescript union type:
+________________________
+let data: string | number="raja"
+
+
+
+
+
+Interface in typescript:
+________________________
+	=>  interface is a syntactical contract that an entity should conform to
+	
+	=> Interfaces define properties, methods, and events, which are the members of the interface. 
+
+	=> Interfaces contain only the declaration of the members.
+	 It is the responsibility of the deriving class to define the members. 
+
+	=> It often helps in providing a standard structure that the deriving classes would follow.
+
+
+interface Person {
+    firstName: string;
+    lastName: string;
+}
+
+
+
+
+function hello(person: Person) {
+    return "Hello, " + person.firstName + " " + person.lastName;
+}
+
+let user = { firstName: "raj", lastName: "gupta" };
+
+Ex2:
+-----
+
+interface IPerson { 
+   firstName:string, 
+   lastName:string, 
+   sayHi: ()=>string 
+} 
+
+var customer:IPerson = { 
+   firstName:"ravi",
+   lastName:"kumar", 
+   sayHi: ():string =>{return "Hi there"} 
+} 
+
+console.log("Customer Object ") 
+console.log(customer.firstName) 
+console.log(customer.lastName) 
+console.log(customer.sayHi())  
+
+var employee:IPerson = { 
+   firstName:"ekta",
+   lastName:"gupta", 
+   sayHi: ():string =>{return "Hello!!!"} 
+} 
+  
+console.log("Employee  Object ") 
+console.log(employee.firstName);
+console.log(employee.lastName);
+
+
+
+
+Interfaces and Inheritance
+__________________________
+	=> an interface can inherit from other interface. 
+	=> Typescript allows an interface to inherit from multiple interfaces.
+
+
+interface Person { 
+   age:number 
+} 
+
+interface Musician extends Person { 
+   instrument:string 
+} 
+
+
+let drummer = <Musician>{}; 
+drummer.age = 27 
+drummer.instrument = "Drums" 
+console.log("Age:  "+drummer.age) console.log("Instrument:  "+drummer.instrument)
+
+
+
+typescript classes:
+__________________
+
+class Car { 
+   engine:string; 
+   
+   constructor(engine:string) { 
+      this.engine = engine 
+   }  
+   
+   disp():void { 
+      console.log("Function displays Engine is  :   "+this.engine) 
+   } 
+} 
+
+var obj = new Car("XXSY1")
+
+console.log("Reading attribute value Engine as :  "+obj.engine)  
+
+obj.disp()
+
+
+Typescript Constructor Shorthand
+-----------------------------
+	in Typescript there is a shorthand to create and assign 
+	class properties from constructor params.
+
+Imagine you have following code, let’s say you have class User:
+
+class User {
+  private name: string;
+  private surname: string;
+  private age: number;
+
+  constructor(name: string, surname: string, age: number) {
+    this.name = name;
+    this.surname = surname;
+    this.age = age;
+  }
+}
+You can write same class using shorter syntax:
+-----------------------------------------------
+class User {
+  constructor(private name: string,private surname: string,private age: number) {}
+}
+
+
+
+In this case Typescript will automatically generate thore properties. 
+And yes both definitions will produce same Javascript code:
+
+var User = /** @class */ (function() {
+  function User(name, surname, age) {
+    this.name = name;
+    this.surname = surname;
+    this.age = age;
+  }
+  return User;
+})();
+
+And it works not only for private access level modifier, you can use public or protected as well.
+
+So you can use this constructor assignment technique to save some lines of code.
+https://dev.to/satansdeer/typescript-constructor-shorthand-3ibd
+
+
+Inheritance ex :
+________________
+class Emp{
+    
+    constructor( private name: string, private add:string){}
+    print():void{
+        console.log(`the person details are ${this.name}and ${this.add}`)
+    }
+}
+
+class Programmer extends Emp{
+   
+    constructor( name: string,  add:string, private pl: string){
+        super(name, add);
+       
+    }
+    print():void{
+        super.print();
+        console.log(`the person details are ${this.pl}`)
+    }
+}
+
+
+
+Typescript inheritacnce:
+_______________________
+class Shape { 
+   Area:number 
+   
+   constructor(a:number) { 
+      this.Area = a 
+   } 
+} 
+
+class Circle extends Shape { 
+   disp():void { 
+      console.log("Area of the circle:  "+this.Area) 
+   } 
+}
+  
+var obj = new Circle(223); 
+obj.disp()
+
+
+
+
+TypeScript ─ Class inheritance and Method Overriding
+_________________________________________________
+
+class PrinterClass { 
+   doPrint():void {
+      console.log("doPrint() from Parent called…") 
+   } 
+} 
+
+class StringPrinter extends PrinterClass { 
+   doPrint():void { 
+      super.doPrint() 
+      console.log("doPrint() is printing a string…")
+   } 
+} 
+
+var obj = new StringPrinter() 
+obj.doPrint()
+
+
+
+TypeScript ─ static method
+____________________________
+
+
+class StaticMem {  
+   static num:number; 
+   
+   static disp():void { 
+      console.log("The value of num is"+ StaticMem.num) 
+   } 
+} 
+
+StaticMem.num = 12     // initialize the static variable 
+StaticMem.disp()      // invoke the static method
+
+
+What is Optional Chaining (?.) in TypeScript?
+====================================================
+	
+	Optional chaining allows you to safely access deeply nested 
+	properties without having to check if each level exists.
+	
+	TypeScript's optional chaining (?.) and Java 8's Optional<T> share a similar goal —
+	to help developers handle potentially null or undefined values safely
+
+Example: Without Optional Chaining
+-------------------------------
+interface User {
+  name: string;
+  address?: {
+    city?: string;
+    zipCode?: string;
+  };
+}
+
+const user1: User = {
+  name: "Alice",
+};
+
+console.log(user1.address.city); // ❌ Error: Cannot read property 'city' of undefined
+
+Same Example With Optional Chaining
+-------------------------------------
+interface User {
+  name: string;
+  address?: {
+    city?: string;
+    zipCode?: string;
+  };
+}
+
+const user1: User = {
+  name: "Alice",
+};
+
+console.log(user1.address?.city); // ✅ Output: undefined (No error)
+
+Explanation:
+----------------
+user1.address?.city
+
+If address exists, it returns city.
+If address is undefined, it returns undefined instead of throwing an error.
+
+More Optional Chaining Examples
+------------------------------
+1. Calling a method if it exists
+--------------------------------
+const logger = {
+  log?: () => console.log("Logging...")
+};
+
+logger.log?.(); // Only calls if `log` exists
+
+2. Accessing an array element safely
+-------------------------------------------
+const items: string[] | undefined = undefined;
+
+console.log(items?.[0]); // undefined, no error
+
+3. Chaining multiple optional accesses
+------------------------------------
+
+const appConfig = {
+  user: {
+    settings: {
+      theme: "dark"
+    }
+  }
+};
+
+console.log(appConfig.user?.settings?.theme); // "dark"
+console.log(appConfig.admin?.settings?.theme); // undefined, no crash
+
+Not to be confused with Nullish Coalescing (??)
+------------------------------------
+Use ?? to provide default values:
+
+const theme = appConfig.user?.settings?.theme ?? "light";
+
+Let me know if you'd like a mini-project or code snippet
+ using optional chaining in real apps (e.g., API response handling).
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+Configuration file in TypeScript
+_______________________
+
+How to make it 
+	tsc --init
+
+create folders src and output
+	=> we want to put our src in src folder and output to output folder
+
+	    "outDir": "./output",               
+     	     "rootDir": "./src",    
+
+
+
+What we can config
+Try out with  some configuration
+
+
+
+
+https://www.tutorialsteacher.com/typescript/typescript-class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

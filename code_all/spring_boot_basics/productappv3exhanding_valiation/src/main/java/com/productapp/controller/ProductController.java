@@ -41,15 +41,6 @@ public class ProductController {
 		return ResponseEntity.ok(productService.getAll());
 	}
 
-	@Tag(name = "product", description = "Product management APIs")
-	@Operation(summary = "Retrieve a Tutorial by Id", 
-	description = "Get a Tutorial object by specifying its id. The response is Tutorial object with id, title, description and published status.", tags = {
-			"tutorials", "get" })
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", content = {
-					@Content(schema = @Schema(implementation = Product.class), mediaType = "application/json") }),
-			@ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }),
-			@ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
 	@GetMapping("products/{id}")
 	public ResponseEntity<Product> getById(@PathVariable(name = "id") int id) {
 		return ResponseEntity.status(HttpStatus.OK).body(productService.getById(id));
