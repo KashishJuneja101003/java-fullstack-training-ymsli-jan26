@@ -1,0 +1,398 @@
+Spring MVC Spring boot fundamentals
+==================================
+Learning Ground Up!
+--------------------------------------
+Servlet Basics
+	Servlet Life Cycle
+	Request–Response Flow
+	Servlet Listeners
+	Servlet Filters
+	Filter Chain
+Chain of Responsibility (GoF) Mapping
+	Spring MVC on Top of Servlet Stack
+	Spring MVC arch
+	Spring MVC with java configuration
+	Spring Boot 
+
+
+Let cover:
+---------
+Servlet Basics
+	What a Servlet is
+	Role of the Web Container (Tomcat)
+	Dynamic content generation
+	Servlet Life Cycle
+	init() – one time
+	service() / doGet() / doPost() – per request
+	destroy() – shutdown
+	Threading & singleton reality
+	Request–Response Flow
+	Browser → Container → Servlet
+	Forward vs Redirect
+	Request, Session, Application scope
+
+Servlet Listeners (Gentle Intro)
+	What listeners observe
+	Application startup / shutdown
+Session create / destroy
+	When to use (and when not to)
+
+Servlet Filters
+	What a Filter is
+	Before & after request logic
+	Blocking vs passing request
+	chain.doFilter() meaning
+	Filter Chain
+	Filter ordering
+	Pre-processing vs post-processing
+
+Real-world use cases (auth, logging, CORS)
+	Filter Chain as GoF Pattern
+	Chain of Responsibility mapping
+	Handler, Chain, Request analogy
+	Breaking vs continuing the chain
+	Big Picture (Mental Model)
+	Listener → Filter → Servlet → Filter
+
+How Spring MVC fits on top
+
+
+Servlet JSP simple calculator:
+-----------------------------
+
+
+1. Servlet JSP calculator application with MVC design pattern
+----------------------------------------------------------
+
+
+	Application 1: Calculator application
+
+	form:
+
+	<form action="Cal.do" method="post">
+		Enter first No : <input type="text" name="numberA"/><br/>
+		Enter second No:<input type="text" name="numberB"/><br/><br/>
+		<input type="submit"/>	
+	</form>
+
+
+1. Servlet JSP Book Advice Application (HeadFirst bear adv app)
+----------------------------------------------------------
+
+	create view:
+	---------------
+
+	create form:
+
+		<html><body>
+		<h1 align="center">Book Selection Page</h1>
+		<form action="SelectBook" method="post"> 
+		Select book <p>
+ 
+		Book: 
+		<select name="topic" size="1"> 
+		<option value="Java">Java</option> 
+		<option value="Servlet">Servlet</option> 
+		<option value="Struts">Struts</option> 
+
+		</select> 
+		<br><br> 
+		<center> 
+		<input type="submit"> 
+		</center>
+		</form>
+		</body>
+		</html>
+
+
+	
+	Create controller
+	---------------------
+			
+		String topic=request.getParameter("topic");
+		List<String>choices=BookAdviser.bookAdviser(topic);
+		request.setAttribute("booklist", choices);
+		RequestDispatcher rd=request.getRequestDispatcher("show2.jsp");
+		rd.forward(request, response);
+
+
+	create model 
+	-----------------
+
+
+
+	public class BookAdviser {
+
+	public static List<String> bookAdviser(String topic){
+		List<String>list=new ArrayList<String>();
+		
+		if(topic.equalsIgnoreCase("Java")){
+			list.add("head first");
+			list.add("thinking in java");
+		}else if(topic.equalsIgnoreCase("Servlet")){
+			list.add("head first servlet jsp");
+			list.add("core servlet.com");
+		}else if(topic.equalsIgnoreCase("Struts")){
+			list.add("struts2 in action");
+			list.add("black book");
+		}else
+			list.add("no book");
+		
+		return list;
+	}
+	}
+
+
+	create display.jsp
+	---------------------
+
+	<%
+	List<String>list=(List<String>)request.getAttribute("key");
+	Iterator it=list.iterator();
+	while(it.hasNext()){
+		out.print(it.next()+"</br>");
+	}
+
+	%>
+
+
+
+
+	better view
+	------------
+
+	<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+	<c:forEach var="book" items="${booklist}">
+   		 <b> ${book} </b><br/>
+	</c:forEach>
+
+
+
+1. Servlet JSP BookStore application
+--------------------------------------
+
+<table>
+
+		<thead>
+			<tr>
+				<th>id</th>
+				<th>isbn</th>
+				<th>title</th>
+				<th>author</th>
+				<th>price</th>
+				<th>update</th>
+				<th>delete</th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${books}" var="book">
+				<tr>
+					<td>${book.id }</td>
+					<td>${book.isbn }</td>
+					<td>${book.title }</td>
+					<td>${book.author }</td>
+					<td>${book.price }</td>
+		
+					<td><fmt:formatDate value="${book.pubDate }" pattern="dd/MM/yyyy"/></td>
+						
+					<td><a href="update?id=${book.id }">update</a></td>
+					<td><a href="delete?id=${book.id }">delete</a></td>
+						
+					
+
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Spring MVC archecture
+---------------------
+1. Dispacher Servlet(FC)
+2. user Defind Back Controller
+3. Handler mapping
+4.View Resolver
+
+
+
+Step 1: Spring MVC hello world
+-------------------------------
+
+Step:
+
+1. create maven project add to pom file (attached pom)
+
+
+2. map controller in web.xml
+
+	<servlet>
+	    <servlet-name>dispatcher</servlet-name>
+	    <servlet-class>
+	        org.springframework.web.servlet.DispatcherServlet
+	    </servlet-class>
+	    <init-param>
+	        <param-name>contextConfigLocation</param-name>
+	        <param-value>/WEB-INF/spring-servlet.xml</param-value>
+	    </init-param>
+	    <load-on-startup>1</load-on-startup>
+	 </servlet>
+	 
+	 <servlet-mapping>
+	    <servlet-name>dispatcher</servlet-name>
+	    <url-pattern>/</url-pattern>
+	 </servlet-mapping>
+
+
+3. create dispatcher-servlet.xml file 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+ 
+    <context:component-scan base-package="com.controller" />
+ 
+    <mvc:annotation-driven />
+     
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+            <value>/WEB-INF/views/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
+ 
+</beans>
+
+
+
+com.controller
+
+4. create hello world controller
+
+	@Controller
+	@RequestMapping("/")
+	public class HelloWorldController {
+	 
+	    @RequestMapping(method = RequestMethod.GET)
+	    public String sayHello(ModelMap model) {
+	        model.addAttribute("greeting", "Hello World from Spring 4 MVC");
+	        return "welcome";
+	    }
+	    @RequestMapping(value="/helloagain", method = RequestMethod.GET)
+	    public String sayHelloAgain(ModelMap model) {
+	        model.addAttribute("greeting", "Hello World Again, from Spring 4 MVC");
+	        return "welcome";
+	    }
+	 
+	}
+
+
+5. create hello world view welcome.jsp
+
+  Greeting : ${greeting}
+
+
+
+Step 2: BookStore application
+-------------------------------
+
+
+
+Step 3: Spring MVC java configuration
+--------------------------------------
+
+Step 1: first we need to replace dispatcher-servlet.xml with java code
+	What we have mentioned in dispatcher-servlet.xml?
+	1. which package to scan
+	2. view resolver
+
+
+configuration for bootstrapping
+
+@Configuration // replacement of xml file, telling spring it is configuration file
+@ComponentScan(basePackages={"com"})
+@EnableWebMvc
+public class AppConfig extends WebMvcConfigurerAdapter{
+
+    @Bean
+    public InternalResourceViewResolver getInternalResourceViewResolver() {
+        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+        resolver.setPrefix("/WEB-INF/pages/");
+        resolver.setSuffix(".jsp");
+        return resolver;
+    }
+
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		 // Don't forget the ending "/" for location or you will hit 404.
+	    registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
+	 
+	}
+    
+}
+
+
+Or even we can replace everything from web.xml
+-------------------------------------------
+
+now how to replace web.xml?
+------------------------
+
+public class WebInitilizer extends
+		AbstractAnnotationConfigDispatcherServletInitializer {
+
+	@Override
+	protected Class<?>[] getRootConfigClasses() {
+
+		return null;
+	}
+
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+
+		return new Class[]{AppConfig.class};
+	}
+
+	@Override
+	protected String[] getServletMappings() {
+
+		return new String[]{"/"};
+	}
+
+}
+
+
+
+hello world controller:
+-------------------------
+
+@Controller
+@RequestMapping("/")
+public class HelloWorldController { 
+	    @RequestMapping(method = RequestMethod.GET)
+	    public String sayHello(ModelMap model) {
+	        model.addAttribute("greeting", "Hello World from Spring 4 MVC");
+	        return "welcome";
+	    }
+ }
+

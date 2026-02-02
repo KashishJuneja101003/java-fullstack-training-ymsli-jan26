@@ -35,6 +35,20 @@ create employee component:
 ng g c employee
 
 
+employee.component.ts
+----------------------
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-employee',
+  standalone: true,
+  imports: [CommonModule],   //  ADD HERE
+  templateUrl: './employee.component.html'
+})
+export class EmployeeComponent {}
+
+
 
 
 Now display all employee : (dont forget to use common module)

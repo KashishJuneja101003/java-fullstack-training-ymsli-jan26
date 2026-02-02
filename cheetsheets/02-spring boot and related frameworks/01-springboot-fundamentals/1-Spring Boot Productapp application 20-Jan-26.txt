@@ -2025,6 +2025,9 @@ spring.banner.location=
 spring.jmx.enabled=true
 management.endpoints.web.exposure.include=*
 management.endpoints.jmx.exposure.include=*
+spring.jmx.enabled=true
+#management.endpoints.web.exposure.include=shutdown
+management.endpoint.shutdown.access=unrestricted
 
 management.info.env.enabled=true
 info.app.encoding=UTF-8
@@ -2074,6 +2077,19 @@ spring.h2.console.path=/h2
 
 spring.jpa.hibernate.ddl-auto=update
 
+
+
+
+Correct modern config (recommended)
+--------------------------------
+JMX only (safe-ish)
+management.endpoint.shutdown.access=unrestricted
+management.endpoints.jmx.exposure.include=shutdown
+management.endpoints.web.exposure.exclude=shutdown
+
+HTTP + secured (advanced)
+management.endpoint.shutdown.access=unrestricted
+management.endpoints.web.exposure.include=shutdown
 
 
 

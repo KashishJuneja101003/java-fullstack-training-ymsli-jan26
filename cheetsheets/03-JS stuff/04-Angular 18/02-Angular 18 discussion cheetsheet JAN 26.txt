@@ -1,4 +1,4 @@
-Introduction to Angular 19
+Introduction to Angular 18+
 _________________________
 Topics:
 __________
