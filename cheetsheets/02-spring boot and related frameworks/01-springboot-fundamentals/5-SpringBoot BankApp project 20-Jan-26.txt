@@ -1,23 +1,21 @@
 Bankapplication applicatation
 ------------------------------
-	* Spring vs Spring boot, Spring boot introduction 
-	* Spring DI Qucick recap
-	* AOP how to handle cross cutting concerns
-	* Spring boot rest
+	* Getting started with simple bank application
 	* spring boot data jpa
+	* Spring boot Joins
 	* Excpetion handling
 	* Validation
 	* Actuator
 	* logging
 	* Security
+	
 
 
 bank application 3 tier
 controller layer -------------------- service layer ------------------- dao layer --------------db
 																	repository layer
-																	
-Step 1: understading why we need DI?
-------------------------------------
+Step 1: Hard coded domain model:
+---------------------------
 
 Dao layer:
 --------------															
@@ -76,7 +74,201 @@ public interface AccountService {
 }
 
 
+@Service
+@Transactional
+public class AccountServiceImpl implements AccountService {
 
+	private AccountDao accountDao;
+
+	@Autowired
+	public AccountServiceImpl(AccountDao accountDao) {
+		this.accountDao = accountDao;
+	}
+
+	@Override
+	public List<Account> getAll() {
+		return accountDao.getAll();
+	}
+
+	@Override
+	public Account getById(int id) {
+		Account account = accountDao.getById(id);
+		if (account == null) {
+			throw new BankAccountNotFoundException("account with id " + id + " not found");
+		}
+		return account;
+	}
+
+	@Override
+	public void transfer(int fromAccId, int toAccId, BigDecimal amount) {
+		Account fromAcc = getById(fromAccId);
+		Account toAcc = getById(toAccId);
+
+		fromAcc.setBalance(fromAcc.getBalance().subtract(amount));
+
+		accountDao.updateAccount(fromAcc);
+
+		toAcc.setBalance(toAcc.getBalance().add(amount));
+
+		accountDao.updateAccount(toAcc);
+
+	}
+
+	@Override
+	public void deposit(int accId, BigDecimal amount) {
+		Account acc = getById(accId);
+		acc.setBalance(acc.getBalance().add(amount));
+		accountDao.updateAccount(acc);
+
+	}
+
+	@Override
+	public void withdraw(int accId, BigDecimal amount) {
+		Account acc = getById(accId);
+		acc.setBalance(acc.getBalance().subtract(amount));
+		accountDao.updateAccount(acc);
+	}
+
+	
+	
+	@Override
+	public void addAccount(Account account) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteAccount(int id) {
+		// TODO Auto-generated method stub
+
+	}
+
+}
+
+
+
+
+@RestController
+@RequestMapping(path="v1")
+public class AccountController {
+	
+	private AccountService accountService;
+
+	
+	public AccountController(AccountService accountService) {
+		this.accountService = accountService;
+	}
+	
+	@GetMapping(path = "accounts")
+	public List<Account> getAll(){
+		return accountService.getAll();
+	}
+	
+	
+	@GetMapping(path = "accounts/{id}")
+	public Account getById(@PathVariable(name="id")int id ){
+		return accountService.getById(id);
+	}
+	
+
+}
+
+We have also create custom exception:
+-----------------------------------
+public class BankAccountNotFoundException extends RuntimeException{
+	
+	private static final long serialVersionUID = 6115120847499794478L;
+
+	public BankAccountNotFoundException(String message) {
+		super(message);
+	}
+}
+
+
+
+Use case: get by id and if not found handle the ex gracefully
+
+@RestControllerAdvice
+public class BankAccountExceptionHandlerController {
+	
+	@ExceptionHandler(BankAccountNotFoundException.class)
+	public ResponseEntity<ProblemDetail> handle404(BankAccountNotFoundException e){
+		ProblemDetail problemDetail =
+                ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+
+        problemDetail.setTitle("Account Not Found");
+        problemDetail.setDetail(e.getMessage());
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errorCode", "NOT_FOUND");
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
+	}
+
+}
+
+
+now we though let we split the controller (SRP)
+----------------------------------------------
+
+@RestController
+@RequestMapping(path="v1/accounts")
+public class AccountController {
+	private AccountService accountService;
+
+	public AccountController(AccountService accountService) {
+		this.accountService = accountService;
+	}
+	
+	@GetMapping
+	public List<Account> getAll(){
+		return accountService.getAll();
+	}
+	
+	
+	@GetMapping(path = "{id}")
+	public Account getById(@PathVariable(name="id")int id ){
+		return accountService.getById(id);
+	}
+	
+}
+
+
+
+another one: still thiking best url name :(
+-------------------
+
+@RestController
+@RequestMapping(path="v1/transactions")
+public class AccountTransactionController {
+	
+	private AccountService accountService;
+
+	
+	public AccountTransactionController(AccountService accountService) {
+		this.accountService = accountService;
+	}
+	
+	//transfer
+	@PutMapping("transfer")
+	public String transfer(@RequestBody TransferDto transferDto) {
+		accountService.transfer(transferDto.getFromAccountId(),
+				transferDto.getToAccountId(), transferDto.getAmount());
+		return "fund transfer successfully";
+	}
+
+	@PutMapping("deposit")
+	public String deposit(@RequestBody DepositDto depositDto) {
+		accountService.deposit(depositDto.getAccountId(), depositDto.getAmount());
+		return "deposit successfully";
+	}
+	
+	@PutMapping("withdraw")
+	public String withdraw(@RequestBody WithdrawDto withdrawDto) {
+		accountService.withdraw(withdrawDto.getAccountId(), withdrawDto.getAmount());
+		return "withdraw successfully";
+	}
+	
+}
 
 
 
