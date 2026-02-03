@@ -1,0 +1,5016 @@
+https://www.linkedin.com/in/rajeevguptajavatrainer/
+https://github.com/rgupta00/design_pattern_workshop_27_30_oct25
+
+
+Deep Dive design pattern with java
+-----------------------------------
+	=> Design Principles (SOLID)
+
+	=> GOF Pattern categories
+
+	=>GOF design pattern
+
+	=> Creational Patterns
+		Singleton
+		Factory
+		Abstract Factory
+		Builder
+		Prototype
+
+	=> Structural Patterns
+		Adapter
+		Decorator
+		Facade Pattern
+		Bridge
+		Composite
+		Flyweight
+		Proxy
+
+	=> Behavioral Patterns
+		Template Method
+		Chain of Responsibility
+		Observer
+		Strategy
+		Command
+		Iterator
+		Mediator
+		Interpreter
+		Memento
+		
+
+Design patterns: OOPs, SOLID, DP, framework
+
+
+what is abstraction?
+-------------------
+	design principle of seprating interface from implementation 
+	so that client only concern with interface
+	
+	iplementated by interface / abs class
+	we just need to press ac remote 
+
+encapsulation
+-------------
+	process of restructing access to inner implemtation details 
+	of the class
+	internel not exposed to the outside world
+	
+	sealed mobile dont open it
+	impl by private modifier
+	
+	ability to refactor / change internel code without breaking outer code
+
+inteface:
+---------
+	specification of an behiavioiur 
+	interface represent some feature of class
+	what and object can do 
+	standarization of an behaviour
+	
+abs class
+--------
+	generalization of an behaviour 
+	incomplete class that require further speficication
+	
+	what an object is ?
+	
+	is a tested
+	
+framework vs lib vs design pattern 
+
+
+
+
+God class example: violation of SRP
+----------------------------
+package com.demo;
+
+
+//GOD class--- 
+class Product {
+	private int id;
+	private String name;
+	private double price;
+
+	public boolean valiation() {
+		// logic of valiation in this class
+		return true;
+	}
+
+	public Product(String name, double price) {
+		super();
+		this.name = name;
+		this.price = price;
+	}
+
+	public Connection getConnection() {
+		Connection connection = null;
+		Properties prop = new Properties();// aka hashtable,,used to load prop file
+		InputStream is;
+		try {
+			is = Product.class.getClassLoader().getResourceAsStream("db.properties");
+
+			prop.load(is);// this will get key and values
+
+		} catch (IOException e1) {
+
+			e1.printStackTrace();
+		}
+
+		String driverName = prop.getProperty("jdbc.driver");
+		System.out.println(driverName);
+		String url = prop.getProperty("jdbc.url");
+		String username = prop.getProperty("jdbc.username");
+		String password = prop.getProperty("jdbc.password");
+
+		try {
+			Class.forName(driverName);// this is dynamic class loading
+			System.out.println("driver is loaded");
+		} catch (ClassNotFoundException ex) {
+			System.out.println(ex);
+			System.out.println("driver loading is not working");
+		}
+
+		try {
+			connection = DriverManager.getConnection(url, username, password);
+			System.out.println("-------------");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return connection;
+	}
+
+	public void addProduct() {
+		try {
+			Connection connection = getConnection();
+			PreparedStatement pstmt = connection.prepareStatement("insert into product(name,price) values(?,?)");
+			pstmt.setString(1, name);
+			pstmt.setDouble(2, price);
+
+			pstmt.executeUpdate();
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+
+	}
+
+}
+
+
+Collection api:
+java 1.4 we dont have Queue
+how to impl Queue re-using LL class
+
+
+
+3 tier arch: MVC
+
+controller ---------- service --------- repo / dao ----------- db 
+
+
+class A extends Object{
+
+
+}
+
+interface  Tyre{
+	public void rotate();
+}
+
+class MrfTyre impl... Tyre{
+	public void rotate(){
+		sysout("mrf tyre");
+	}
+}
+
+class CeatTyre impl... Tyre{
+	public void rotate(){
+		sysout("mrf tyre");
+	}
+}
+
+class Car{
+	private Tyre tyre;
+	
+	public Car(Tyre tyre){
+		this.tyre=tyre;
+	}
+	public void move(){
+	
+		tyre.rotate();
+	}
+
+}
+
+DI is akf IOC
+
+class Passanger extends Metro{
+
+	
+	
+}
+
+
+//favour Compostion over inheritance*
+
+
+favour composition over inheritance
+-----------------------------------
+	=> square rectangle liskov java
+
+class Rectangle{
+	private int l, b;
+
+	public int getL() {
+		return l;
+	}
+
+	public void setL(int l) {
+		this.l = l;
+	}
+
+	public int getB() {
+		return b;
+	}
+
+	public void setB(int b) {
+		this.b = b;
+	}
+
+	public Rectangle(int l, int b) {
+		this.l = l;
+		this.b = b;
+	}
+	
+	public int calculateArea(){
+		return l*b;
+	}
+	
+}
+
+class Square extends Rectangle{
+	public Square(int l){
+		super(l, l);
+	}
+}
+
+
+What and Why design pattern
+-------------------------
+
+	=> tried and tested solutions to work with
+
+	=> language neutral and so can be applied to any OO language
+
+	=>proven track record as they are already widely used and thus reduce 
+	the technical risk to the project
+
+	=>highly flexible and can be used in practically 
+		any type of application or domain
+
+
+
+
+Design Principles (SOLID)
+---------------------------
+
+    Single Responsibility Principle
+	Open Close Principle
+	Liskov's Substitution Principle
+	Dependency Inversion Principle
+	Interface Segregation Principle
+
+Understanding SRP
+-------------------
+class Book {
+	private int id;
+	private String isbn;
+	private String title;
+	private String author;
+	private double price;
+	
+	public Connection  getConnection(){
+		// code to get jdbc connection..
+		return null;
+	}
+
+	public SessionFactory  getFactory(){
+		// code to get jdbc connection..
+		return null;
+	}
+	public void addBook(Book book)throws SQLException{
+		System.out.println("adding book to db using jdbc..");
+	}
+       public void addBookUsingHibernate(Book book)throws HibernateException{
+		System.out.println("adding book to db using hibernate....");
+	}
+}
+
+
+
+
+
+
+public interface BookDao {
+		public List<Book> getAllBooks();
+		public Book getBookById(int bookId);
+		public void addBook(Book book);
+		public void updateBook(Book book);
+		public void removeBook(int bookId);
+}
+
+
+
+
+
+
+mysql -u root -p
+use  d_jug;
+
+create table Book (id integer not null auto_increment, author varchar(255), isbn varchar(255), price double precision not null, title varchar(255), primary key (id));
+
+insert into Book (author, isbn, price, title) values ('raj', 'abc121', 4455.8, 'java head first');
+
+
+
+con=DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/d_jug","root","root");
+			stmt=con.prepareStatement("insert into Book (author, isbn, price, title) values (?, ?, ?, ?)");
+			stmt.setInt(1, "raja");
+			stmt.setString(2, "abc121");
+			stmt.setDouble(3, 3333.6);
+			stmt.setString(2, "java head first");
+			stmt.executeUpdate();
+
+
+
+
+db.properties
+-------------------
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3306/UserDB
+user=root
+password=root
+
+
+
+Create an connection factory
+-------------------------
+
+
+package com.daniel.util;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
+
+public class DbUtil {
+
+    private static Connection connection = null;
+
+    public static Connection getConnection() {
+        if (connection != null)
+            return connection;
+        else {
+            try {
+                Properties prop = new Properties();
+
+                InputStream inputStream = DbUtil.class.getClassLoader().getResourceAsStream("db.properties");
+
+                prop.load(inputStream);
+                String driver = prop.getProperty("driver");
+                String url = prop.getProperty("url");
+                String user = prop.getProperty("user");
+                String password = prop.getProperty("password");
+                Class.forName(driver);
+                connection = DriverManager.getConnection(url, user, password);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return connection;
+        }
+
+    }
+}
+
+
+
+GOF Pattern categories
+---------------------------------
+  ==> GOF, 23 patterns
+   ==> Classification patterns: 
+
+	Creational
+	Structural
+	Behavioral
+
+
+
+Creational Pattern
+-------------------
+Creational Design Patterns
+	Creational patterns deal with object creation — how and when objects are created.
+	What is the best way to create object?
+	 
+Why called “Creational”?
+		Because they focus on the creation process — hiding complex construction 
+		logic and providing flexible object creation mechanisms.
+
+==> Creational Pattern
+	Singleton 			→ only one object
+	Factory Method	 	→ subclass decides what to create
+	Builder 			→ step-by-step object creation
+	Prototype 			→ copy an existing object
+	Abstract Factory 	→ factory of factories
+	
+
+structural patterns 
+--------------------
+	Structural Design Patterns
+		Structural patterns deal with object composition — 
+		how objects and classes are combined to form larger, flexible structures.
+
+		Why called “Structural”?
+			Because they focus on the structure of classes and objects 
+			— how to connect or wrap them without changing their code.
+
+	==> Structural Patterns describe how objects and 
+		classes can be combined to form larger structures
+
+	==> class patterns vs object patterns
+
+	==> The difference between class patterns and object patterns is that 
+		class patterns describe abstraction with the help of inheritance
+		and how it can be used to provide more useful program interface. 
+
+	==> Object patterns, on other hand, describe how objects can
+		 be associated and composed to form larger, more complex structures
+
+Structural Design Patterns:
+-------------------------------
+	Adapter		 → converts one interface to another
+	Bridge		 → separates abstraction from implementation
+	Composite	 → tree-like structure (e.g., branches and leaves)
+	Decorator    → adds features dynamically
+	Facade 		 → simplified interface to complex systems
+	Proxy 		 → controls access to another object
+	Flyweight 	→ reuses shared objects efficiently
+	
+
+
+
+Behavioral Patterns
+------------------
+Behavioral Design Patterns
+	Behavioral patterns deal with object interaction 
+	— how objects communicate and share responsibilities.
+
+	Why called “Behavioral”?
+		Because they define behavior and communication among objects, 
+		rather than structure or creation.
+
+	==> Behavioural patterns are those which are concerned with 
+		interactions between the objects.
+
+	==> The interactions between the objects should be such that they 
+	  are talking to each other and still are loosely coupled. 
+
+
+	==> The loose coupling is the key to n-tier architectures. 
+		In this, the implementation and the client should be loosely 
+		coupled in order to avoid hard-coding and dependencies.
+
+	==> Behavioral Patterns
+	-------------------------
+	Strategy 		→ interchangeable algorithms (e.g., UPI vs NEFT)
+	Observer 		→ notifies listeners (e.g., SMS/email alerts)
+	State			 → behavior changes with state (e.g., Account Active/Blocked)
+	Command			 → encapsulates request as object
+	Chain of Responsibility → passes request along handlers
+	Mediator		 → controls communication between objects
+	Memento 		→ undo/save state
+	Template Method	 → skeleton algorithm with steps to override
+
+
+java reflection and annotation programing?
+
+
+
+Creational Pattern
+==================
+
+	Singleton Pattern
+	===================
+
+	" one object per application" ex logging , db connection etc
+
+	=> lazy vs eager
+	=> threading issue, double locking
+	=> What if clonned
+	=> What if deserilized?
+	=> What if used java reflection?
+	=> what if 2 class loader load that class twice
+	=> best practices, effective java
+	=> using enum
+
+	Attempt 1:
+
+	class SingletonObject {
+
+		private static SingletonObject singletonObject;
+
+		private SingletonObject() {}
+
+		public static SingletonObject getSingletonObject() {
+			if (singletonObject == null) {
+				singletonObject = new SingletonObject();
+			}
+			return singletonObject;
+		}
+
+	}
+
+	Attempt 2: What about race condition?
+
+	
+	class SingletonObject  {
+
+		private static SingletonObject singletonObject;
+
+		private SingletonObject() {}
+
+		public static synchronized SingletonObject getSingletonObject() {
+			if (singletonObject == null) {
+				singletonObject = new SingletonObject();
+			}
+			return singletonObject;
+		}
+
+	}
+
+	Attempt 3: What if somebody make clone of Singleton object?
+
+	
+	class SingletonObject  implements Cloneable {
+
+		private static SingletonObject singletonObject;
+
+		private SingletonObject() {}
+
+		public static synchronized SingletonObject getSingletonObject() {
+			if (singletonObject == null) {
+				singletonObject = new SingletonObject();
+			}
+			return singletonObject;
+		}
+
+		public Object clone() throws CloneNotSupportedException {
+			throw new CloneNotSupportedException();
+		}
+
+	}
+
+
+
+	Attempt 4: Double locking
+		This optimization consist in checking in an unsynchronized block if
+		 the object is null and if not to check again and create it in an syncronized block. 
+		This is called double locking mechanism
+	
+	class SingletonObject  implements Cloneable {
+
+		private static SingletonObject singletonObject;
+
+		private SingletonObject() {}
+
+		public static  SingletonObject getSingletonObject() {
+
+			if (singletonObject == null){
+			synchronized(SingletonObject.class)
+			{
+				if (singletonObject== null)
+				{
+					System.out.println("getInstance(): First time getInstance was invoked!");
+					instance = new Singleton();
+				}
+			}            
+		}
+
+		return singletonObject;
+
+
+		}
+
+		public Object clone() throws CloneNotSupportedException {
+			throw new CloneNotSupportedException();
+		}
+
+	}
+
+	What if used reflection to create an object:
+	--------------------------------------------
+		Constructor[] constructors=SingletonObject.class.getDeclaredConstructors();
+		constructors[0].setAccessible(true);
+		SingletonObject s2=(SingletonObject) constructors[0].newInstance();
+
+
+	What if serialization is done?
+
+	protected Object readResolve() {
+   		 return getInstance();
+	}
+
+
+ need of volatile keyword
+ --------------------------
+
+	In the given SingletonObject implementation, should the singletonObject 
+	variable be declared as volatile?
+
+	The statement:
+	instance = new Singleton();
+
+
+	does not occur as a single atomic operation. Internally, it is executed in three steps:
+		Allocate memory for a new Singleton object.
+		Call the constructor to initialize the object.
+		Assign the reference to instance.
+
+	Without the volatile keyword, the JVM may reorder these steps, 
+	potentially allowing another thread to see a partially constructed object.
+
+
+	Here is the code in question:
+	------------------------------
+	class SingletonObject implements Cloneable {
+
+		private static SingletonObject singletonObject;
+
+		private SingletonObject() {}
+
+		public static SingletonObject getSingletonObject() {
+			if (singletonObject == null) {
+				synchronized(SingletonObject.class) {
+					if (singletonObject == null) {
+						System.out.println("getInstance(): First time getInstance was invoked!");
+						singletonObject = new SingletonObject();
+					}
+				}
+			}
+			return singletonObject;
+		}
+
+		@Override
+		public Object clone() throws CloneNotSupportedException {
+			throw new CloneNotSupportedException();
+		}
+	}
+
+
+	So the question is: Do we need to mark singletonObject as volatile to
+	 ensure thread-safety in the double-checked locking pattern?
+
+
+
+
+
+
+ enum ShirtShize{
+	S, M , L ,XL;
+}
+
+
+enum ShirtShize{
+	public static final ShirtShize S=new ShirtShize();
+	public static final ShirtShize M=new ShirtShize();
+	public static final ShirtShize L=new ShirtShize();
+	public static final ShirtShize XL=new ShirtShize();
+	
+	
+}
+enum Singleton{
+	INSTANCE;
+};
+
+
+rest controller---------- service --------------- repo/dao ---------db
+
+
+
+Prototype Pattern (best practics for creating clone)
+===================================================
+
+		=> About creating clone of an object
+
+		=> Why clonning? cloning of an object to avoid creation
+
+		=> If the cost of creating a new object is large and creation 
+			is resource intensive, we clone the object
+
+		=> We use the interface Cloneable and call its method clone() to clone the 			
+			object
+
+		=> Deep copy vs shallow copy
+
+		=> Shallow copying generally means copying only one level of an object,
+		 while deep copying generally means copying more than one level
+
+
+	Ex:
+
+	
+//about what is the best practice to create clone of an object?
+
+  class Employee implements Cloneable {
+	private Integer id;
+	private String name;
+	private Date hireDay;//mutable
+
+	public Employee(Integer id, String name, Date date) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.hireDay=date;
+	}
+
+	@Override
+	public String toString() {
+		return "Employee [id=" + id + ", name=" + name + ", hireDay=" + hireDay
+				+ "]";
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		 // call Object.clone()
+		 Employee cloned = (Employee) super.clone();
+
+		// clone mutable fields
+		 cloned.hireDay = (Date) hireDay.clone();
+
+		 return cloned;
+	}
+
+	public void changeHireDay(int year, int month, int day){
+		 hireDay.setDate(day);
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Date getHireDay() {
+		return hireDay;
+	}
+
+	public void setHireDay(Date hireDay) {
+		this.hireDay = hireDay;
+	}
+	
+	
+}
+
+public class Demo {
+	public static void main(String[] args) throws CloneNotSupportedException {
+				// 15 August 1947 (remember months are 0-based)
+				//Date date1 = new GregorianCalendar(1947, 7, 15).getTime();
+
+
+	    Date date=new GregorianCalendar(2001, 11, 22).getTime();
+		
+		Employee employee1 = new Employee(33, "raja", date);
+	
+		Employee employee2 = (Employee) employee1.clone();
+	
+		System.out.println(employee1);
+		System.out.println(employee2);
+		
+		System.out.println("After changing............");
+		employee1.changeHireDay(2011, 11, 11);
+		employee1.setName("amit");
+		System.out.println(employee1);
+		System.out.println(employee2);
+
+	}
+
+}
+
+
+Builder Pattern
+================
+
+	==> The Builder pattern can be used to ease the construction 
+	   of a complex object from simple objects
+
+	public class Food {
+    private final String name;
+    private final int unit;
+    private final int vitC;
+    private final int vitA;
+    private final int vitB12;
+    private final int vitB5;
+    private final int vitD;
+
+    private Food(Builder b) {
+        this.name = b.name;
+        this.unit = b.unit;
+        this.vitC = b.vitC;
+        this.vitA = b.vitA;
+        this.vitB12 = b.vitB12;
+        this.vitB5 = b.vitB5;
+        this.vitD = b.vitD;
+    }
+
+    // Optional getters
+    public String getName() { return name; }
+    public int getUnit() { return unit; }
+    public int getVitC() { return vitC; }
+    public int getVitA() { return vitA; }
+    public int getVitB12() { return vitB12; }
+    public int getVitB5() { return vitB5; }
+    public int getVitD() { return vitD; }
+
+    @Override
+    public String toString() {
+        return "Food{" +
+                "name='" + name + '\'' +
+                ", unit=" + unit +
+                ", vitC=" + vitC +
+                ", vitA=" + vitA +
+                ", vitB12=" + vitB12 +
+                ", vitB5=" + vitB5 +
+                ", vitD=" + vitD +
+                '}';
+    }
+
+    public static class Builder {
+        // required parameters
+        private final String name;
+        private final int unit;
+
+        // optional parameters - initialized to defaults
+        private int vitC = 100;
+        private int vitA = 100;
+        private int vitB12 = 100;
+        private int vitB5 = 100;
+        private int vitD = 5000;
+
+        public Builder(String name, int unit) {
+            if (name == null || name.isBlank()) throw new IllegalArgumentException("name required");
+            this.name = name;
+            this.unit = unit;
+        }
+
+        public Builder vitC(int vitC) {
+            this.vitC = vitC;
+            return this;
+        }
+
+        public Builder vitA(int vitA) {
+            this.vitA = vitA;
+            return this;
+        }
+
+        public Builder vitB12(int vitB12) {
+            this.vitB12 = vitB12;
+            return this;
+        }
+
+        public Builder vitB5(int vitB5) {
+            this.vitB5 = vitB5;
+            return this;
+        }
+
+        public Builder vitD(int vitD) {
+            this.vitD = vitD;
+            return this;
+        }
+
+        public Food build() {
+            return new Food(this);
+        }
+    }
+}
+
+
+
+	And a demo main showing how to use it:
+	----------------------------------------
+		public static void main(String[] args) {
+			Food food = new Food.Builder("apple", 400)
+							.vitA(5000)
+							.vitC(120)
+							.build();
+
+			System.out.println(food);
+		}
+	
+	
+	
+Why this is better
+---------------------
+	Food is immutable (all fields final, no setters).
+	Builder enforces required params (name, unit) via constructor.
+	Defaults are centralized in the Builder.
+	Fluent API (method chaining) is clean and readable.
+	private constructor prevents inconsistent Food creation.
+
+
+
+	
+	Factory Method
+	===============
+	Defind an interface for creating an object, but let subclass decide which object to instantiate, 
+		Factory method let a class defer instantiation to subclass using inheritance
+
+	=> provide an interface for creating an oblject here do not consider the word interface as java interface. 
+	It simply mean to provides a contract / method to create an object
+
+	=> let the subclass decide what exact object ot instantiate- This pattern involve "inheritance"
+
+
+	=>Calendar calendar = Calendar.getInstance();
+		System.out.println(calendar);
+
+	=> createStatement() of java.sql.Connection interface
+
+	=> createSocket() of java.rmi.server.RmiClientSocketFactory
+
+
+How to create jdbc connection factory: simple factory
+-------------------------------------------
+db.properties
+-------------
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3306/bookapp
+user=root
+password=root
+
+Create an connection factory
+-------------------------
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
+
+public class ConnectionFactory{
+
+    private static Connection connection = null;
+
+    public static Connection getConnection() {
+        if (connection != null)
+            return connection;
+        else {
+            try {
+                Properties prop = new Properties();
+		//FileInputStream in = new FileInputStream
+                InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream("db.properties");
+
+                prop.load(inputStream);
+                String driver = prop.getProperty("driver");
+                String url = prop.getProperty("url");
+                String user = prop.getProperty("user");
+                String password = prop.getProperty("password");
+                Class.forName(driver);
+                connection = DriverManager.getConnection(url, user, password);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return connection;
+        }
+
+    }
+}
+
+
+public abstract class ConnectionFactory {
+    public abstract Properties getDBProperties();
+
+    public Connection getConnection() {
+	}
+}
+
+
+
+Factory Method pattern
+========================
+	=> Defind an interface for creating an object, but let subclass decide which object to instantiate, 
+		Factory method let a class defer instantiation to subclass using inheritance.
+
+	Implementation:
+	---------------
+	=> provide an interface for creating an oblject here do not consider the word interface as java interface. 
+	It simply mean to provides a contract / method to create an object
+
+	=> let the subclass decide what exact object ot instantiate- This pattern involve "inheritance"
+
+	=> let we write an batch file processor
+	 steps: 1. open an file
+		2. choose a parser
+		3. use parser to get List of records
+		4. process record ie put to db
+		5. write summery
+		6. close file
+
+
+		File f=openFile(fileName);
+		
+
+	Attempt 1: Writing batch process for processing text file
+	---------------------------------------------------------
+	
+	public class BatchProcessor {
+	
+		public void processBatch(String fileName) {
+			File file = openFile();
+			TextParser parser = new TextParser(file);
+			List<Record> records = parser.parse();
+			processorRecords(records);
+			writeSummray();
+			closeFile();
+	
+		}
+	
+		private void processorRecords(List<Record> records) {
+			System.out.println("processing each record to db");
+		}
+	
+		private void writeSummray() {
+			System.out.println("writing summery report");
+		}
+	
+		private void closeFile() {
+			System.out.println("closing the file...");
+		}
+	
+		private File openFile() {
+			System.out.println("open the file...");
+			return null;
+		}
+	}
+
+
+	public class TextParser {
+	
+		public TextParser(String fileName) {
+			System.out.println("creating text parser...");
+		}
+	
+		public List<Record> parse() {
+			System.out.println("creating record list using text parser...");
+			return null;
+		}
+	
+	}
+
+
+	public class Record {}
+
+
+	public class Main {
+		public static void main(String[] args) {
+			
+			BatchProcessor batchProcessor=new BatchProcessor();
+			batchProcessor.processBatch("foo");		
+		}
+	}
+
+
+	Attempt 2: Writing batch process for processing cvs file too...
+	---------------------------------------------------------
+	
+	To cater the requirment i will create an interface:
+	
+	public interface Parser {
+		public abstract List<Record> parse();
+	}
+
+
+	public class CVSParser implements Parser {
+		public CVSParser(String fileName) {
+			System.out.println("creating cvs parser...");
+		}
+	
+		@Override
+		public List<Record> parse() {
+			System.out.println("creating record list using cvs parser...");
+			return null;
+		}
+	
+	}
+
+
+	public class TextParser implements Parser {
+		public TextParser(String fileName) {
+			System.out.println("creating text parser...");
+		}
+	
+		@Override
+		public List<Record> parse() {
+			System.out.println("creating record list using text parser...");
+			return null;
+		}
+	}
+
+
+	Now  i need to change BatchProcessor class and need to pass choice of parser: 
+
+
+	public void processBatch(String fileName, String format) {
+		Parser parser=null;
+		File file = openFile();
+		if(format.equals("text"))
+			parser = new TextParser(file);
+		else if(format.equals("cvs"))
+			parser=new CVSParser(file);
+			
+		List<Record> records = parser.parse();
+		processorRecords(records);
+		writeSummray();
+		closeFile();
+
+	}
+
+
+	Attempt 3: Writing batch process for processing xml file too...
+	---------------------------------------------------------
+		public class XmlParser implements Parser {
+		
+		public XmlParser(File file) {
+			System.out.println("creating xml parser...");
+		}
+	
+		@Override
+		public List<Record> parse() {
+			System.out.println("creating record list using xml parser...");
+			return null;
+		}
+	
+	}
+
+
+
+	Now again i need to change BatchProcessor class and need to pass choice of parser: 
+
+
+			public void processBatch(String fileName, String formete) {
+			Parser parser=null;
+			File file = openFile();
+			if(formete.equals("text"))
+				parser = new TextParser(file);
+			else if(formete.equals("cvs"))
+				parser=new CVSParser(file);
+				
+			List<Record> records = parser.parse();
+			processorRecords(records);
+			writeSummray();
+			closeFile();
+	
+		}
+
+
+	=> clear voilation of OCP
+	=> We are supposed to change BatchProcessor every now and then, can not do in case of api design 
+	=> voilation of Dependency inversion: depend on abstraction
+
+	Solution:
+	---------
+		=> this is not acceptable code:
+		   ----------------------------
+			if(formete.equals("text"))
+				parser = new TextParser(file);
+			else if(formete.equals("cvs"))
+				parser=new CVSParser(file);
+			else if(formete.equals("xml"))
+				parser=new XmlParser(file);
+
+
+
+		=> refactoring code:
+		--------------------
+
+
+	public void processBatch(String fileName, String formete) {
+		Parser parser = null;
+		File file = openFile();
+
+		parser = createParser(file);
+		List<Record> records = parser.parse();
+		processorRecords(records);
+		writeSummray();
+		closeFile();
+
+	}
+	 abstract Parser createParser(String file);
+
+
+		=> now its works as a framework for batch processing
+		and we never have to change BatchProcessor for changing parser approach
+
+
+	
+	BatchProcessor batchProcessor=new TextBatchProcessor();
+	batchProcessor.processBatch("foo","xml");
+			
+	https://stackoverflow.com/questions/13029261/
+	design-patterns-factory-vs-factory-method-vs-abstract-factory/35851402#35851402
+
+
+
+
+
+
+Example 2: Simple factory vs factory method design pattern vs Abstract Factory Pattern
+----------------------------------------------------------------------------------
+
+Simple Factory Pattern
+------------------------
+A Simple Factory creates objects for you — you just tell it what type you want.
+
+In simple words:
+----------------
+	You give it a name or type, and it gives you the right object.
+	You don’t worry about new keyword or which class to create.
+
+
+Factory Method Pattern
+----------------------
+A Factory Method lets subclasses decide which object to create.
+The parent defines a method, but child classes implement the actual creation logic.
+
+In simple words:
+---------------
+Each subclass has its own factory logic.
+The parent says, “I need a product,” and the child decides which one exactly.
+
+Abstract Factory Pattern
+------------------------
+An Abstract Factory creates families of related objects — without specifying their concrete classes.
+
+In simple words:
+It’s a factory of factories.
+You use one factory to get a group of related objects that work well together.
+
+
+Summary Table
+---------------------
+Pattern					What it does					Who decides object creation?		Example
+Simple Factory			One centralized class			Factory class						PaymentFactory.getPayment("UPI")
+						 creates objects
+						 
+Factory Method			Subclasses decide 				Subclasses							new CardPaymentFactory().createPayment()
+						what to create
+						
+Abstract Factory		Creates families of				Factory hierarchy					new HDFCBankFactory().createPayment() 
+						 related objects																		and .createLoan()
+
+Example:
+----------
+
+interface Transport {
+    void deliver();
+}
+// Concrete Products
+class Truck implements Transport {
+    public void deliver() {
+        System.out.println("Deliver by land in a box");
+    }
+}
+class Ship implements Transport {
+    public void deliver() {
+        System.out.println("Deliver by sea in a container");
+    }
+}
+
+// Simple Factory
+class TransportFactory {
+    public static Transport createTransport(String type) {
+        if (type.equalsIgnoreCase("truck")) {
+            return new Truck();
+        } else if (type.equalsIgnoreCase("ship")) {
+            return new Ship();
+        }
+        throw new IllegalArgumentException("Unknown transport type");
+    }
+}
+
+// Client
+public class SimpleFactoryDemo {
+    public static void main(String[] args) {
+        Transport t1 = TransportFactory.createTransport("truck");
+        t1.deliver();
+
+        Transport t2 = TransportFactory.createTransport("ship");
+        t2.deliver();
+    }
+}
+
+Issues:
+
+    • Tightly coupled: New if-else/switch in factory for each type.
+    • Violates Open-Closed Principle: Need to modify factory for every new transport.
+
+
+2. Factory Method Pattern (GoF Design Pattern)
+----------------------------------------------
+    • Define a factory interface.
+    • Subclasses override the factory method to create objects.
+
+
+// Product
+interface Transport {
+    void deliver();
+}
+
+// Concrete Products
+class Truck implements Transport {
+    public void deliver() {
+        System.out.println("Deliver by land in a box");
+    }
+}
+
+class Ship implements Transport {
+    public void deliver() {
+        System.out.println("Deliver by sea in a container");
+    }
+}
+
+// Creator (abstract)
+abstract class Logistics {
+    public void planDelivery() {
+        // Factory Method
+        Transport transport = createTransport();
+        transport.deliver();
+    }
+
+    // Factory Method (to be overridden)
+    protected abstract Transport createTransport();
+}
+
+// Concrete Creators
+class RoadLogistics extends Logistics {
+    protected Transport createTransport() {
+        return new Truck();
+    }
+}
+
+class SeaLogistics extends Logistics {
+    protected Transport createTransport() {
+        return new Ship();
+    }
+}
+
+
+// Client
+public class FactoryMethodDemo {
+    public static void main(String[] args) {
+        Logistics logistics1 = new RoadLogistics();
+        logistics1.planDelivery();  // Uses Truck
+
+        Logistics logistics2 = new SeaLogistics();
+        logistics2.planDelivery();  // Uses Ship
+    }
+}
+
+
+Let’s say you now have a logistics system that doesn’t just create a Transport, 
+but also creates a Packaging service depending on transport type.
+------------------------------------------
+    • Road Logistics:
+        ◦ Transport → Truck
+        ◦ Packaging → CardboardBox
+    • Sea Logistics:
+        ◦ Transport → Ship
+        ◦ Packaging → ContainerBox
+		
+You now need a system that creates both transport and packaging together, 
+depending on the selected logistics mode (road or sea).
+
+
+Step 1: Product Families
+----------------------
+// Product A: Transport
+interface Transport {
+    void deliver();
+}
+
+// Product B: Packaging
+interface Packaging {
+    void pack();
+}
+
+Step 2: Concrete Products
+----------------------
+// Road Products
+class Truck implements Transport {
+    public void deliver() {
+        System.out.println("Delivering by truck.");
+    }
+}
+
+class CardboardBox implements Packaging {
+    public void pack() {
+        System.out.println("Packing with cardboard box.");
+    }
+}
+
+// Sea Products
+class Ship implements Transport {
+    public void deliver() {
+        System.out.println("Delivering by ship.");
+    }
+}
+
+class ContainerBox implements Packaging {
+    public void pack() {
+        System.out.println("Packing with container box.");
+    }
+}
+
+Step 3: Abstract Factory
+----------------------
+interface LogisticsFactory {
+    Transport createTransport();
+    Packaging createPackaging();
+}
+
+Step 4: Concrete Factories
+----------------------
+class RoadLogisticsFactory implements LogisticsFactory {
+    public Transport createTransport() {
+        return new Truck();
+    }
+
+    public Packaging createPackaging() {
+        return new CardboardBox();
+    }
+}
+
+class SeaLogisticsFactory implements LogisticsFactory {
+    public Transport createTransport() {
+        return new Ship();
+    }
+
+    public Packaging createPackaging() {
+        return new ContainerBox();
+    }
+}
+
+Step 5: Client Code
+----------------------
+public class AbstractFactoryDemo {
+    private Transport transport;
+    private Packaging packaging;
+
+    public AbstractFactoryDemo(LogisticsFactory factory) {
+        transport = factory.createTransport();
+        packaging = factory.createPackaging();
+    }
+
+    public void planShipment() {
+        packaging.pack();
+        transport.deliver();
+    }
+
+    public static void main(String[] args) {
+        // Road shipment
+        AbstractFactoryDemo roadShipment = new AbstractFactoryDemo(new RoadLogisticsFactory());
+        roadShipment.planShipment();
+
+        // Sea shipment
+        AbstractFactoryDemo seaShipment = new AbstractFactoryDemo(new SeaLogisticsFactory());
+        seaShipment.planShipment();
+    }
+
+
+
+
+
+structural patterns 
+====================
+
+	Structural Design Patterns
+		Structural patterns deal with object composition — 
+		how objects and classes are combined to form larger, flexible structures.
+
+		Why called “Structural”?
+			Because they focus on the structure of classes and objects 
+			— how to connect or wrap them without changing their code.
+
+	==> Structural Patterns describe how objects and 
+		classes can be combined to form larger structures
+
+	==> class patterns vs object patterns
+
+	==> The difference between class patterns and object patterns is that 
+		class patterns describe abstraction with the help of inheritance
+		and how it can be used to provide more useful program interface. 
+
+	==> Object patterns, on other hand, describe how objects can
+		 be associated and composed to form larger, more complex structures
+
+Structural Design Patterns:
+----------------------------
+	Adapter		 → converts one interface to another
+	Decorator    → adds features dynamically
+	Facade 		 → simplified interface to complex systems
+	Bridge		 → separates abstraction from implementation
+	Composite	 → tree-like structure (e.g., branches and leaves)
+	Proxy 		 → controls access to another object
+	Flyweight 	→ reuses shared objects efficiently
+	
+	
+structural patterns 
+==================
+		=> Adapter
+		=> Decorator
+		=> Facade Pattern
+		=> Bridge
+		=> Composite
+		=> Flyweight
+		=> Proxy
+
+Adapter Pattern
+================
+	==> It helps in integrating two modules with different incompatible interfaces. 
+	==> The Adapter pattern is used so that two unrelated interfaces can work together
+	==> The joining between them is called an Adapter. 
+	==> This is something like we convert interface of one class into interface expected by the client. 
+	==>  Way to implement adaper
+		=> Using inheritance: A class adapter 
+		=> User composition: An object adapter
+
+	Use cases:
+	----------
+	1. Most important task of an Adapter is to transfer data between applications or modules.
+	2. Very common task is to parse the information from one kind to the other
+	3. Convert from one type to the other
+	4. Some times adapters even validate the data so that right data flows into the application 
+	from external applications.
+
+	=> Having adapters help in keeping the conversion code separate so that the parsing functionality
+	 is not leaking into the core modules of our application.
+
+	=> Another important advantage of having an adapter is that when there is a 
+	change in outside interface, our core modules does not get affected. 
+	Only adapters need to be modified. So, this helps in restricting the changes to 
+	 adapter module alone and rest of application does not get affected. 
+
+
+
+
+	Convert the interface of a class into another interface clients expect. 
+	Adapter lets classes work together that couldn't otherwise because of incompatible interfaces.
+
+
+	Adapter Pattern hello world:
+	----------------------------
+	public class RoundPeg {
+		public void insertTohole(String str) {
+			System.out.println("roundpeg insertTohole(): " + str);
+		}
+	}
+
+	public class SquarePeg {
+		public void insert(String str) {
+			System.out.println("SquarePeg insert(): " + str);
+		}
+	}
+
+
+
+	// adaptoing roundpeg to square pag
+	public class PegAdaptor extends SquarePeg  {
+	
+		private RoundPeg peg;
+	
+		public PegAdaptor(RoundPeg peg) {
+			super();
+			this.peg = peg;
+		}
+		
+		public void insert(String str) {
+			peg.insertTohole(str);
+		}
+	}
+
+
+
+//adaptoing roundpeg to square pag
+public class Demo {
+
+	public static void main(String[] args) {
+		
+		RoundPeg peg=new RoundPeg();
+		PegAdaptor adpt=new PegAdaptor(peg);
+		adpt.insert("hello");
+	}
+}
+
+Examples:
+---------
+java.util.Arrays#asList()
+java.io.InputStreamReader(InputStream) (returns a Reader)
+java.io.OutputStreamWriter(OutputStream) (returns a Writer)
+
+
+
+
+decorator pattern / wrapper pattern 
+=================================
+
+	=> Decorator pattern helpful in adding behaviour to objects statically or dynamically.
+
+	=> Decorator pattern helps in extending the functionality of the objects without
+	 effecting the behaviour of other objects.
+
+	=> Decorator adhering to the design principle of Open for extension and closed for modification
+
+	=> In the Decorator pattern, a decorator object is wrapped around the original object
+
+ 	=> This is typically achieved having the original object as a member
+		 of the decorator, with the decorator forwarding the 
+		requests to the original object and also implementing the new functionality
+
+	==> The decorator must conform to the interface of the original object
+		 (the object being decorated) 
+
+
+	=> Simple greet application:
+	---------------------------------
+
+	Car-> BasicCar-> SportCar->SuperSportCar
+		
+	
+	interface Car{
+		public String assemble();
+	}
+	class BasicCar implements Car{
+	
+		@Override
+		public String assemble() {
+			return "basic car";
+		}
+		
+	}
+	abstract class CarDecorator implements Car{
+		private Car car;
+		public CarDecorator(Car car) {
+			this.car = car;
+		}
+		
+		@Override
+		public String assemble() {
+			return car.assemble();
+		}
+	}
+	class SportCar extends CarDecorator{
+	
+		public SportCar(Car car) {
+			super(car);
+		}
+	
+		@Override
+		public String assemble() {
+			return super.assemble()+" with sport feature";
+		}
+	}
+	
+	class SuperSportCar extends CarDecorator{
+	
+		public SuperSportCar(Car car) {
+			super(car);
+		}
+	
+		@Override
+		public String assemble() {
+			return super.assemble()+" with extra super sport feature";
+		}
+	}
+
+
+
+SuperSportCar sportCar=new SuperSportCar(new SportCar(new BasicCar()));
+
+
+
+
+
+proxy design pattern:
+------------------
+Proxy Pattern provides a surrogate or placeholder object which 
+controls access to another object (the real subject).
+
+It acts as a wrapper around the real object 
+— intercepting method calls before (or after) they reach the target.
+
+“To provide a substitute for another object to control access, add functionality, or defer object creation.”
+
+Core Participants
+----------------------------
+	Role					Description
+	Subject (Interface)		Common interface shared by RealSubject and Proxy
+	RealSubject				The actual object that does the real work
+	Proxy					Controls access to RealSubject (adds pre/post behavior)
+	
+
+Cross-Cutting Concerns?
+--------------------------
+	Cross-cutting concerns are functionalities that span multiple modules 
+	— not part of business logic but required everywhere.
+
+	Examples:
+	---------
+		Logging
+		Security checks
+		Transaction management
+		Performance monitoring
+		Caching
+
+	Instead of duplicating this code across multiple classes, 
+	we centralize it via AOP, which internally uses Proxy Pattern.
+
+AOP and Proxy Pattern Relationship
+---------------------------------
+	Spring AOP uses dynamic proxies (built at runtime) to wrap target objects
+	and inject additional behavior before/after method execution.
+
+Two main proxy mechanisms:
+----------------------------
+	JDK Dynamic Proxy
+		Used when target class implements an interface.
+		Created using java.lang.reflect.Proxy.
+
+	CGLIB Proxy
+		Used when target class does not implement an interface.
+		Subclass-based proxy generated dynamically using bytecode.
+
+	Client ---> Proxy (created by Spring) ---> Target Bean
+			   ↑
+		 Contains advice code
+	   (e.g., @Before, @After, @Around)
+
+   
+AOP example :
+----------
+	
+	public class Magician {
+	
+		public void doMagic(){
+			System.out.println("abra ka dabra...");
+		}
+	}
+
+
+	public class AudianceAdvice {
+	
+		public void clapping(){
+			System.out.println("maza aa gaya...");
+		}
+	}
+
+
+
+	@Aspect
+	@Component
+	public class AudianceAdvice {
+		@Before("execution(public void doMagic())")
+		public void clapping(){
+			System.out.println("maza aa gaya...");
+		}
+	}
+
+
+
+   
+Example RMI:
+=============
+
+RMI server
+-------------
+public interface AtmCard extends Remote {
+	public boolean isValid(String card)throws RemoteException;
+}
+
+
+
+
+
+public class AtomCardImp extends UnicastRemoteObject implements AtmCard,
+		Serializable {
+
+	protected AtomCardImp() throws RemoteException {
+		super();
+	}
+
+	@Override
+	public boolean isValid(String card) throws RemoteException {
+		Integer val = Integer.parseInt(card);
+		if (val % 2 == 0)
+			return false;
+		else
+			return true;
+	}
+
+}
+
+
+
+public class Server {
+	public static void main(String[] args) throws RemoteException, AlreadyBoundException {
+		AtomCardImp obj=new AtomCardImp();
+		
+		Registry registry=LocateRegistry.createRegistry(222);//pass port no
+		registry.bind("obj", obj);
+		System.out.println("service is bound!");
+		
+	}
+
+}
+
+
+
+RMI Client
+-------------
+
+
+public interface AtmCard extends Remote {
+
+	public boolean isValid(String card)throws RemoteException;
+}
+
+
+
+public class RMIClient {
+	public static void main(String[] args) throws RemoteException, NotBoundException {
+		Registry registry=LocateRegistry.getRegistry("localhost", 222);
+		AtmCard card=(AtmCard) registry.lookup("obj");
+		
+		System.out.println(card.isValid("121"));
+		
+	}
+
+}
+
+
+
+Facade Design Pattern
+=====================
+	Facade Pattern — “Provides a single simplified interface to a complex system of multiple subsystems.”
+
+	Facade Pattern provides a unified, simple interface to a complex subsystem.
+
+	Think of it like:
+	-------------------
+	A Bank Teller — you don’t talk directly to Accounts, Ledger, Fraud, or Notification departments.
+	You talk to one teller, and they internally coordinate everything for you.
+
+Scenario — Fund Transfer Flow
+--------------------------
+Without Facade
+----------------
+	Your controller must call all services manually:
+	--------------------------------------------
+	accountService.transfer(....);
+	ledgerService.recordTransaction(...);
+	fraudService.validate(...);
+	notificationService.sendSMS(...);
+
+Too many dependencies and complex orchestration.
+------------------------------
+	With Facade
+	You just call:
+	bankingFacade.transferFunds(fromAccount, toAccount, amount);
+	…and the facade handles all internal coordination.
+
+
+Class Diagram (Conceptually)
+-------------------------------
+Controller → FundTransferFacade → [AccountService, LedgerService, FraudService, NotificationService]
+
+
+Subsystems — Complex Services
+---------------------------------
+AccountService.java
+-----------------------
+public class AccountService {
+   public void transfer(int from, int to, double amount){
+   
+	}
+}
+
+LedgerService.java
+-----------------------
+public class LedgerService {
+    public void record(int from, int to, double amount) {
+        System.out.println("Ledger updated: Transfer of " + amount + " from " + from + " to " + to);
+    }
+}
+
+FraudService.java
+-----------------------
+public class FraudService {
+    public boolean validate(int from, int to, double amount) {
+        System.out.println("Validating fraud for " + amount + " transfer...");
+        return amount < 100000; // simple rule
+    }
+}
+
+NotificationService.java
+-----------------------
+public class NotificationService {
+    public void send(String message) {
+        System.out.println("SMS Notification Sent: " + message);
+    }
+}
+
+The Facade Class
+
+FundTransferFacade.java
+-----------------------
+public class FundTransferFacade {
+public void transferFunds(String fromAcc, String toAcc, double amount);
+}
+
+public class FundTransferFacadeImpl {
+
+    private final AccountService accountService;
+    private final LedgerService ledgerService;
+    private final FraudService fraudService;
+    private final NotificationService notificationService;
+
+    public FundTransferFacade() {
+        this.accountService = new AccountService();
+        this.ledgerService = new LedgerService();
+        this.fraudService = new FraudService();
+        this.notificationService = new NotificationService();
+    }
+
+    public void transferFunds(String fromAcc, String toAcc, double amount) {
+        System.out.println("---- Initiating Fund Transfer ----");
+
+        if (!fraudService.validate(fromAcc, toAcc, amount)) {
+            notificationService.send("Transfer blocked due to suspected fraud!");
+            System.out.println(" Fraud detected, transfer aborted.");
+            return;
+        }
+
+        accountService.debit(fromAcc, amount);
+        accountService.credit(toAcc, amount);
+        ledgerService.record(fromAcc, toAcc, amount);
+        notificationService.send("Transfer of ₹" + amount + " from " + fromAcc + " to " + toAcc + " successful!");
+
+        System.out.println(" Transfer completed successfully!");
+    }
+}
+
+Client (Controller or Main Class)
+-----------------------
+FundTransferApp.java
+public class FundTransferApp {
+    public static void main(String[] args) {
+        FundTransferFacade bankingFacade = new FundTransferFacade();
+        bankingFacade.transferFunds("AC001", "AC002", 5000);
+    }
+}
+
+Advantage of facade pattern
+------------------------------
+	 Simplifies complex workflows
+	 Reduces coupling between controller and services
+	 Makes testing and maintenance easier
+	 Perfect entry point for REST APIs in layered Spring Boot apps
+
+Spring Boot Extension Idea 
+-----------------------------
+@RestController
+@RequestMapping("/transfer")
+public class FundTransferController {
+    private final FundTransferFacade fundTransferFacade;
+
+    public FundTransferController(FundTransferFacade fundTransferFacade) {
+        this.fundTransferFacade = fundTransferFacade;
+    }
+
+    @PostMapping
+    public String transfer(@RequestParam String from,
+                           @RequestParam String to,
+                           @RequestParam double amount) {
+        fundTransferFacade.transferFunds(from, to, amount);
+        return "Transfer initiated.";
+    }
+}
+
+
+
+
+
+
+Bridge design pattern
+=========================
+	Bridge pattern decouples an abstraction from its
+	implementation so that both can vary independently.
+
+	The Bridge pattern is all about decoupling abstraction from implementation, 
+	so that both can evolve independently.
+
+	Abstraction: The “high-level” control/interface.
+	Implementation: The “concrete” operations.
+	Bridge: A reference from the abstraction to the implementation.
+
+	Key principle: Favor composition over inheritance.
+
+The Core Intent of Bridge Pattern
+------------------------------------
+“Decouple abstraction from implementation so that both can vary independently.”
+
+Real-Life Analogy
+-----------------------
+Imagine a Remote Control and TV:
+    • You can have multiple remotes (BasicRemote, AdvancedRemote).
+    • You can have multiple TVs (SonyTV, LGTV).
+	
+You want to:
+    • Use any remote with any TV
+    • Add new remotes and TVs without changing existing code
+
+So, instead of tying Remote ↔ TV via inheritance, we bridge them via composition.
+
+
+Problem It Solves
+------------------
+Without bridge:
+
+class SonyTV {}
+class LGTV {}
+
+class BasicRemoteForSony extends SonyTV {}
+class AdvancedRemoteForSony extends SonyTV {}
+class BasicRemoteForLG extends LGTV {}
+class AdvancedRemoteForLG extends LGTV {}
+
+Number of classes = (#TVs × #Remotes)
+
+Adding a new TV or Remote causes class explosion.
+
+✅ Bridge solves this by separating abstraction from implementation.
+
+	
+Bridge Pattern solves this!
+---------------------------------
+       Bridge Pattern Structure
+
+       Abstraction         →        Implementation
+       ==========                    ==============
+     [RemoteControl]        →       [TV interface]
+
+         |                             |
+   [AdvancedRemote]            [SonyTV], [LGTV]
+
+
+Bridge Pattern Example
+
+Step 1: Implementation Layer (TVs)
+-------------------------------
+interface TV {
+    void on();
+    void off();
+    void setChannel(int channel);
+}
+
+class SonyTV implements TV {
+    public void on() { System.out.println("Sony TV turned ON"); }
+    public void off() { System.out.println("Sony TV turned OFF"); }
+    public void setChannel(int channel) {
+        System.out.println("Sony TV: channel set to " + channel);
+    }
+}
+
+class LGTV implements TV {
+    public void on() { System.out.println("LG TV turned ON"); }
+    public void off() { System.out.println("LG TV turned OFF"); }
+    public void setChannel(int channel) {
+        System.out.println("LG TV: channel set to " + channel);
+    }
+}
+
+Step 2: Abstraction Layer (Remote Controls)
+-----------------------------------------
+
+abstract class RemoteControl {
+    protected TV tv;
+
+    public RemoteControl(TV tv) {
+        this.tv = tv;
+    }
+
+    public void turnOn() { tv.on(); }
+    public void turnOff() { tv.off(); }
+    public abstract void setChannel(int channel);
+}
+
+Step 3: Extended Abstraction
+-----------------------------
+
+class BasicRemote extends RemoteControl {
+    public BasicRemote(TV tv) {
+        super(tv);
+    }
+
+    public void setChannel(int channel) {
+        tv.setChannel(channel);
+    }
+}
+
+class AdvancedRemote extends RemoteControl {
+    public AdvancedRemote(TV tv) {
+        super(tv);
+    }
+
+    public void setChannel(int channel) {
+        System.out.println("Advanced remote: setting channel with fade effect...");
+        tv.setChannel(channel);
+    }
+
+    public void mute() {
+        System.out.println("Muting the TV");
+    }
+}
+
+ Step 4: Client Code
+ ---------------------
+public class BridgePatternDemo {
+    public static void main(String[] args) {
+        TV sony = new SonyTV();
+        RemoteControl remote1 = new BasicRemote(sony);
+        remote1.turnOn();
+        remote1.setChannel(10);
+
+        TV lg = new LGTV();
+        RemoteControl remote2 = new AdvancedRemote(lg);
+        remote2.turnOn();
+        remote2.setChannel(45);
+        ((AdvancedRemote)remote2).mute();
+    }
+}
+
+The Core Intent of Bridge Pattern
+----------------------------------
+“Decouple abstraction from implementation so that both can vary independently.”
+
+That means:
+---------
+	You can add new abstractions (Remote types) 
+	without touching the TV implementations, and
+	
+	You can add new implementations (TV types) 
+	without touching the Remote abstraction.
+	
+	So, the Bridge pattern’s goal is:
+	----------------------------------
+	To eliminate tight coupling (inheritance-based dependency) 
+	and replace it with flexible composition.
+
+
+Add a new Implementation — PhilipsTV
+-------------------------------------
+class PhilipsTV implements TV {
+    public void on() { System.out.println("Philips TV turned ON"); }
+    public void off() { System.out.println("Philips TV turned OFF"); }
+    public void setChannel(int channel) {
+        System.out.println("Philips TV: channel set to " + channel);
+    }
+}
+
+
+No change in RemoteControl, BasicRemote, or AdvancedRemote!
+---------------------------------------------------
+Now we can do:
+----------------
+RemoteControl remote = new BasicRemote(new PhilipsTV());
+remote.turnOn();
+remote.setChannel(7);
+Works perfectly — abstraction untouched.
+
+Add a new Abstraction — VoiceRemote
+-------------------------------------------
+class VoiceRemote extends RemoteControl {
+    public VoiceRemote(TV tv) { super(tv); }
+
+    public void setChannel(int channel) {
+        System.out.println("Voice command: change channel");
+        tv.setChannel(channel);
+    }
+
+    public void voiceCommand(String cmd) {
+        System.out.println("Executing command: " + cmd);
+    }
+}
+
+
+No change in SonyTV, LGTV, or PhilipsTV!
+-------------------------------------------
+Now:
+
+RemoteControl remote = new VoiceRemote(new LGTV());
+remote.turnOn();
+remote.setChannel(15);
+
+
+Works again — implementation untouched.
+
+Inheritance vs Composition (Why Bridge Exists)
+------------------------------------------
+If you had used inheritance:
+AdvancedRemoteForSony extends SonyTV
+You’d get rigid coupling: you can’t reuse the remote with another TV.
+By using composition:
+protected TV tv;
+
+
+the RemoteControl delegates behavior to any TV object, not to a parent class.
+This is the famous “Favor composition over inheritance” principle.
+
+🧩 Visual Recap (ASCII)
+        +-----------------+           +-------------------+
+        |  RemoteControl  |◄----------|      TV (interface)|
+        +-----------------+           +-------------------+
+                 ▲                               ▲
+                 │                               │
+       +-----------------+            +------------------+
+       |  BasicRemote    |            |   SonyTV         |
+       +-----------------+            +------------------+
+       |  AdvancedRemote |            |   LGTV           |
+       +-----------------+            +------------------+
+
+Key Benefits of Bridge Pattern
+--------------------------------
+	Separation of concerns
+	TV and Remote can evolve separately
+	Eliminates class explosion
+	No need for LGVoiceRemote, SonyVoiceRemote
+	Extensible
+	Add new TV or Remote without changing core
+	Runtime flexibility
+	Inject implementation dynamically
+
+
+
+Composite Design Pattern
+-------------------------
+  What is Composite Design Pattern?
+	Composite Pattern is used when we want to treat a group of
+	objects and individual objects uniformly.
+	
+It forms a tree structure where each node is either:
+    • a leaf (cannot contain anything), or
+    • a composite (can contain children including other composites).
+
+A File System or Company Org Chart
+--------------------------------
+    • You can have Files (leaves) and Folders (composites).
+    • A folder can contain both files and other folders.
+You want to:
+    • Call show() on a File → shows name
+    • Call show() on a Folder → recursively shows all contents
+ Both folders and files should share the same interface.
+
+
+ava Implementation – Composite Pattern
+--------------------------------
+
+
+Step 1: Common Interface (Component)
+------------------------------------
+interface FileSystemComponent {
+    void show();
+}
+
+Step 2: Leaf Node – File
+-------------------------
+class File implements FileSystemComponent {
+    private String name;
+
+    public File(String name) {
+        this.name = name;
+    }
+
+    public void show() {
+        System.out.println("File: " + name);
+    }
+}
+
+ Step 3: Composite Node – Folder
+--------------------------------
+class Folder implements FileSystemComponent {
+    private String name;
+    private List<FileSystemComponent> children = new ArrayList<>();
+
+    public Folder(String name) {
+        this.name = name;
+    }
+
+    public void add(FileSystemComponent component) {
+        children.add(component);
+    }
+
+    public void show() {
+        System.out.println("Folder: " + name);
+        for (FileSystemComponent child : children) {
+            child.show();  // recursive call
+        }
+    }
+}
+
+Step 4: Client Code
+------------------------------
+public class CompositeDemo {
+    public static void main(String[] args) {
+        File file1 = new File("resume.pdf");
+        File file2 = new File("budget.xlsx");
+        Folder docs = new Folder("Documents");
+
+        docs.add(file1);
+        docs.add(file2);
+
+        Folder root = new Folder("Root");
+        root.add(docs);
+        root.add(new File("readme.txt"));
+
+        root.show();
+    }
+}
+
+Structural Design Patterns — The Common Thread
+------------------------------------------------
+	Structural patterns are all about how classes and objects are
+	composed to form larger, flexible structures.
+
+	Most (actually, all) structural design patterns use composition (object references) 
+	rather than inheritance to achieve synergy between multiple collaborating objects.
+
+	They aim to:
+	------------
+	Combine existing components without modifying them,
+	Promote reusability and flexibility,
+	Build larger abstractions out of smaller parts.
+
+🧠 Why Composition = “Synergic Effect”
+----------------------------------------
+	Synergy = The whole is greater than the sum of its parts.
+
+	Composition lets multiple small objects (each doing one thing well) work together 
+	dynamically to produce complex behavior — without creating rigid hierarchies.
+
+	Inheritance = static and rigid
+	Composition = dynamic and flexible
+
+	Structural patterns achieve this synergy by delegation, 
+	wrapping, or linking objects together.
+
+Structural Patterns Overview (and How Each Uses Composition)
+----------------------------------------------------------
+Pattern			Core Idea				How Composition is Used	Synergic 	Effect
+-------------------------------------------------------------------------------
+Adapter		Convert one interface		Holds a reference to the adaptee	Makes incompatible objects 
+					into another											work together
+			 
+Bridge		Decouple abstraction 		Abstraction holds a reference		Both can evolve independently
+			from implementation			 to implementation interface
+			
+Composite	Treat individual and 		Contains a list of children 		Recursive structure enables
+			group of objects uniformly			components					tree-like hierarchies	
+			
+Decorator	Add behavior dynamically 	Wraps another object 				Stackable, runtime behavior addition
+			to an object				of same interface	
+				
+Facade		Simplify complex subsystem	Aggregates multiple 				Unified, simplified access layer
+										subsystem objects	
+										
+Flyweight	Reuse objects efficiently	Shares intrinsic state 				Reduces memory while maintaining behavior
+										via shared references
+										
+Proxy		Control access to		Maintains reference to real object	Adds control (lazy loading, security, caching, etc.)
+			 another object
+
+
+	
+So structurally:
+------------------
+Client → Wrapper/Bridge/Proxy/Facade → Real Object(s)
+All achieve synergy by combining objects that each play a defined role.
+
+Composition vs Inheritance (Structural DPs Philosophy)
+----------------------------------------------------
+Aspect				Inheritance			Composition
+Type				"is-a"					"has-a"
+Binding				Compile-time			Run-time
+Flexibility			Low						High
+Reuse				Reuses code				Reuses behavior
+Structural DPs use?	❌ Rarely				✅ Always
+
+That’s why structural patterns represent the “architecture of relationships” 
+between objects — not new algorithms, but new ways to connect existing classes.
+
+Big Picture Summary
+------------------------
+Principle								Structural Pattern Manifestation
+Favor composition over inheritance			Universal across all patterns
+Reuse existing code without modification	Adapter, Proxy, Facade
+Combine multiple objects dynamically		Composite, Decorator
+Decouple subsystems							Bridge, Facade
+Optimize structure							Flyweight
+
+In Plain English
+------------------------
+All structural design patterns are composers —
+They don’t create new “notes” (classes),
+they orchestrate existing ones into beautiful, flexible “music” (systems).
+
+
+
+
+======================
+ Behavioral Patterns
+======================
+	Behavioral Design Patterns focus on how objects interact and communicate 
+	with each other to achieve loose coupling and flexible behavior.
+
+	Now let’s take that understanding and build a solid mental model of 
+	what “behavioral” really means 
+
+	1. Core Intent of Behavioral Design Patterns
+	--------------------------------------------
+	Structural patterns → define how classes/objects are composed
+	
+	Behavioral patterns → define how they communicate and collaborate
+
+	The key goal is:
+	---------------------
+	To separate “what to do” from “who does it” and “how it’s done.”
+
+	They let you design systems where:
+	------------------------------------
+	Objects talk to each other without hard dependencies
+	You can change behavior dynamically at runtime
+	New behaviors can be added without modifying existing code
+
+	2. Why They Exist
+	--------------------
+	Imagine a system where:
+	Each object knows too much about others,
+	Behavior is hardcoded (e.g., if (x instanceof Y) checks),
+	Changing logic breaks everything.
+
+	That’s tight coupling — the enemy of scalability.
+
+	Behavioral patterns fix that by:
+	-----------------------------------
+	Defining clear contracts for communication,
+	Delegating responsibility smartly,
+
+	Promoting “Tell, don’t ask” and “Open/Closed principle” design.
+
+ 3. The Behavioral Design Patterns Family
+------------------------------------------------
+	Let’s explore all 11 classic GoF behavioral patterns briefly 
+	— with purpose and “communication style.”
+
+Pattern					Purpose							Type of Communication
+------------------------------------------------------------------------------
+Iterator		Sequentially access elements			Iterator object controls traversal logic
+
+Strategy		Define interchangeable					Object delegates a task to a strategy object
+				 algorithms
+				 
+Observer		Notify multiple objects automatically	Subject broadcasts updates to observers
+
+Chain of 		Pass requests along a chain	Each handler decides to handle or pass on
+Responsibility
+
+Template 	   Define skeleton of an algorithm		Base class defines flow; subclass customizes steps
+Method
+
+Command			Encapsulate a request as an object		Invoker asks a Command to execute
+
+Mediator		Centralize complex communications		Mediator routes messages between colleagues
+
+Memento		Capture and restore object state		Caretaker stores/restores snapshots
+
+State		Change behavior when internal 			Context delegates to different state objects
+			state changes	
+			
+Visitor		Add new operations 						Visitor “visits” different object types
+			without modifying classes	
+			
+Interpreter	Define grammar and 						Each rule is an object; composition builds meaning
+			interpret expressions
+			
+
+
+
+4. Common Design Thread
+-------------------
+All Behavioral DPs:
+-----------------
+	Use composition and delegation (not inheritance)
+	Focus on collaboration and role-based behavior
+	Encourage low coupling, high cohesion
+	Make systems open for extension, closed for modification
+
+5. Examples and Intuition
+-------------------------
+
+WITHOUT Strategy Pattern — The Wrong Way (Inheritance Explosion)
+---------------------------------------------------------
+Let’s see what happens if we don’t use the Strategy pattern.
+
+We start with a simple class hierarchy for payments.
+
+// Base class
+class ShoppingCart {
+    public void checkout(int amount) {
+        System.out.println("Checking out items worth: " + amount);
+    }
+}
+
+// Different payment types using inheritance
+class CreditCardShoppingCart extends ShoppingCart {
+    @Override
+    public void checkout(int amount) {
+        System.out.println("Paid " + amount + " using Credit Card");
+    }
+}
+
+class PayPalShoppingCart extends ShoppingCart {
+    @Override
+    public void checkout(int amount) {
+        System.out.println("Paid " + amount + " using PayPal");
+    }
+}
+
+
+At first glance, it seems okay — until we add more features.
+
+Problem: Inheritance Explosion
+-----------------------------
+
+Now your product owner says:
+
+“We also need support for Discount Coupons and Cashback Offers.”
+You now need to handle combinations like:
+
+Without Strategy, you’ll end up with a new subclass for every combination:
+
+class CreditCardWithCoupon extends ShoppingCart { ... }
+class CreditCardWithCashback extends ShoppingCart { ... }
+class PayPalWithCoupon extends ShoppingCart { ... }
+class PayPalWithCashback extends ShoppingCart { ... }
+class CryptoWithCouponAndCashback extends ShoppingCart { ... }
+
+
+Now imagine adding just one more payment method (e.g., “BankTransfer”)
+ — you’d have to duplicate and rewrite more subclasses!
+
+Why is this bad?
+---------------
+
+Rigid design: Adding a new payment type means changing class hierarchy.
+Code duplication: Every subclass reimplements checkout() differently.
+No reuse: Behavior is baked into subclasses.
+
+Violated OCP: Every new algorithm requires modifying core code.
+
+WITH Strategy Pattern — The Right Way (Composition > Inheritance)
+---------------------------------------------------------------
+Instead of hardcoding logic in subclasses, we separate the changing part
+ — the payment algorithm — into its own hierarchy.
+
+Lets you choose an algorithm dynamically.
+------------------------------------
+interface PaymentStrategy {
+    void pay(int amount);
+}
+
+class CreditCardPayment implements PaymentStrategy {
+    public void pay(int amount) {
+        System.out.println("Paid using credit card: " + amount);
+    }
+}
+
+class PayPalPayment implements PaymentStrategy {
+    public void pay(int amount) {
+        System.out.println("Paid using PayPal: " + amount);
+    }
+}
+
+class ShoppingCart {
+    private PaymentStrategy strategy;
+    public void setStrategy(PaymentStrategy strategy) { this.strategy = strategy; }
+    public void checkout(int amount) { strategy.pay(amount); }
+}
+
+
+The ShoppingCart doesn’t know how payment happens — it just delegates it.
+Loose coupling achieved!
+
+
+Observer Pattern
+-------------------
+A one-to-many relationship where subjects notify observers automatically.
+
+interface Observer {
+    void update(String message);
+}
+
+class NewsChannel implements Observer {
+    public void update(String message) {
+        System.out.println("News received: " + message);
+    }
+}
+
+class NewsAgency {
+    private List<Observer> observers = new ArrayList<>();
+    void addObserver(Observer o) { observers.add(o); }
+    void setNews(String news) {
+        for (Observer o : observers) o.update(news);
+    }
+}
+
+
+The NewsAgency doesn’t care who listens — it just notifies all observers.
+
+Command Pattern
+------------------
+Turns a request into an object, decoupling sender and receiver.
+
+interface Command { void execute(); }
+
+class Light {
+    void on() { System.out.println("Light ON"); }
+    void off() { System.out.println("Light OFF"); }
+}
+
+class TurnOnCommand implements Command {
+    private Light light;
+    TurnOnCommand(Light light) { this.light = light; }
+    public void execute() { light.on(); }
+}
+
+class RemoteControl {
+    private Command command;
+    void setCommand(Command c) { command = c; }
+    void pressButton() { command.execute(); }
+}
+
+
+The RemoteControl has no idea about Light — it just runs a Command.
+
+6. Common Benefits Across Behavioral DPs
+------------------------------------------
+Benefit						Description
+---------------------------------------------
+Loose coupling		Participants know interfaces, not implementations
+
+Flexibility			You can change communication logic dynamically
+
+Extensibility		Add new behaviors without touching existing code
+
+Better separation 	Each class focuses on a single role
+of concerns	
+Increased reusability	Reuse behaviors and coordination logic
+
+
+7. Behavioral vs Structural in One Line
+----------------------------------------------------
+Aspect			Structural				Behavioral
+----------------------------------------------------
+Focus			Object composition		Object collaboration
+Concern			“How things are built”	“How things talk”
+Examples		Adapter, Bridge, Proxy	Strategy, Observer, Command
+Achieves		Reusability, flexibility Communication, decoupling
+Design Principle Favor composition		Favor delegation
+
+
+
+Why so many behavior design patterns?
+------------------------------------
+	most of the GoF (Gang of Four) design patterns fall under the Behavioral category.
+
+
+
+1. Quick Recap — What Are Behavioral Patterns
+-----------------------------------------------
+	Behavioral design patterns are concerned with how objects interact 
+	and communicate with each other.
+
+	They don’t focus on structure (how classes are composed) like Structural patterns,
+	 nor on object creation (how objects are instantiated) like Creational patterns.
+
+	Instead, they focus on object collaboration, responsibility distribution, and communication logic
+	 — which is the heart of any software’s behavior.
+
+2. Typical Object-Oriented System
+---------------------------------
+	In any large OO system:
+	Objects are already created (so Creational patterns are done).
+	Classes are already organized (so Structural patterns are stable).
+	
+	The real complexity is in how these objects interact dynamically at runtime — this is behavioral territory.
+
+That’s where we face questions like:
+-------------------------------------
+	Who should handle this request?
+	How can we notify other components when one changes?
+	How can we execute a sequence of operations flexibly?
+	How can we change algorithms without touching the clients?
+	All these are behavioral problems.
+
+3. Why So Many Behavioral Patterns?
+-------------------------------------
+Let’s look at what kind of “behaviors” developers need to control or abstract
+ — you’ll see why GoF had to define so many:
+
+Concern	Example						 	Pattern					Description
+-----------------------------------------------------------------------------
+Communication between objects			Observer				Notify dependent objects of changes
+
+Encapsulating a request or operation	Command					Turn a request into an object
+
+Choosing an algorithm at runtime		Strategy				Swap algorithms dynamically
+
+Avoiding tight coupling between			Mediator				Centralize communication
+ sender and receiver
+ 
+Iterating through collections			Iterator				Traverse elements without exposing structure
+
+Building responsibility chains			Chain of Responsibility	Pass a request along a chain until handled
+
+Representing grammar					Interpreter				Define a grammar and evaluate sentences
+and language rules	
+
+Capturing and restoring state			Memento					Undo or rollback capability
+
+Representing operations as objects		Visitor					Separate operations from the objects they operate on
+
+State-dependent behavior				State					Change behavior when internal state changes
+
+Coordinating complex 					Template 				Method	Define skeleton of algorithm,
+operations														 let subclasses fill steps
+
+ Each one deals with a different style of interaction or control flow — hence so many behavioral patterns.
+
+4. Analogy — Software as a Play 🎭
+--------------------------------------
+	Think of your software as a theater play:
+
+	Creational patterns = how actors are hired and set up before the show.
+	Structural patterns = how the stage and props are arranged.
+	Behavioral patterns = how the actors interact and deliver the story.
+
+	Since the story (behavior) is the main essence of the play, it naturally needs more
+	 types of coordination patterns — that’s why behavioral patterns are the majority.
+
+
+8. Real-World Spring Boot Analogy
+-------------------------------------------
+Let’s connect this to Spring Boot, where behavioral patterns are everywhere:
+
+Pattern				Example in Spring
+-----------------------------------
+Strategy			JpaRepository using different DataAccessStrategy
+
+Observer			ApplicationEvent / ApplicationListener
+
+Template Method		JdbcTemplate, RestTemplate
+
+Chain of 			Servlet filters / Spring Security filter chain
+Responsibility
+
+Iterator		BeanFactory iterating over beans
+
+Spring heavily uses these patterns to keep things loosely coupled and highly pluggable.
+
+In Simple Terms
+------------------
+Structural patterns build the architecture of your house.
+
+Behavioral patterns define how people inside communicate 
+— who talks to whom, who takes responsibility, and how to change behavior without rebuilding the house.
+
+Let now discuss behavior pattern one by one:
+----------------------------------------------
+		Iterator
+		Observer
+		Strategy
+		Chain of Responsibility
+		Template design pattern
+		Command
+		Interpreter
+		Mediator
+		Memento
+		
+
+
+	Iterator design pattern:
+	------------------------
+	=> iterator pattern allows for the traversal through the elements
+	 in a grouping of objects via a standardized interface. 
+
+	=> An Iterator interface defines the actions that can be performed.
+
+	=>  These actions include being able to traverse the objects and also obtain the objects
+
+
+	Example : write our own iterator by implementing java.util.Iterator
+		 hasNext(), next(), and remove() methods
+
+
+
+public class Item {
+
+	String name;
+	float price;
+
+	public Item(String name, float price) {
+		this.name = name;
+		this.price = price;
+	}
+
+	public String toString() {
+		return name + ": $" + price;
+	}
+}
+
+
+
+public class Menu {
+
+	List<Item> menuItems;
+
+	public Menu() {
+		menuItems = new ArrayList<Item>();
+	}
+
+	public void addItem(Item item) {
+		menuItems.add(item);
+	}
+
+	public Iterator<Item> iterator() {
+		return new MenuIterator();
+	}
+
+	class MenuIterator implements Iterator<Item> {
+		int currentIndex = 0;
+
+		@Override
+		public boolean hasNext() {
+			if (currentIndex >= menuItems.size()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		@Override
+		public Item next() {
+			return menuItems.get(currentIndex++);
+		}
+
+		@Override
+		public void remove() {
+			menuItems.remove(--currentIndex);
+		}
+
+	}
+
+}
+
+
+public class Demo {
+
+	public static void main(String[] args) {
+
+		Item i1 = new Item("mouse", 7.50f);
+		Item i2 = new Item("laptop", 6.00f);
+		Item i3 = new Item("DVD", 6.50f);
+
+		Menu menu = new Menu();
+		menu.addItem(i1);
+		menu.addItem(i2);
+		menu.addItem(i3);
+
+		System.out.println("Displaying Menu:");
+		Iterator<Item> iterator = menu.iterator();
+		while (iterator.hasNext()) {
+			Item item = iterator.next();
+			System.out.println(item);
+		}
+
+		System.out.println("\nRemoving last item returned");
+		iterator.remove();
+
+		System.out.println("\nDisplaying Menu:");
+		iterator = menu.iterator();
+		while (iterator.hasNext()) {
+			Item item = iterator.next();
+			System.out.println(item);
+		}
+
+	}
+
+}
+
+
+Observer design pattern:
+========================
+
+	=> Observer pattern in java is one of the most important design patterns. 
+	=> The concept behind the Observer design pattern is the basis for PubSub, 
+	event and non blocking based systems
+	
+	Observer Pattern?
+		It defines a one-to-many dependency between objects so that when one object changes state, 
+		all its dependents are notified automatically.
+
+
+YT 
+Obserable ----- Observer 
+news paper			you
+wala
+
+
+Observer design pattern
+----------------------
+
+Attempt 1
+-----------
+	class NewsAgency extends Observable {
+		private String news;
+		public void setNews(String news) {
+			this.news = news;
+			System.out.println("Agency: " + news);
+			setChanged();               // Mark as changed before notifying
+			notifyObservers(news);      // Notify all observers with message
+		}
+	}
+
+	//Concrete Observers using Built-in Observer interface
+	class EmailSubscriber implements Observer {
+		@Override
+		public void update(Observable o, Object arg) {
+			System.out.println("Email received: " + arg);
+		}
+	}
+
+	class SMSSubscriber implements Observer {}
+
+	Main
+	--------
+			NewsAgency agency = new NewsAgency();
+
+			Observer email = new EmailSubscriber();
+			Observer sms = new SMSSubscriber();
+			// Attach observers
+			agency.addObserver(email);
+			agency.addObserver(sms);
+
+			// Change news and notify all observers
+			agency.setNews("Java 21 Released!");
+			agency.setNews("Spring Boot 3.3 Update Announced!");
+
+
+
+
+
+
+Attempt 2: Custom Observer Pattern in Java (Best Practice)
+--------------------------------------------------------
+
+	//Subject (Observable)
+	interface Subject {
+		void addObserver(Observer o);
+		void removeObserver(Observer o);
+		void notifyObservers(String message);
+	}
+	//Observer (Subscriber)
+	interface Observer {
+		void update(String message);
+	}
+	
+	//Concrete Subject
+	class NewsAgency implements Subject {
+		private List<Observer> observers = new ArrayList<>();
+
+		public void addObserver(Observer o) {
+			observers.add(o);
+		}
+
+		public void removeObserver(Observer o) {
+			observers.remove(o);
+		}
+
+		public void notifyObservers(String message) {
+			for (Observer o : observers) {
+				o.update(message);
+			}
+		}
+
+		public void setNews(String news) {
+			System.out.println("Agency: " + news);
+			notifyObservers(news);
+		}
+	}
+	
+	//Concrete Observers
+	class EmailSubscriber implements Observer {
+		public void update(String message) {
+			System.out.println("Email received: " + message);
+		}
+	}
+	
+	class SMSSubscriber implements Observer {}
+
+	Demo
+	----------
+	NewsAgency agency = new NewsAgency();
+	Observer email = new EmailSubscriber();
+	Observer sms = new SMSSubscriber();
+
+	agency.addObserver(email);
+	agency.addObserver(sms);
+
+	agency.setNews("Java 21 Released!");
+
+
+
+
+
+Strategy Pattern 
+================
+	=>The strategy pattern is intended to provide a means to define a family of algorithms, encapsulate each one '
+	as an object, and make them interchangeable select algo at run time convert IS-A to HAS-A
+
+
+	Definition (GoF):
+	“Define a family of algorithms, encapsulate each one, and make them interchangeable. 
+	The Strategy Pattern lets the algorithm vary independently from clients that use it.”
+
+	So in plain English:
+	---------------------
+		You have multiple implementations (strategies) of an interface.
+		The client can choose which one to use at runtime.
+		The context delegates behavior to the selected strategy.
+
+	Spring and Strategy pattern:
+	---------------------------
+	Spring’s dependency injection and @Primary mechanism reflect the Strategy pattern principle.
+	“Spring allows you to swap implementations at runtime or configuration time — which is Strategy Pattern behavior.”
+
+	Strategy Interface
+	-----------------
+	public interface PaymentStrategy {
+		void pay(int amount);
+	}
+
+	Concrete Strategies
+	-----------------
+
+	public class PayPalStrategy implements PaymentStrategy {
+		private String email;
+
+		public PayPalStrategy(String email) {
+			this.email = email;
+		}
+
+		public void pay(int amount) {
+			System.out.println("Paid ₹" + amount + " using PayPal (" + email + ")");
+		}
+	}
+
+	public class CreditCardStrategy implements PaymentStrategy {}
+
+	Context – ShoppingCart
+	-----------------
+	public class ShoppingCart {
+		private List<Integer> items = new ArrayList<>();
+
+		public void addItem(int price) {
+			items.add(price);
+		}
+
+		public void pay(PaymentStrategy strategy) {
+			int total = items.stream().mapToInt(Integer::intValue).sum();
+			strategy.pay(total);  // Delegate to selected strategy
+		}
+	}
+
+	Client Code
+
+			ShoppingCart cart = new ShoppingCart();
+			cart.addItem(1000);
+			cart.addItem(2500);
+
+			cart.pay(new PayPalStrategy("user@example.com"));
+			cart.pay(new CreditCardStrategy("1234-5678-9012-3456"));
+
+
+
+Light weight strategy design pattern( with java 8 and lambda)
+-------------------------------------------------------------
+class Apple {
+	private String color;
+	private int weight;
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	public int getWeight() {
+		return weight;
+	}
+
+	public void setWeight(int weight) {
+		this.weight = weight;
+	}
+
+	public Apple(String color, int weight) {
+		this.color = color;
+		this.weight = weight;
+	}
+
+	public Apple() {
+	}
+
+	@Override
+	public String toString() {
+		return "Apple [color=" + color + ", weight=" + weight + "]";
+	}
+
+}
+
+class Inventrory {
+
+	public static List<Apple> getGreenApple(List<Apple> apples) {
+		List<Apple> geenApples = new ArrayList<Apple>();
+		for (Apple temp : apples) {
+			if (temp.getColor().equalsIgnoreCase("green"))
+				geenApples.add(temp);
+		}
+		return geenApples;
+	}
+
+}
+
+public class DemoBehaviouralParameterization {
+
+	public static void main(String[] args) {
+		List<Apple> apples = createApples();
+		
+	}
+
+	public static List<Apple> createApples() {
+		List<Apple> apples = new ArrayList<>();
+		Random random = new Random();
+
+		for (int i = 0; i < 10; i++) {
+			String color = random.nextBoolean() ? "red" : "green";
+			int weight = 200 + random.nextInt(201); // 200–400 inclusive
+			apples.add(new Apple(color, weight));
+		}
+
+		return apples;
+	}
+}
+
+
+Example2: Strategy Pattern: Designing shopping cart with varying discount policies
+------------------------
+
+class Product {
+	private int id;
+	private String name;
+	private double price;
+	private int quantity;
+
+}
+
+
+public class Cart {
+	private List<Product> productList = new ArrayList<>();
+	private double totalCartValue;
+
+
+	public void addProduct(Product product) {
+		productList.add(product);
+	} 
+	
+
+	public int getProductCount(){
+		return productList.size();
+	}
+	
+	public double getTotalCartValue(){
+		if(productList.size()> 0){
+			for(Product p: productList){
+				totalCartValue=totalCartValue+p.getPrice()*p.getQuantity();
+			}
+		}
+			
+		return totalCartValue;
+	}
+}
+
+
+
+Now we need discount policy:
+-----------------------------
+discount can change any time...we need flexiable model
+
+interface Discount {
+	public void discount(Product product);
+
+}
+
+// buy 5 get 2 item free
+class BuyXGetYItem implements Discount {
+	private int x;
+	private int y;
+
+	public BuyXGetYItem(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	@Override
+	public void discount(Product product) {
+		if(product.getQuantity()>=x){
+			product.setQuantity(product.getQuantity()+product.getQuantity());
+		}
+	}
+}
+
+class BuyXGetYPercentageDiscount implements Discount{
+	private int x;
+	private int y;
+
+	public BuyXGetPercentageDiscount(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	@Override
+	public void discount(Product product) {
+		if(product.getQuantity()>=x){
+			double reducedPrice=(product.getPrice()-product.getPrice()*y/100);
+			product.setPrice(reducedPrice);
+		}
+	}
+}
+
+
+
+
+
+
+public class Cart {
+	private List<Product> productList = new ArrayList<>();
+	private double totalCartValue;
+	private Discount discount;
+
+
+	public void addProduct(Product product) {
+		if(discount != null){
+			discount.discount(product);//apply offer
+		}
+		productList.add(product);
+	} 
+	
+	public void setDiscount(Discount discount) {
+		this.discount = discount;
+	}
+
+	public int getProductCount(){
+		return productList.size();
+	}
+	
+	public double getTotalCartValue(){
+		if(productList.size()> 0){
+			for(Product p: productList){
+				totalCartValue=totalCartValue+p.getPrice()*p.getQuantity();
+			}
+		}
+			
+		return totalCartValue;
+	}
+}
+
+
+
+Chain of Responsibility
+-----------------------
+	=> used to achieve loose coupling in software design where a request 
+	from client is passed to a chain of objects to process them. 
+
+	=>Then the object in the chain will decide themselves who will 
+	be processing the request and whether the request is 
+	required to be sent to the next object in the chain or not.
+
+	=> ex:  try-catch block
+
+	=> Ex: ATM Dispense machine, 50$, 20$, 10$ etc
+
+
+The Chain of Responsibility (CoR) design pattern
+----------------------------------------------
+	 allows a request to pass through a 
+	chain of handlers where each handler decides
+	 either to process the request or pass it to the next handler.
+ 
+	Customer Support System
+	-----------------------------
+	When you raise a support ticket:
+		1. First handled by a bot.
+		2. If unresolved, passed to agent.
+		3. Further escalated to manager if needed.
+	This is exactly how CoR works.
+
+
+	Abstract Handler
+	------------------
+	abstract class SupportHandler {
+		protected SupportHandler next;
+		public void setNext(SupportHandler next) {
+			this.next = next;
+		}
+		public void handleRequest(String level, String message) {
+			if (next != null)
+				next.handleRequest(level, message);
+		}
+	}
+
+	2. Concrete Handlers
+	------------------
+	class BotSupport extends SupportHandler {
+		public void handleRequest(String level, String message) {
+			if (level.equalsIgnoreCase("LOW")) {
+				System.out.println("Bot handled: " + message);
+			} else {
+				super.handleRequest(level, message);
+			}
+		}
+	}
+
+	class AgentSupport extends SupportHandler {
+		public void handleRequest(String level, String message) {
+			if (level.equalsIgnoreCase("MEDIUM")) {
+				System.out.println("AgentSupport handled: " + message);
+			} else {
+				super.handleRequest(level, message);
+			}
+		}
+	}
+	
+		class ManagerSupport extends SupportHandler {
+		public void handleRequest(String level, String message) {
+			if (level.equalsIgnoreCase("HIGH")) {
+				System.out.println("Bot handled: " + message);
+			} else {
+				super.handleRequest(level, message);
+			}
+		}
+	}
+
+	3. Client Code
+	------------------
+	 SupportHandler bot = new BotSupport();
+	 SupportHandler agent = new AgentSupport();
+	 SupportHandler manager = new ManagerSupport();
+	  bot.setNext(agent);
+	  agent.setNext(manager);
+	  bot.handleRequest("LOW", "Reset password");
+	  bot.handleRequest("MEDIUM", "Order not delivered");
+	  bot.handleRequest("HIGH", "Account hacked");
+	  bot.handleRequest("UNKNOWN", "Some weird request");
+	  
+
+
+Spring boot filter and interceptor example:
+---------------------------------------------
+spring mvc arch
+
+how filter chain and interceptor difference
+https://www.baeldung.com/spring-mvc-handlerinterceptor-vs-filter
+
+Example:
+public class FirstInterceptor implements HandlerInterceptor {
+}
+public class SecondInterceptor implements HandlerInterceptor {}
+
+configuration:
+-------------
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        // Lower order = higher priority
+        registry.addInterceptor(new FirstInterceptor())
+                .addPathPatterns("/**")
+                .order(1); // executes first
+
+        registry.addInterceptor(new SecondInterceptor())
+                .addPathPatterns("/**")
+                .order(2); // executes second
+    }
+}
+
+or alternative config: if use @Component annotation with interceptor
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    private final FirstInterceptor firstInterceptor;
+    private final SecondInterceptor secondInterceptor;
+
+    public WebConfig(FirstInterceptor firstInterceptor, SecondInterceptor secondInterceptor) {
+        this.firstInterceptor = firstInterceptor;
+        this.secondInterceptor = secondInterceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(firstInterceptor).order(1);
+        registry.addInterceptor(secondInterceptor).order(2);
+    }
+}
+
+Spring filters:
+--------------------
+A Filter in Spring Boot (Servlet filter) intercepts HTTP requests before 
+they reach the DispatcherServlet (unlike interceptors, which work after it).
+
+Filters are used for:
+	Logging or auditing requests
+	Authentication/Authorization
+	Request/response modification
+	Setting security headers, etc
+
+@Component
+@Order(1)
+public class FirstFilter implements Filter {
+@Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest req = (HttpServletRequest) request;
+        System.out.println(" FirstFilter - Request URI: " + req.getRequestURI());
+
+        // continue filter chain
+        chain.doFilter(request, response);
+
+        System.out.println("FirstFilter - Response returned.");
+    }
+}
+
+@Component
+@Order(2)
+public class SecondFilter implements Filter {}
+
+Note: filter automatically configured if you are using @Component and Order annotation
+
+but in case if u are not using it :
+-----------------------------------
+@Configuration
+public class FilterConfig {
+
+    @Bean
+    public FilterRegistrationBean<FirstFilter> firstFilter() {
+        FilterRegistrationBean<FirstFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new FirstFilter());
+        registration.addUrlPatterns("/api/*");   // apply only to /api/
+        registration.setOrder(1);
+        return registration;
+    }
+
+    @Bean
+    public FilterRegistrationBean<SecondFilter> secondFilter() {
+        FilterRegistrationBean<SecondFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new SecondFilter());
+        registration.addUrlPatterns("/*");       // apply to all
+        registration.setOrder(2);
+        return registration;
+    }
+}
+
+Spring provides a special abstract class:
+-----------------------------------------
+public abstract class OncePerRequestFilter implements Filter{}
+
+	It ensures that your filter runs only once per request 
+	(even if the request passes through multiple dispatch types,
+	 such as FORWARD or INCLUDE).
+
+	Without it, filters might accidentally run multiple times 
+	— especially in apps using error pages, forwards, or includes.
+
+
+How to list spring security filter chain?
+------------------------------------
+@Configuration
+public class SecurityFilterLoggerConfig {
+
+    @Bean
+    public CommandLineRunner logSecurityFilters(FilterChainProxy filterChainProxy) {
+        return args -> {
+            System.out.println("Active Spring Security Filter Chains:");
+            int index = 1;
+            for (SecurityFilterChain chain : filterChainProxy.getFilterChains()) {
+                System.out.println("\nFilter Chain " + index++ + ": " + chain);
+                chain.getFilters().forEach(f -> System.out.println("   ➡ " + f.getClass().getName()));
+            }
+        };
+    }
+}
+
+
+spring.security.debug=true
+logging.level.org.springframework.security=DEBUG
+logging.level.org.springframework.security.web=DEBUG
+
+
+
+Template design pattern:
+-------------------------
+
+Template Method defines the skeleton of an algorithm in a superclass but lets
+ subclasses override specific steps without changing the algorithm’s structure.
+ 
+ It defines what to do and when to do it in the base class, 
+ but lets subclasses decide how to do it.
+ 
+	=> Template Method is a behavioral design pattern. 
+
+	=> Template Method design pattern is used to create a method stub and 		
+		deferring some of the steps of implementation to the subclasses.
+
+	=> Template method defines the steps to execute an algorithm and it
+	 can provide default implementation that might be common for all or some of 		
+		the subclasses.
+
+	=> suppose we want to provide an algorithm to build a house. 
+	The steps need to be performed to build a house are 
+	 building foundation, building pillars, building walls and windows.
+
+	=>  The important point is that the we cant change the order of execution
+	 because we can't build windows before building the foundation.
+
+	=> So in this case we can create a template method that will use different methods to build the house
+
+
+Why Template Method is Behavioral
+----------------------------------------
+	Because it controls the behavior (flow) of an algorithm by:
+	Defining a fixed sequence of operations (the behavior flow).
+	Delegating specific steps (behaviors) to subclasses.
+	Allowing different variations in behavior without changing the algorithm structure.
+
+In other words:
+---------------
+	The Template Method pattern focuses on how different parts of 
+	an algorithm behave and collaborate, rather than how objects are composed or created.
+
+ 
+Template Method Pattern
+------------------------
+	Abstract Class — OnlineExam
+	-----------------------------
+	public abstract class OnlineExam {
+		// Template Method
+		public final void conductExam() {
+			startTest();
+			presentQuestions();  // customizable step
+			evaluate();
+			showResult();
+		}
+		private void startTest() {
+			System.out.println("Test started. Timer is running...");
+		}
+		protected abstract void presentQuestions();  // variation point
+
+		private void evaluate() {
+			System.out.println("Evaluating answers...");
+		}
+
+		private void showResult() {
+			System.out.println("Displaying result to the student.");
+		}
+	}
+
+	Subclass 1 — Java Exam
+	-----------------------------
+	public class JavaExam extends OnlineExam {
+		@Override
+		protected void presentQuestions() {
+			System.out.println("Java Q1: What is JVM?");
+			System.out.println("Java Q2: Explain OOP principles.");
+		}
+	}
+	Subclass 2 — Math Exam
+	-----------------------------
+	public class MathExam extends OnlineExam {}
+
+	Client Code
+	---------
+			OnlineExam exam1 = new JavaExam();
+			exam1.conductExam();
+
+			System.out.println("-----");
+
+			OnlineExam exam2 = new MathExam();
+			exam2.conductExam();
+
+
+
+Spring boot jdbcTemplate
+-----------------------
+
+without jdbcTemplate
+========================
+@Repository
+public class AccountDaoJdbcImpl implements AccountDao {
+
+    private final DataSource dataSource;
+
+    // ✅ Constructor-based dependency injection
+    public AccountDaoJdbcImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public List<Account> getAll() {
+        String sql = "SELECT id, name, balance FROM accounts";
+        List<Account> accounts = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Account account = new Account(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getBigDecimal("balance")
+                );
+                accounts.add(account);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching all accounts", e);
+        }
+
+        return accounts;
+    }
+
+    @Override
+    public Account getById(int id) {
+        String sql = "SELECT id, name, balance FROM accounts WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Account(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getBigDecimal("balance")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching account by ID: " + id, e);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void updateAccount(Account account) {
+        String sql = "UPDATE accounts SET name = ?, balance = ? WHERE id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, account.getName());
+            ps.setBigDecimal(2, account.getBalance());
+            ps.setInt(3, account.getId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating account ID: " + account.getId(), e);
+        }
+    }
+}
+
+
+with jdbcTemplate
+==================
+step 1: define rowmapper:
+-----------------------
+public class AccountRowMapper implements RowMapper<Account> {
+
+    @Override
+    public Account mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Account(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getBigDecimal("balance")
+        );
+    }
+}
+
+step 1: use jdbctemplate:
+-----------------------
+
+@Repository
+public class AccountDaoJdbcTemplateImpl implements AccountDao {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    // ✅ Constructor-based injection
+    public AccountDaoJdbcTemplateImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public List<Account> getAll() {
+        String sql = "SELECT id, name, balance FROM accounts";
+        return jdbcTemplate.query(sql, new AccountRowMapper());
+    }
+
+    @Override
+    public Account getById(int id) {
+        String sql = "SELECT id, name, balance FROM accounts WHERE id = ?";
+        List<Account> list = jdbcTemplate.query(sql, new AccountRowMapper(), id);
+
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    @Override
+    public void updateAccount(Account account) {
+        String sql = "UPDATE accounts SET name = ?, balance = ? WHERE id = ?";
+        jdbcTemplate.update(sql,
+                account.getName(),
+                account.getBalance(),
+                account.getId()
+        );
+    }
+}
+
+
+
+
+
+
+Example 2:
+-----------
+
+public abstract class HouseTemplate {
+
+	//template method, final so subclasses can't override
+	public final void buildHouse(){
+		buildFoundation();
+		buildPillars();
+		buildWalls();
+		buildWindows();
+		System.out.println("House is built.");
+	}
+
+	//default implementation
+	private void buildWindows() {
+		System.out.println("Building Glass Windows");
+	}
+
+	//methods to be implemented by subclasses
+	public abstract void buildWalls();
+	public abstract void buildPillars();
+
+	private void buildFoundation() {
+		System.out.println("Building foundation with cement,iron rods and sand");
+	}
+}
+
+
+
+public class WoodenHouse extends HouseTemplate {
+
+	@Override
+	public void buildWalls() {
+		System.out.println("Building Wooden Walls");
+	}
+
+	@Override
+	public void buildPillars() {
+		System.out.println("Building Pillars with Wood coating");
+	}
+
+}
+
+
+
+
+public class GlassHouse extends HouseTemplate {
+
+	@Override
+	public void buildWalls() {
+		System.out.println("Building Glass Walls");
+	}
+
+	@Override
+	public void buildPillars() {
+		System.out.println("Building Pillars with glass coating");
+	}
+
+}
+
+
+
+		HouseTemplate houseType = new WoodenHouse();
+		
+		//using template method
+		houseType.buildHouse();
+		System.out.println("************");
+		
+		houseType = new GlassHouse();
+		
+		houseType.buildHouse();
+
+
+
+	Example in jdk:
+	-----------------
+	=> All non-abstract methods of java.io.InputStream, java.io.OutputStream, java.io.Reader and java.io.Writer.
+
+	=> All non-abstract methods of java.util.AbstractList, java.util.AbstractSet and java.util.AbstractMap.
+
+
+
+Spring boot : spring jdbcTemplate example
+
+
+
+
+command design pattern:(Behavioral)
+====================================
+
+	=> command design pattern is used to implement loose coupling in a request-response model
+	
+	=> In command pattern, the request is send to the invoker and invoker
+		 pass it to the encapsulated command object.
+		 
+	=> Command object passes the request to the appropriate 
+	method of Receiver to perform the specific action.
+
+Intent:
+--------
+	Encapsulate a request as an object, allowing you to parameterize 
+	clients with different requests, queue or log requests, and support undoable operations.
+
+	Instead of invoking a method directly, the Command pattern wraps a request
+	(method call + receiver + parameters) inside a Command object.
+
+	This means that a request becomes data, which can be:
+		Passed around,
+		Queued,
+		Executed later,
+		Logged, or even undone.
+
+
+class HelloServlet extends HttpServlet{
+
+	public void doPost(........., .............){
+		String data="code";
+		req.setAttribute("code",code)
+		RequestDispacher rd=req1.getrequestdispacher("foo.jsp");
+		rd.forward(req, resp);
+		
+	
+	}
+}
+then we recived it into jsp?
+
+code can be simplified with the command pattern while using spring mvc with jsp?
+
+
+Why It’s a Behavioral Pattern
+-----------------------------
+	Because the Command pattern focuses on behavior delegation and request handling,
+	not object structure or creation.
+
+It deals with:
+--------------
+	How objects interact (Invoker, Command, Receiver)
+	How actions (behaviors) are encapsulated and triggered
+	How a request is executed, delayed, or logged
+	
+	It’s not about:
+	------------------
+	Creating objects (that’s creational)
+	Composing objects (that’s structural)
+	Instead, it’s about controlling how actions (behaviors) are issued and executed.
+
+👉 So it falls into the Behavioral category — it’s all about behavior orchestration.
+
+
+Smart Home Command Example 
+----------------------------
+	To wrap a task (a request) inside an object.
+	It means we keep “what needs to be done” and “who will do it” separate from each other.
+
+
+1. Command Interface
+------------------------
+public interface Command {
+    void execute();
+}
+
+2. Receivers
+-----------------------
+public class Light {
+    public void turnOn() {
+        System.out.println("Light ON");
+    }
+
+    public void turnOff() {
+        System.out.println("Light OFF");
+    }
+}
+
+3. Concrete Commands
+------------------------
+public class LightOnCommand implements Command {
+    private Light light;
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+    public void execute() {
+        light.turnOn();
+    }
+}
+
+public class LightOffCommand implements Command {}
+
+4. Invoker
+-------------
+public class RemoteControl {
+    private Command command;
+
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+
+    public void pressButton() {
+        command.execute();
+    }
+}
+
+
+5. Client
+-------
+ Light light = new Light();
+ Command on = new LightOnCommand(light);
+ Command off = new LightOffCommand(light);
+ RemoteControl remote = new RemoteControl();
+ remote.setCommand(on);
+ remote.pressButton(); // Light ON
+ remote.setCommand(off);
+ remote.pressButton(); // Light OFF
+
+
+4. How It’s Used in Spring MVC
+----------------------------------
+	Spring MVC heavily follows a Command pattern–like approach in how
+	it handles HTTP requests as command objects.
+
+Let’s see it practically.
+------------------------
+a) Command Object in Spring MVC
+----------------------------
+When you write:
+---------------
+@PostMapping("/register")
+public String registerUser(@ModelAttribute("user") User user) {
+    userService.save(user);
+    return "success";
+}
+
+Here:
+-------
+	User acts as a Command Object.
+	Spring binds HTTP request parameters to this object automatically.
+	The controller method acts like a Receiver.
+	The Spring DispatcherServlet acts like the Invoker.
+
+So the flow is:
+-------------
+	Browser (Client)
+	   ↓
+	DispatcherServlet (Invoker)
+	   ↓
+	HandlerMapping → Controller (Receiver)
+	   ↓
+	@ModelAttribute object (Command)
+
+	This decouples the request from the execution logic, 
+	following the Command pattern’s behavioral intent.
+
+b) DispatcherServlet as Invoker
+--------------------------------
+	DispatcherServlet in Spring MVC is a front controller that:
+
+	Receives all HTTP requests.
+
+	Identifies which Controller and Command Object should handle it.
+
+	Invokes the appropriate handler method.
+
+	You can think of it as:
+
+	Command = encapsulated HTTP request
+	Receiver = controller
+	Invoker = DispatcherServlet
+	Client = web browser
+
+
+	Each HTTP request is effectively turned into a command execution flow.
+
+
+memento design pattern
+=======================
+Memento captures and externalizes an object’s internal state 
+so it can be restored later, without violating encapsulation.
+
+Memento Design Pattern — Simple Definition:
+	It saves an object’s state at a moment in time so you can restore it later — 
+	like an undo button — without exposing the object’s internal details.
+
+
+	=> Memento design pattern is used when we want to save the state of an object 
+	so that we can restore later on. Memento pattern is used to implement
+	 this in such a way that the saved state data of the object is not accessible outside of the object, 
+	this protects the integrity of saved state data.
+
+
+	=> Example text editors where we can save it’s data anytime and 
+	use undo to restore it to previous saved state
+
+	Imagine a game where Ekta reaches Level 5 and saves her game.
+	Later she fails in Level 6, so she "loads the save point" — this is Memento in action:
+		• Save = createMemento()
+		• Load = restoreFromMemento(memento)
+	
+Game Save Example
+-----------------
+1. Memento: stores state
+----------------------------
+public class GameStateMemento {
+    private final String level;
+    private final int health;
+
+    public GameStateMemento(String level, int health) {
+        this.level = level;
+        this.health = health;
+    }
+
+    public String getLevel() { return level; }
+    public int getHealth() { return health; }
+}
+2. Originator: the game
+---------------------------
+public class Game {
+    private String level;
+    private int health;
+
+    public void play(String level, int health) {
+        this.level = level;
+        this.health = health;
+        System.out.println("Playing " + level + " with health: " + health);
+    }
+    public GameStateMemento save() {
+        return new GameStateMemento(level, health);
+    }
+    public void restore(GameStateMemento memento) {
+        this.level = memento.getLevel();
+        this.health = memento.getHealth();
+        System.out.println("Restored to " + level + " with health: " + health);
+    }
+}
+3. Caretaker: maintains history (like undo/redo)
+----------------------------
+public class GameCaretaker {
+    private final Stack<GameStateMemento> history = new Stack<>();
+    public void save(Game game) {
+        history.push(game.save());
+    }
+    public void undo(Game game) {
+        if (!history.isEmpty()) {
+            game.restore(history.pop());
+        }
+    }
+}
+
+4. Client Code
+----------------------------
+        Game game = new Game();
+        GameCaretaker caretaker = new GameCaretaker();
+        game.play("Level 1", 100);
+        caretaker.save(game);
+        game.play("Level 2", 80);
+        caretaker.save(game);
+		game.play("Level 3", 50);
+        caretaker.undo(game); // back to Level 2
+        caretaker.undo(game); // back to Level 1
+
+
+Where is Memento used?
+---------------------
+
+	Domain				Use Case Example
+	---------------------------------------
+	Text Editors		Undo/Redo of text changes
+	IDEs				Save points during debugging or refactoring
+	Games				Save game checkpoints
+	Forms/Wizards		Restore previous screen state
+	Data Entry			Revert partially-filled forms
+
+
+Serializable / Externalizable
+---------------------------
+	Serialization can be used to persist object state to disk and reload 
+	— a real-world memento mechanism.
+
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	ObjectOutputStream oos = new ObjectOutputStream(baos);
+	oos.writeObject(object);  // save
+
+	ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+	MyObject restored = (MyObject) ois.readObject(); // restore
+
+Entity Versioning with Hibernate Envers
+-------------------------------------
+    • Tracks entity revisions.
+    • Rollback to any previous version.
+    • Transparent snapshot mechanism.
+
+	@Entity
+	@Audited // Hibernate Envers annotation
+	public class UserProfile {
+		private String name;
+		private String email;
+	}
+	
+	
+Mediator design pattern
+---------------------------
+	“Don’t let many objects talk to each other directly.
+	Instead, make them talk through one central object — the Mediator.”
+
+	Why?
+	-------
+	Because if everyone connects to everyone, the system becomes messy and hard to manage.
+	Mediator keeps it clean and loosely coupled.
+
+	ExecutorService
+		• It mediates between a thread pool and submitted Runnable/Callable tasks.
+		• ExecutorService is the coordinator; threads and tasks don’t manage each other directly.
+
+
+	=> If the objects interact with each other directly, the system components are tightly-coupled 
+	with each other that makes higher maintainability cost and not hard to extend. 
+
+	=> Mediator pattern focuses on provide a mediator between objects for communication 
+	and help in implementing lose-coupling between objects.
+
+	=> Air traffic controller is a great example of mediator pattern where the airport control room 
+	works as a mediator for communication between different flights. 
+	Mediator works as a router between objects and it can have it’s own logic to provide way of communication.
+
+	=>Other example ESB bus in SOA
+
+	
+Java Code Example — Chat Room
+---------------------------------
+
+Step 1: Mediator Interface
+---------------------------------
+public interface ChatMediator {
+    void showMessage(String message, User user);
+}
+
+Step 2: Concrete Mediator
+-------------------------
+public class ChatRoom implements ChatMediator {
+    @Override
+    public void showMessage(String message, User user) {
+        System.out.println("[" + user.getName() + "] : " + message);
+    }
+}
+
+Step 3: Colleague (User)
+--------------------------
+
+public class User {
+    private String name;
+    private ChatMediator chatMediator;
+
+    public User(String name, ChatMediator mediator) {
+        this.name = name;
+        this.chatMediator = mediator;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void send(String message) {
+        chatMediator.showMessage(message, this);
+    }
+}
+
+
+Step 4: Client Code
+--------------------
+
+ChatMediator mediator = new ChatRoom();
+User raj = new User("raj", mediator);
+User ekta = new User("ekta", mediator);
+raj.send("Hello!");
+ekta.send("Hi! How are you?");
+
+
+
+Interpreter Design Pattern
+==========================
+	=> Interpreter pattern is one of the behavioral design pattern and 
+	is used to defines a grammatical representation for a language and provides 
+	an interpreter to deal with this grammar. 
+
+	The best example of this pattern is java compiler that interprets the java 
+	source code into byte code that is understandable by JVM. Google Translator
+
+	1. What Is the Interpreter Design Pattern?
+	-------------------------------------------
+	The Interpreter Pattern defines a way to evaluate language grammar or expressions
+	by representing rules as a class hierarchy.
+
+	In simple terms:
+	It allows you to interpret and evaluate sentences in a custom language or rule syntax, 
+	by modeling grammar rules as objects.
+
+Example Analogy
+----------------------
+	Think of how a calculator interprets 5 + 3 * 2.
+	Each number and operator (+, *) is part of a language grammar.
+
+	An interpreter pattern allows you to:
+		Represent each part (Expression) as an object.
+		Build a tree (Expression Tree).
+		Evaluate it by calling .interpret().
+
+2. Core Participants
+---------------------
+	Component				Role
+	------------------------------
+	AbstractExpression		Declares the interpret() interface
+	TerminalExpression		Represents constants/variables
+	NonTerminalExpression	Represents operators or rules combining expressions
+	Context	Contains global information needed during interpretation
+
+Example (Simplified Expression Evaluator)
+---------------------------------------
+	interface Expression {
+		int interpret();
+	}
+
+	// Terminal Expression
+	class NumberExpression implements Expression {
+		private int number;
+		public NumberExpression(int number) { this.number = number; }
+		public int interpret() { return number; }
+	}
+
+	// Non-Terminal Expression (Addition)
+	class AddExpression implements Expression {
+		private Expression left, right;
+		public AddExpression(Expression left, Expression right) {
+			this.left = left;
+			this.right = right;
+		}
+		public int interpret() {
+			return left.interpret() + right.interpret();
+		}
+	}
+
+	// Client
+	public class InterpreterDemo {
+		public static void main(String[] args) {
+			// Represents (5 + 3) + (2 + 1)
+			Expression result = new AddExpression(
+					new AddExpression(new NumberExpression(5), new NumberExpression(3)),
+					new AddExpression(new NumberExpression(2), new NumberExpression(1))
+			);
+
+			System.out.println("Result: " + result.interpret());
+		}
+	}
+
+3. Why It’s a Behavioral Pattern
+-----------------------------------
+	Because it focuses on how objects collaborate to interpret and execute meaning (behavior)
+	of sentences in a language.
+
+	It’s not about structure or creation, but about interpreting 
+	behavior defined by rules — hence behavioral.
+
+4. Real Power — Rule-Based Frameworks
+------------------------------------
+	Now let’s connect it to Spring Boot and real-world use.
+
+	A rule engine evaluates conditions dynamically, for example:
+
+	IF (customer.age > 60 AND customer.accountBalance > 50000)
+	THEN discount = 10%
+
+
+You could:
+----------------
+	Write Java if-else blocks everywhere 😬
+	OR build a rule interpreter that can evaluate dynamic rule expressions at runtime ✅
+
+	That’s the Interpreter Pattern in action.
+
+5. Interpreter Pattern in a Rule Engine (Spring Boot Example)
+---------------------------------------------
+	We’ll build a simple rule interpreter that evaluates 
+	logical expressions defined as text.
+
+Step 1: Define the Expression Interface
+--------------------------------
+public interface Expression {
+    boolean interpret(Context context);
+}
+
+Step 2: Define Context (stores runtime data)
+------------------------------------------------
+public class Context {
+    private Map<String, Object> data = new HashMap<>();
+
+    public void put(String key, Object value) {
+        data.put(key, value);
+    }
+
+    public Object get(String key) {
+        return data.get(key);
+    }
+}
+
+Step 3: Implement Terminal and Non-Terminal Expressions
+---------------------------------------------------------
+// Terminal Expression
+public class VariableExpression implements Expression {
+    private String key;
+    private String operator;
+    private Object value;
+
+    public VariableExpression(String key, String operator, Object value) {
+        this.key = key;
+        this.operator = operator;
+        this.value = value;
+    }
+
+    @Override
+    public boolean interpret(Context context) {
+        Object obj = context.get(key);
+        if (obj instanceof Integer) {
+            int var = (Integer) obj;
+            int val = Integer.parseInt(value.toString());
+            return switch (operator) {
+                case ">" -> var > val;
+                case "<" -> var < val;
+                case "==" -> var == val;
+                default -> false;
+            };
+        }
+        return false;
+    }
+}
+
+// Non-terminal Expression for logical AND
+----------------------------------------------
+public class AndExpression implements Expression {
+    private Expression left, right;
+    public AndExpression(Expression left, Expression right) {
+        this.left = left;
+        this.right = right;
+    }
+    @Override
+    public boolean interpret(Context context) {
+        return left.interpret(context) && right.interpret(context);
+    }
+}
+
+// Non-terminal Expression for logical OR
+-------------------------------------------------
+public class OrExpression implements Expression {
+    private Expression left, right;
+    public OrExpression(Expression left, Expression right) {
+        this.left = left;
+        this.right = right;
+    }
+    @Override
+    public boolean interpret(Context context) {
+        return left.interpret(context) || right.interpret(context);
+    }
+}
+
+Step 4: Test in a Spring Boot Runner
+----------------------------------
+@SpringBootApplication
+public class RuleInterpreterApp implements CommandLineRunner {
+
+    public static void main(String[] args) {
+        SpringApplication.run(RuleInterpreterApp.class, args);
+    }
+
+    @Override
+    public void run(String... args) {
+        Context ctx = new Context();
+        ctx.put("age", 65);
+        ctx.put("balance", 70000);
+
+        Expression ageRule = new VariableExpression("age", ">", 60);
+        Expression balanceRule = new VariableExpression("balance", ">", 50000);
+        Expression rule = new AndExpression(ageRule, balanceRule);
+
+        boolean eligible = rule.interpret(ctx);
+        System.out.println("Eligible for discount: " + eligible);
+    }
+}
+
+
+Output:
+---------
+Eligible for discount: true
+
+7. Spring Expression Language (SpEL) — Built-in Interpreter
+-------------------------------------------------------------
+Spring already implements the Interpreter pattern internally via SpEL.
+
+Example:
+---------
+	ExpressionParser parser = new SpelExpressionParser();
+	Expression exp = parser.parseExpression("age > 60 and balance > 50000");
+
+	StandardEvaluationContext ctx = new StandardEvaluationContext();
+	ctx.setVariable("age", 65);
+	ctx.setVariable("balance", 70000);
+
+	boolean result = exp.getValue(ctx, Boolean.class);
+	System.out.println("Eligible: " + result);
+
+	Same idea — interpret expression at runtime → Interpreter pattern.
+
+8. Real Use Cases in Enterprise Apps
+-------------------------------------
+Use Case							Interpreter Role
+Rule Engines (Drools, SpEL)			Evaluate business rules dynamically
+Workflow Engines					Interpret workflow DSL (e.g., BPMN)
+Search Query Builders				Parse query strings like (name=John AND age>30)
+Custom Validation Engines			Define dynamic validation logic
+Feature Toggles	Interpret 			runtime conditions for feature activation
+
+9. Key Takeaways
+-------------------
+Interpreter pattern = turning rules/expressions into executable objects.
+It’s behavioral because it controls how expressions behave at runtime.
+
+In Spring Boot, it’s fundamental for:
+	SpEL
+	Rule-based services
+	Workflow or Policy engines
+	It’s the foundation behind “configurable intelligence” in enterprise systems.
+	
+	
+
+State Pattern
+=============
+What is State Pattern?
+	State Pattern allows an object to alter its behavior when its internal state changes.
+	It appears as if the object changed its class.
+	
+    • Avoids large if-else or switch statements.
+    • Each state is encapsulated in a separate class.
+	
+ State Scenario: ATM machine.
+ Behavior changes based on state: hasCard, noCard, hasPin, outOfCash. in depth java code , 
+ jdk internel example spring boot
+
+Real-life Scenario: ATM Machine
+---------------------------------------
+An ATM behaves differently based on its state:
+State			Behavior
+NoCard			Only accepts a card
+HasCard			Allows PIN entry
+HasPin			Allows withdrawal
+NoCashState		Displays "Out of service"
+
+We’ll model this using the State Pattern.
+
+Java Implementation of ATM using State Pattern
+-----------------------------------------------
+
+1. ATMState Interface (State)
+---------------------------
+public interface ATMState {
+    void insertCard();
+    void ejectCard();
+    void enterPin(int pin);
+    void withdrawCash(int amount);
+}
+
+2. Concrete States
+----------------------
+                  
+NoCardState
+---------
+public class NoCardState implements ATMState {
+    private final ATMMachine atm;
+
+    public NoCardState(ATMMachine atm) {
+        this.atm = atm;
+    }
+
+    public void insertCard() {
+        System.out.println("Card inserted.");
+        atm.setState(atm.getHasCardState());
+    }
+
+    public void ejectCard() {
+        System.out.println("No card to eject.");
+    }
+
+    public void enterPin(int pin) {
+        System.out.println("Insert card first.");
+    }
+
+    public void withdrawCash(int amount) {
+        System.out.println("Insert card first.");
+    }
+}
+
+HasCardState
+------------
+public class HasCardState implements ATMState {
+    private final ATMMachine atm;
+
+    public HasCardState(ATMMachine atm) {
+        this.atm = atm;
+    }
+
+    public void insertCard() {
+        System.out.println("Card already inserted.");
+    }
+
+    public void ejectCard() {
+        System.out.println("Card ejected.");
+        atm.setState(atm.getNoCardState());
+    }
+
+    public void enterPin(int pin) {
+        if (pin == 1234) {
+            System.out.println("Correct PIN.");
+            atm.setState(atm.getHasPinState());
+        } else {
+            System.out.println("Incorrect PIN.");
+        }
+    }
+
+    public void withdrawCash(int amount) {
+        System.out.println("Enter PIN first.");
+    }
+}
+
+HasPinState
+-----------
+public class HasPinState implements ATMState {
+    private final ATMMachine atm;
+
+    public HasPinState(ATMMachine atm) {
+        this.atm = atm;
+    }
+
+    public void insertCard() {
+        System.out.println("Card already inserted.");
+    }
+
+    public void ejectCard() {
+        System.out.println("Card ejected.");
+        atm.setState(atm.getNoCardState());
+    }
+
+    public void enterPin(int pin) {
+        System.out.println("PIN already entered.");
+    }
+
+    public void withdrawCash(int amount) {
+        if (atm.getCashInMachine() >= amount) {
+            System.out.println("Dispensed ₹" + amount);
+            atm.setCashInMachine(atm.getCashInMachine() - amount);
+            if (atm.getCashInMachine() <= 0) {
+                System.out.println("Machine is now out of cash.");
+                atm.setState(atm.getNoCashState());
+            }
+        } else {
+            System.out.println("Not enough cash.");
+        }
+    }
+}
+
+NoCashState
+-----------
+public class NoCashState implements ATMState {
+    public NoCashState(ATMMachine atm) {}
+
+    public void insertCard() {
+        System.out.println("No cash. Cannot accept card.");
+    }
+
+    public void ejectCard() {
+        System.out.println("No card inserted.");
+    }
+
+    public void enterPin(int pin) {
+        System.out.println("No cash. Cannot process PIN.");
+    }
+
+    public void withdrawCash(int amount) {
+        System.out.println("No cash available.");
+    }
+}
+
+3. ATMMachine (Context)
+-------------------------
+public class ATMMachine {
+    private final ATMState noCard;
+    private final ATMState hasCard;
+    private final ATMState hasPin;
+    private final ATMState noCash;
+
+    private ATMState currentState;
+    private int cashInMachine;
+
+    public ATMMachine(int initialCash) {
+        this.noCard = new NoCardState(this);
+        this.hasCard = new HasCardState(this);
+        this.hasPin = new HasPinState(this);
+        this.noCash = new NoCashState(this);
+
+        this.cashInMachine = initialCash;
+        this.currentState = initialCash > 0 ? noCard : noCash;
+    }
+
+    // Delegate to current state
+    public void insertCard() { currentState.insertCard(); }
+    public void ejectCard() { currentState.ejectCard(); }
+    public void enterPin(int pin) { currentState.enterPin(pin); }
+    public void withdrawCash(int amount) { currentState.withdrawCash(amount); }
+
+    // State and cash management
+    public void setState(ATMState state) { this.currentState = state; }
+    public void setCashInMachine(int cash) { this.cashInMachine = cash; }
+
+    public ATMState getNoCardState() { return noCard; }
+    public ATMState getHasCardState() { return hasCard; }
+    public ATMState getHasPinState() { return hasPin; }
+    public ATMState getNoCashState() { return noCash; }
+
+    public int getCashInMachine() { return cashInMachine; }
+}
+
+4. Client Code
+-----------------
+public class ATMClient {
+    public static void main(String[] args) {
+        ATMMachine atm = new ATMMachine(5000);
+
+        atm.insertCard();
+        atm.enterPin(1234);
+        atm.withdrawCash(2000);
+
+        atm.withdrawCash(3000);
+        atm.insertCard(); // Should show "No cash..."
+    }
+}
+
+ Output
+-----------
+Card inserted.
+Correct PIN.
+Dispensed ₹2000
+Dispensed ₹3000
+Machine is now out of cash.
+No cash. Cannot accept card.
+
+Spring Boot Use Case: State Pattern
+---------------------------------------
+Spring Boot doesn’t use State directly, but it fits in:
+1. Workflow Engines (e.g., Camunda, Activiti)
+    • Each state in a process (Submitted, Approved, Rejected) can be implemented using State pattern.
+    • Spring Boot can inject the correct State object based on the current status.
+
+2. Order Management System (OMS)
+---------------------------------
+Example:
+public interface OrderState {
+    void proceed(OrderContext context);
+}
+States: NewOrderState, PackedState, ShippedState, DeliveredState
+Spring can:
+    • Autowire these states.
+    • Keep state in DB.
+    • Inject dynamically using a map or strategy.
+
+ 3. Spring State Machine Project
+Spring Statemachine: A framework built specifically to implement workflows and state-driven behavior.
+
+     
+What is the State Pattern?
+----------------------------------
+State pattern allows an object to change its behavior when its internal state changes.
+It appears as if the object changed its class.
+
+Real-World Scenario: Order Lifecycle in OMS
+--------------------------------------
+States:
+    • NewOrderState → Order placed
+    • PackedState → Order packed
+    • ShippedState → Shipped to customer
+    • DeliveredState → Delivered
+	
+Each state controls what can or cannot happen next.
+
+Plain Java Implementation
+------------------------------
+
+Step 1: Define OrderState interface
+----------------------------------
+public interface OrderState {
+    void proceed(OrderContext context);
+    String getStatus();
+}
+
+Step 2: Implement each state
+---------------------------------
+New Order
+--------
+public class NewOrderState implements OrderState {
+    public void proceed(OrderContext context) {
+        System.out.println("Order packed.");
+        context.setState(new PackedState());
+    }
+    public String getStatus() {
+        return "New Order";
+    }
+}
+
+Packed
+--------
+public class PackedState implements OrderState {
+    public void proceed(OrderContext context) {
+        System.out.println("Order shipped.");
+        context.setState(new ShippedState());
+    }
+    public String getStatus() {
+        return "Packed";
+    }
+}
+ 
+Shipped
+---------
+public class ShippedState implements OrderState {
+    public void proceed(OrderContext context) {
+        System.out.println("Order delivered.");
+        context.setState(new DeliveredState());
+    }
+    public String getStatus() {
+        return "Shipped";
+    }
+}
+
+Delivered
+--------------
+public class DeliveredState implements OrderState {
+    public void proceed(OrderContext context) {
+        System.out.println("Order already delivered.");
+    }
+    public String getStatus() {
+        return "Delivered";
+    }
+}
+
+Step 3: OrderContext (State Manager)
+----------------------------------
+public class OrderContext {
+    private OrderState state;
+
+    public OrderContext() {
+        this.state = new NewOrderState(); // default
+    }
+
+    public void setState(OrderState state) {
+        this.state = state;
+    }
+
+    public void proceed() {
+        state.proceed(this);
+    }
+
+    public String getStatus() {
+        return state.getStatus();
+    }
+}
+
+Step 4: Client
+------------------
+public class OMSClient {
+    public static void main(String[] args) {
+        OrderContext order = new OrderContext();
+
+        System.out.println("Status: " + order.getStatus());
+        order.proceed();
+
+        System.out.println("Status: " + order.getStatus());
+        order.proceed();
+
+        System.out.println("Status: " + order.getStatus());
+        order.proceed();
+
+        System.out.println("Status: " + order.getStatus());
+        order.proceed();
+    }
+}
+
+Output
+---------
+Status: New Order
+Order packed.
+Status: Packed
+Order shipped.
+Status: Shipped
+Order delivered.
+Status: Delivered
+Order already delivered.
+
+Spring Boot Version (Dynamic Autowiring)
+--------------------------------------
+Let’s assume:
+    • States are Spring Beans.
+    • State transitions stored in DB.
+    • Spring injects the right state dynamically using @Qualifier or a map.
+
+1. Define State Beans
+--------------------
+@Component("new")
+public class NewOrderState implements OrderState {
+    public void proceed(OrderContext context) {
+        context.setState(context.getStateByKey("packed"));
+    }
+    public String getStatus() { return "New"; }
+}
+
+@Component("packed")
+public class PackedState implements OrderState {
+    public void proceed(OrderContext context) {
+        context.setState(context.getStateByKey("shipped"));
+    }
+    public String getStatus() { return "Packed"; }
+}
+
+2. OrderContext with Map<String, OrderState>
+------------------------------------------
+@Component
+public class OrderContext {
+    private OrderState currentState;
+
+    @Autowired
+    private Map<String, OrderState> stateMap;  // Inject all @Component states
+
+    @PostConstruct
+    public void init() {
+        this.currentState = stateMap.get("new");  // Initial state
+    }
+
+    public void setState(OrderState state) {
+        this.currentState = state;
+    }
+
+    public void proceed() {
+        currentState.proceed(this);
+    }
+
+    public String getStatus() {
+        return currentState.getStatus();
+    }
+
+    public OrderState getStateByKey(String key) {
+        return stateMap.get(key);
+    }
+}
+
+Persistence of State
+-----------------------
+In a real app, you can save the order state in DB:
+
+@Entity
+public class Order {
+    @Id
+    private Long id;
+
+    private String state;  // "new", "packed", etc.
+}
+During retrieval:
+
+Order order = orderRepo.findById(1L);
+orderContext.setState(stateMap.get(order.getState()));
+
+
+Real world application:
+----------------------
+Circuit Breaker pattern in Resilience4j is a real-world implementation of the State Pattern
+
+JDK Internal Example
+-----------------------
+
+Thread.State enum is a good example
+Java threads go through these states: NEW, RUNNABLE, WAITING, TIMED_WAITING, BLOCKED, TERMINATED.
+Each state defines what behavior is valid — this follows the state pattern.
+
+Where to Apply in Spring Boot
+-----------------------
+	Order Processing
+	Change behavior as order progresses
+	Workflow Engines (Camunda, Flowable)
+	Each stage is a state
+
+	Subscription Management
+	Free → Trial → Paid → Suspended states
+
+	Approval Flows
+	Draft → Submitted → Approved → Rejected
+
+
+
+
+some references:
+-------------------
+http://cafe.elharo.com/programming/a-square-is-not-a-rectangle/
+http://www.cdf.toronto.edu/~csc207h/fall/stg/lectures/eve/w10/
+http://zeroturnaround.com/rebellabs/object-oriented-design-principles-and-the-5-ways-of-creating-solid-applications/
+http://www.informit.com/store/java-coding-guidelines-75-recommendations-for-reliable-9780321933157
+

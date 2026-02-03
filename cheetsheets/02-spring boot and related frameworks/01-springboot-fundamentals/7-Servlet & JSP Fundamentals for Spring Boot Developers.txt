@@ -213,13 +213,6 @@ Servlet JSP simple calculator:
 
 
 
-
-
-
-
-
-
-
 Spring MVC archecture
 ---------------------
 1. Dispacher Servlet(FC)

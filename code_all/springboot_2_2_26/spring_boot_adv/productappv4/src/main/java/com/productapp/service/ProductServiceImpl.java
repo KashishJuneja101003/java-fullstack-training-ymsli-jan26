@@ -12,6 +12,7 @@ import com.productapp.repo.ProductRepo;
 
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.annotation.Observed;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -27,7 +28,7 @@ public class ProductServiceImpl implements ProductService {
 		this.observationRegistry = observationRegistry;
 	}
 
-	
+	@Observed(name = "product.findAll")
 	@Override
 	public List<Product> getAll() {
         return Observation.createNotStarted("product.findAll", observationRegistry)
