@@ -36,11 +36,8 @@ Spring data quaries:
 	
 
 
-
 Spring data pagination:
 ----------------------
-
-
 
 adding multiple products
 -----------------------------
