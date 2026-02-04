@@ -1,0 +1,516 @@
+
+
+Spring boot testing fundamentals:
+--------------------------------
+* writing test cases for simple cal application
+* Simple controller layer testing
+* simple integration layer testing
+* Using JaCaCo code coverage
+
+
+step 1: create a service layer
+-----------------------------------------
+
+@Service
+public class CalculatorService {
+
+    public int divide(int a, int b) {
+        if (b == 0) {
+            throw new ArithmeticException("Division by zero is not allowed");
+        }
+        return a / b;
+    }
+}
+
+
+step 2: writing test cases for cal service
+-----------------------------------------
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+class CalculatorServiceTest {
+
+    private final CalculatorService service = new CalculatorService();
+
+    @Test
+    void divide_shouldReturnQuotient_whenValidInputs() {
+        int result = service.divide(10, 2);
+        assertEquals(5, result);
+    }
+
+    @Test
+    void divide_shouldThrowException_whenDivideByZero() {
+        ArithmeticException ex = assertThrows(
+            ArithmeticException.class,
+            () -> service.divide(10, 0)
+        );
+
+        assertEquals("Division by zero is not allowed", ex.getMessage());
+    }
+}
+
+
+step 3: simple controller
+---------------------------
+
+@RestController
+@RequestMapping("/calculator")
+public class CalculatorController {
+
+    private final CalculatorService service;
+
+    public CalculatorController(CalculatorService service) {
+        this.service = service;
+    }
+
+    @GetMapping("/divide")
+    public int divide(@RequestParam int a, @RequestParam int b) {
+        return service.divide(a, b);
+    }
+}
+
+
+step 4: simple controller test cases
+----------------------------------------
+
+import com.calapp.controller.CalculatorController;
+import com.calapp.service.CalculatorService;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(CalculatorController.class)
+class CalculatorControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private CalculatorService service;
+
+    @Test
+    void divide_shouldReturnResult_whenValid() throws Exception {
+        Mockito.when(service.divide(10, 2)).thenReturn(5);
+
+        mockMvc.perform(get("/calculator/divide")
+                .param("a", "10")
+                .param("b", "2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("5"));
+    }
+
+    @Test
+    void divide_shouldReturnBadRequest_whenDivideByZero() throws Exception {
+        Mockito.when(service.divide(10, 0))
+                .thenThrow(new ArithmeticException("Division by zero"));
+
+        mockMvc.perform(get("/calculator/divide")
+                .param("a", "10")
+                .param("b", "0"))
+                .andExpect(status().isBadRequest());
+    }
+}
+
+
+step 4: simple controller test cases
+----------------------------------------
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class CalculatorIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void divide_shouldReturnResult_whenValidInputs() throws Exception {
+
+        mockMvc.perform(get("/calculator/divide")
+                .param("a", "20")
+                .param("b", "4"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("5"));
+    }
+
+    @Test
+    void divide_shouldReturnBadRequest_whenDivideByZero() throws Exception {
+
+        mockMvc.perform(get("/calculator/divide")
+                .param("a", "10")
+                .param("b", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Division by zero is not allowed"));
+    }
+}
+
+
+
+* Using JaCaCo code coverage
+-----------------------------
+<jacoco.version>0.8.8</jacoco.version>
+
+<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+         <plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<!-- com.productapp.Productapp01Application
+						com.productapp.exceptions.ProductNotFoundException
+						com.productapp.dto.ErrorInfo
+						com.productapp.repo.Product
+						-->
+						<exclude>com/calapp/BoottestingApplication.class</exclude>
+						<exclude>com/calapp/controller/GlobalExceptionHandler.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>PACKAGE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>00%</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+Want to produce code smells
+---------------------------
+Example 1: Division logic: Bad code
+----------------------------------
+public int divide(int a, int b) {
+    return a / b;
+}
+
+
+Why this is bad (in simple words):
+---------------------------------
+If b is 0, the app crashes.
+No explanation to the caller.
+SonarQube will complain: possible division by zero.
+
+Good code
+----------------------------------
+    public int divide(int a, int b) {
+        if (b == 0) {
+            throw new ArithmeticException("Division by zero is not allowed");
+        }
+        return a / b;
+    }
+
+
+
+Why this is good:
+----------------
+Error is handled.
+Clear message.
+SonarQube is happy.
+Your future self is happy too.
+
+Example 2: Swallowing exceptions (Sonar HATES this): Bad code
+--------------------------------------------------------
+public int divide(int a, int b) {
+    try {
+        return a / b;
+    } catch (Exception e) {
+        return 0;
+    }
+}
+
+
+Why this is bad:
+------------------
+Real error is hidden.
+0 might look like a valid result.
+Bugs become invisible.
+Sonar will raise multiple issues.
+
+Good code
+-----------
+public int divide(int a, int b) {
+    try {
+        return a / b;
+    } catch (ArithmeticException e) {
+        throw new IllegalArgumentException("Invalid division", e);
+    }
+}
+
+
+Why this is good:
+--------------------
+Only the right exception is caught.
+Error is not hidden.
+Clear and traceable.
+
+Example 3: Controller mistake: Bad controller code
+---------------------------
+@GetMapping("/divide")
+public int divide(@RequestParam int a, @RequestParam int b) {
+    return service.divide(a, b);
+}
+
+
+Why this is bad:
+-------------
+Exception causes 500 error
+Client gets ugly stack trace
+No proper HTTP status
+
+Good controller code
+-----------------------
+@GetMapping("/divide")
+public ResponseEntity<Integer> divide(@RequestParam int a, @RequestParam int b) {
+    return ResponseEntity.ok(service.divide(a, b));
+}
+
+
+And add this:
+----------------------
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+}
+
+
+Why this is good:
+-----------------------
+Client gets 400 Bad Request
+Clean error message
+Sonar approves
+
+Example 4: Bad test (yes, tests can be bad too): Bad test
+--------------------------------------------------------------
+@Test
+void testDivide() {
+    service.divide(10, 0);
+}
+
+
+Why this is bad:
+-----------------
+Test will fail with exception
+No assertion
+Sonar: “This test is useless”
+
+Good test
+------------------
+@Test
+void divide_shouldFail_whenDivideByZero() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> service.divide(10, 0)
+    );
+}
+
+
+Why this is good:
+----------------
+Clear expectation
+Covers error path
+
+
+
+
+
+
+SonarCube
+------------
+https://blog.stackademic.com/integratation-of-sonarqube-with-springboot-6d2cebd4ef95
+
+port : 9000
+
+mvn clean verify sonar:sonar  -Dsonar.projectKey=demo  -Dsonar.projectName='demo' -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqp_bb81b687814ffac051a2eaaf42b199064216bf3e
+
+
+Want Sonar to show MORE code smells? (on purpose)
+------------------------------------------------
+If your goal is learning SonarQube, here’s how to force smells intentionally:
+
+Example 1: Duplicate logic (smell)
+public int divide(int a, int b) {
+    if (b == 0) {
+        throw new ArithmeticException("Division by zero is not allowed");
+    }
+
+    if (b == 0) { // duplicate condition
+        throw new ArithmeticException("Division by zero is not allowed");
+    }
+
+    return a / b;
+}
+
+
+Sonar will flag duplicated code / condition
+------------------------------------------
+Example 2: Magic numbers (smell)
+if (b == 0) {
+    throw new ArithmeticException("Division by zero is not allowed");
+}
+
+if (a > 1000) {
+    return a / b;
+}
+
+
+Sonar may flag magic number usage depending on profile.
+----------------------------------------------------
+Example 3: Useless assignment
+
+Rule: value never used
+
+public int divide(int a, int b) {
+    int result = 0; // ← useless
+    if (b == 0) {
+        throw new ArithmeticException("Division by zero");
+    }
+    return a / b;
+}
+
+
+Example 13: Field injection
+@Autowired
+private CalculatorService service;
+
+
+Sonar: Use constructor injection instead
+-------------------------------------------
+Example 14: Controller doing business logic
+@GetMapping("/divide")
+public int divide(@RequestParam int a, @RequestParam int b) {
+    if (b == 0) { // ← business logic in controller
+        throw new ArithmeticException();
+    }
+    return a / b;
+}
+
+
+
+
+
+Ignore a whole package in JaCoCo (Maven)
+----------------------------------------------
+Use ** to match packages and * to match classes.
+
+Example: exclude an entire package
+<plugin>
+  <groupId>org.jacoco</groupId>
+  <artifactId>jacoco-maven-plugin</artifactId>
+  <configuration>
+    <excludes>
+      <exclude>io/truongbn/github/jacoco/**</exclude>
+    </excludes>
+  </configuration>
+</plugin>
+
+
+That excludes:
+-------------------
+the package itself
+all sub-packages
+all classes inside them
+Nuclear option. Clean coverage report.
+
+Common patterns you’ll actually use
+-------------------------------------
+Exclude all config packages
+<exclude>**/config/**</exclude>
+
+Exclude Spring Boot main class packages
+-------------------------------------
+<exclude>**/*Application*</exclude>
+
+Exclude DTOs
+------------------
+<exclude>**/dto/**</exclude>
+
+Exclude generated code
+-------------------------
+<exclude>**/generated/**</exclude>
+
+Important gotchas (read this or regret it)
+-------------------------------------
+Paths are file-system style, not Java package notation
+✅ io/foo/bar/**
+❌ io.foo.bar.*
+
+Exclusions apply to reports, not instrumentation
+(Coverage isn’t counted, but the code still runs.)
