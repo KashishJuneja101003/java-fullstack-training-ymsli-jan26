@@ -829,7 +829,7 @@ public class OrderController {
         OrderStatus orderStatus = new OrderStatus(order, "PROCESS",
                 "Order placed successfully at " + restaurantName);
         producerService.sendOrder(orderStatus);
-        return "✅ Order sent to Kafka successfully!";
+        return " Order sent to Kafka successfully!";
     }
 }
 

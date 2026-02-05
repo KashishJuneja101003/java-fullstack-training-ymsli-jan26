@@ -211,88 +211,114 @@ public class Order {
 
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @ToString
-public class OrderStatus {
-
+public class OrderResponse {
     private Order order;
-    private String status;//progress,completed
+    private String status;
     private String message;
 }
 
 
 
-
 @Configuration
-public class MessagingConfig {
-	
+public class RabbitMQConfig {
+
+	public static final String ORDER_QUEUE = "order.queue";
+	public static final String ORDER_EXCHANGE = "order.exchange";
+	public static final String ORDER_ROUTINGKEY = "order.routingkey";
+
+	// DLQ constants
+	public static final String DLQ_QUEUE = "order.dlq";
+	public static final String DLQ_EXCHANGE = "order.dlq.exchange";
+	public static final String DLQ_ROUTING_KEY = "order.dlq.routingkey";
+
+	// 1️⃣ Main Queue (now DLQ-enabled, still backward compatible)
 	@Bean
-	DirectExchange deadLetterExchange() {
-		return new DirectExchange("deadLetterExchange");
-	}
-	
-	@Bean
-	DirectExchange exchange() {
-		return new DirectExchange("javaexpExchange");
+	public Queue orderQueue() {
+		return QueueBuilder.durable(ORDER_QUEUE)
+				.withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+				.withArgument("x-dead-letter-routing-key", DLQ_ROUTING_KEY).build();
 	}
 
+	// 2️⃣ Main Exchange
 	@Bean
-	Queue dlq() {
-		return QueueBuilder.durable("deadLetter.queue").build();
+	public TopicExchange orderExchange() {
+		return new TopicExchange(ORDER_EXCHANGE);
 	}
 
+	// 3️⃣ Main Binding
 	@Bean
-	Queue queue() {
-		return QueueBuilder.durable("javaexp.queue")
-				.withArgument("x-dead-letter-exchange", "deadLetterExchange")
-				.withArgument("x-dead-letter-routing-key", "deadLetter")
-				.build();
+	public Binding orderBinding(Queue orderQueue, TopicExchange orderExchange) {
+		return BindingBuilder.bind(orderQueue).to(orderExchange).with(ORDER_ROUTINGKEY);
 	}
 
+	// 4️⃣ Dead Letter Exchange
 	@Bean
-	Binding DLQbinding() {
-		return BindingBuilder.bind(dlq()).to(deadLetterExchange()).with("deadLetter");
+	public DirectExchange deadLetterExchange() {
+		return new DirectExchange(DLQ_EXCHANGE);
 	}
 
+	// 5️⃣ Dead Letter Queue
 	@Bean
-	Binding binding() {
-		return BindingBuilder.bind(queue()).to(exchange()).with("javaexp");
+	public Queue deadLetterQueue() {
+		return QueueBuilder.durable(DLQ_QUEUE).build();
 	}
 
+	// 6️⃣ DLQ Binding
 	@Bean
-	public MessageConverter jsonMessageConverter() {
-		return new Jackson2JsonMessageConverter();
-	}
+    public Binding deadLetterBinding() {
+        return BindingBuilder
+                .bind(deadLetterQueue())
+                .to(deadLetterExchange())
+                .with(DLQ_ROUTING_KEY);
+    }
+	// 7️⃣ Message Converter (shared)
+    @Bean
+    public MessageConverter converter() {
+        return new Jackson2JsonMessageConverter();
+    }
 
-	public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-		final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-		rabbitTemplate.setMessageConverter(jsonMessageConverter());
-		return rabbitTemplate;
-	}
+    // 8️⃣ RabbitTemplate (producer uses this, consumer ignores it)
+    @Bean
+    public AmqpTemplate amqpTemplate(
+            ConnectionFactory connectionFactory,
+            MessageConverter converter) {
+
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(converter);
+        return rabbitTemplate;
+    }
 }
 
 
 
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("order")
 public class OrderPublisher {
 
     @Autowired
-    private RabbitTemplate template;
+    public RabbitTemplate rabbitTemplate;
 
-    @PostMapping("/{restaurantName}")
-    public String bookOrder(@RequestBody Order order, @PathVariable String restaurantName) {
-        //order.setOrderId(UUID.randomUUID().toString());
-        //restaurantservice
-        //payment service
-        OrderStatus orderStatus = new OrderStatus(order, "PROCESS", "order placed succesfully in " + restaurantName);
-        template.convertAndSend("javaexpExchange","javaexp", orderStatus);
-        return "Success !!";
+
+    @PostMapping("{restName}")
+    public String bookOrder(@RequestBody Order order){
+
+       // order.setOrderId(UUID.randomUUID().toString());
+        OrderResponse response=OrderResponse.builder()
+                .order(order).message("order is booked").status("PENDING")
+                .build();
+
+        rabbitTemplate.convertAndSend(RabbitMQConfig.ORDER_EXCHANGE, 
+        		RabbitMQConfig.ORDER_ROUTINGKEY, response);
+
+        return "order is booked";
     }
-}
 
+}
 
 
 
@@ -300,51 +326,73 @@ Consumer side:
 _______________
 
 @Configuration
-public class MessagingConfig {
-	
+public class RabbitMQConfig {
+
+	public static final String ORDER_QUEUE = "order.queue";
+	public static final String ORDER_EXCHANGE = "order.exchange";
+	public static final String ORDER_ROUTINGKEY = "order.routingkey";
+
+	// DLQ constants
+	public static final String DLQ_QUEUE = "order.dlq";
+	public static final String DLQ_EXCHANGE = "order.dlq.exchange";
+	public static final String DLQ_ROUTING_KEY = "order.dlq.routingkey";
+
+	// 1️⃣ Main Queue (now DLQ-enabled, still backward compatible)
 	@Bean
-	DirectExchange deadLetterExchange() {
-		return new DirectExchange("deadLetterExchange");
-	}
-	
-	@Bean
-	DirectExchange exchange() {
-		return new DirectExchange("javaexpExchange");
+	public Queue orderQueue() {
+		return QueueBuilder.durable(ORDER_QUEUE)
+				.withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+				.withArgument("x-dead-letter-routing-key", DLQ_ROUTING_KEY).build();
 	}
 
+	// 2️⃣ Main Exchange
 	@Bean
-	Queue dlq() {
-		return QueueBuilder.durable("deadLetter.queue").build();
+	public TopicExchange orderExchange() {
+		return new TopicExchange(ORDER_EXCHANGE);
 	}
 
+	// 3️⃣ Main Binding
 	@Bean
-	Queue queue() {
-		return QueueBuilder.durable("javaexp.queue")
-				.withArgument("x-dead-letter-exchange", "deadLetterExchange")
-				.withArgument("x-dead-letter-routing-key", "deadLetter")
-				.build();
+	public Binding orderBinding(Queue orderQueue, TopicExchange orderExchange) {
+		return BindingBuilder.bind(orderQueue).to(orderExchange).with(ORDER_ROUTINGKEY);
 	}
 
+	// 4️⃣ Dead Letter Exchange
 	@Bean
-	Binding DLQbinding() {
-		return BindingBuilder.bind(dlq()).to(deadLetterExchange()).with("deadLetter");
+	public DirectExchange deadLetterExchange() {
+		return new DirectExchange(DLQ_EXCHANGE);
 	}
 
+	// 5️⃣ Dead Letter Queue
 	@Bean
-	Binding binding() {
-		return BindingBuilder.bind(queue()).to(exchange()).with("javaexp");
+	public Queue deadLetterQueue() {
+		return QueueBuilder.durable(DLQ_QUEUE).build();
 	}
 
+	// 6️⃣ DLQ Binding
 	@Bean
-	public MessageConverter jsonMessageConverter() {
-		return new Jackson2JsonMessageConverter();
-	}
+    public Binding deadLetterBinding() {
+        return BindingBuilder
+                .bind(deadLetterQueue())
+                .to(deadLetterExchange())
+                .with(DLQ_ROUTING_KEY);
+    }
+	// 7️⃣ Message Converter (shared)
+    @Bean
+    public MessageConverter converter() {
+        return new Jackson2JsonMessageConverter();
+    }
 
-	public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-		final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-		rabbitTemplate.setMessageConverter(jsonMessageConverter());
-		return rabbitTemplate;
-	}
+    // 8️⃣ RabbitTemplate (producer uses this, consumer ignores it)
+    @Bean
+    public AmqpTemplate amqpTemplate(
+            ConnectionFactory connectionFactory,
+            MessageConverter converter) {
+
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(converter);
+        return rabbitTemplate;
+    }
 }
 
 
@@ -360,16 +408,18 @@ public class InvalidOrderException extends RuntimeException {
 Now throw exception if order id is null:
 ______________________________________
 
-@Component
-public class OrderConsumer {
+@Service
+public class OrderConsumerService {
 
-    @RabbitListener(queues ="javaexp.queue")
-    public void consumeMessageFromQueue(OrderStatus orderStatus) {
-    	if(orderStatus.getOrder().getOrderId()==null)
-    		throw new InvalidOrderException();
-        System.out.println("Message recieved from queue : " + orderStatus);
+    @RabbitListener(queues = RabbitMQConfig.ORDER_QUEUE)
+    public void consumeOrderResponse(OrderResponse orderResponse){
+    	if (orderResponse.getOrder().getOrderId() == null) {
+            throw new RuntimeException("Invalid order");
+        }
+        System.out.println("Processed: " + orderResponse);
     }
 }
+
 
 
 application.properties
@@ -381,6 +431,27 @@ spring.rabbitmq.listener.simple.retry.initial-interval=3s
 spring.rabbitmq.listener.simple.retry.max-attempts= 6
 spring.rabbitmq.listener.simple.retry.max-interval=10s
 spring.rabbitmq.listener.simple.retry.multiplier= 2
+
+
+
+
+server.port=9293                                  # Port on which the application (consumer service) will run
+
+spring.rabbitmq.listener.simple.retry.enabled=true   # Enables retry mechanism for RabbitMQ consumers (@RabbitListener)
+
+spring.rabbitmq.listener.simple.retry.initial-interval=3s   # Wait time of 3 seconds before the first retry
+
+spring.rabbitmq.listener.simple.retry.max-attempts=6        # Total number of attempts to process a message (1 initial try + 5 retries)
+
+spring.rabbitmq.listener.simple.retry.max-interval=10s      # Maximum wait time between retries will not exceed 10 seconds
+
+spring.rabbitmq.listener.simple.retry.multiplier=2          # Multiplies the wait time by 2 for each retry (exponential backoff
+
+
+
+
+
+
 
 
 
@@ -403,6 +474,65 @@ ___________
 	The interval between second retry gets multiplied by 2.
 	 But this interval can never exceed the max-interval. 
 	So the retry interval values will be 3s, 6s, 10s, 10s, 10s. As 10 sec is the max interval specified.
+
+
+
+
+
+Better way to handle it:
+______________________________________
+
+
+package com.orderappclient.service;
+
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Service;
+
+import com.orderappclient.config.RabbitMQConfig;
+import com.orderappclient.model.OrderResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class OrderConsumerService {
+
+    @RabbitListener(queues = RabbitMQConfig.ORDER_QUEUE)
+    public void consumeOrderResponse(OrderResponse orderResponse) {
+
+        // 1️⃣ Basic null safety
+        if (orderResponse == null || orderResponse.getOrder() == null) {
+            log.warn("Received null order. Sending to DLQ");
+            throw new AmqpRejectAndDontRequeueException("Null order");
+        }
+
+        // 2️⃣ Business validation
+        if (orderResponse.getOrder().getOrderId() == null) {
+            log.warn(
+                "Invalid order received. orderId is null. Sending to DLQ. payload={}",
+                orderResponse
+            );
+
+            // 🔥 IMPORTANT
+            // Reject message so RabbitMQ sends it to DLQ
+            throw new AmqpRejectAndDontRequeueException("Invalid orderId");
+        }
+
+        // 3️⃣ Normal processing
+        log.info("Order processed successfully. orderId={}",
+                 orderResponse.getOrder().getOrderId());
+
+        System.out.println("Processed: " + orderResponse);
+    }
+}
+
+
+
+# Spring AMQP ke noisy logs band karo
+logging.level.org.springframework.amqp=ERROR
+logging.level.org.springframework.retry=ERROR
+
 
 
 

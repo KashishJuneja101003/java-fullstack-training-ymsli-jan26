@@ -29,6 +29,7 @@ server:
     context-path: /bankapp
 spring:
   jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
     properties:
       hibernate:

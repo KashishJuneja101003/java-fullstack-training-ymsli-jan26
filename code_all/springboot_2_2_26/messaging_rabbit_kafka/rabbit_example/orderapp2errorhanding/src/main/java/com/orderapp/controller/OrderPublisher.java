@@ -23,7 +23,7 @@ public class OrderPublisher {
     @PostMapping("{restName}")
     public String bookOrder(@RequestBody Order order){
 
-        order.setOrderId(UUID.randomUUID().toString());
+       // order.setOrderId(UUID.randomUUID().toString());
         OrderResponse response=OrderResponse.builder()
                 .order(order).message("order is booked").status("PENDING")
                 .build();
