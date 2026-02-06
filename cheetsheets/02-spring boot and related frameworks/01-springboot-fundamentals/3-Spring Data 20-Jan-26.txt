@@ -450,7 +450,6 @@ Solving Infinite Recursion using @JsonManagedReference and @JsonBackReference
 ---------------------------------------------------------------------
 
 @JsonIgnore
-
 	 @JsonManagedReference:
 			 is used on the OneToMany side 
 			 it is the forward part of the mapping/reference and the data gets serialized normally.

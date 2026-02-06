@@ -148,6 +148,7 @@ Authorization:
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
+				
                 .authorizeHttpRequests(registry ->
                         registry.requestMatchers("/admin/**").hasAnyRole("ADMIN")
                                 .requestMatchers("/mgr/**").hasAnyRole("ADMIN","MGR")
@@ -478,6 +479,8 @@ Applying method level security:
 AuthenticationEntryPoint handles 401 when user is not logged in.
 AccessDeniedHandler handles 403 when user is logged in but not allowed.
 
+Spring gives 401 by default, but for JWT APIs we override the entry point so the client—not the browser—controls the flow
+
 	AuthenticationEntryPoint: 401
 	AccessDeniedHandler: 403
 		
@@ -501,6 +504,29 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
 }
 
+
+This is the judge, not the bouncer.
+------------------------------------------
+Earlier class (AuthenticationEntryPoint) = “Who are you?”
+This class (AccessDeniedHandler) = “I know who you are… but you’re NOT allowed.”
+
+AuthenticationEntryPoint handles who you are (401),
+AccessDeniedHandler handles what you’re allowed to do (403).
+
+What We are doing in below code?
+--------------------------------
+If the user is logged in but lacks the required role, Spring Security intercepts the request 
+and blocks it before the controller runs.
+
+We return a clean 403 JSON response (with reason, timestamp, and path) 
+instead of Spring’s default ugly error.
+
+
+
+AccessDeniedException is thrown by FilterSecurityInterceptor.
+That’s the filter responsible for authorization in Spring Security.
+
+
 @Service
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
@@ -523,6 +549,17 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 	}
 
 }
+
+
+End-to-end flow
+--------------------
+Request →
+  No token → AuthenticationEntryPoint → 401
+  Token ok but role wrong → AccessDeniedHandler → 403
+  Token + role ok → Controller
+
+
+
 
 @Configuration
 @EnableWebSecurity
@@ -617,20 +654,29 @@ import java.util.function.Function;
 public class JwtService {
     public static final String
             SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
-
+			
+	//Extract username, JWT subject = username Convention, not rule , we need to follow the standard
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+	//eads exp claim Used for expiry check
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+	//Parses token once, Lets caller decide what to extract
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+	/*
+	This line does three big things:
+	1️. Verifies signature (token not tampered)
+	2️. Verifies structure (valid JWT)
+	3️. Extracts claims (payload)
+	*/
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
@@ -639,10 +685,17 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
+	//true → token dead and false → token alive
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
+
+	/*
+	Checks only two things:
+	1️. Username in token == username from DB
+	2️. Token is not expired
+	If both true → accept request
+	*/
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
@@ -670,6 +723,22 @@ public class JwtService {
 }
 
 
+Note: We embed the user’s roles inside the JWT so Spring Security can authorize requests without hitting the database on every call.
+-------------------------------------------------------------------------------------------------------------
+public String generateToken(UserDetails userDetails) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("roles",
+        userDetails.getAuthorities()
+                   .stream()
+                   .map(a -> a.getAuthority())
+                   .toList()
+    );
+    return createToken(claims, userDetails.getUsername());
+}
+
+
+
+
 Step 2: create an endpoint "authenticate" that allow user to get jwt token
 -----------------------------------------------------------------------------
 
@@ -684,21 +753,31 @@ public class AuthRequest {
 
 define AuthenticationManager bean in security configuration:
 ------------------------------------------------------------
+Spring Security creates AuthenticationManager internally, 
+but does NOT expose it as a bean by default.
+
+You declare it as a bean so your controller/service can use it to 
+authenticate username/password and issue JWT.
+
+
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)throws Exception {
         return config.getAuthenticationManager();
     }
 	
+	
+
 We need to create an endpoint so that user can get token :
 -----------------------------------------------------
 allow to access without security:
-
                 .authorizeHttpRequests(auth->
                         auth.requestMatchers("authenticate").permitAll()
                         .anyRequest().authenticated())
 						
 	
-	
+Manual Authentication (JWT Login) and Role Checks
+-------------------------------------------------
 @RestController
 public class HelloController {
 
@@ -748,6 +827,32 @@ public class HelloController {
 
 }
 
+
+JWT Login vs Basic Auth — Notes Jist
+--------------------------------------------
+
+	In Basic Authentication, BasicAuthenticationFilter automatically:
+	reads username/password from request
+	wraps them in UsernamePasswordAuthenticationToken
+	calls AuthenticationManager.authenticate()
+
+In JWT login, we do the same steps manually inside a controller:
+	read username/password from JSON body
+	create UsernamePasswordAuthenticationToken
+	call AuthenticationManager.authenticate()
+	From authenticate() onward, both flows are identical:
+	AuthenticationProvider → UserDetailsService → PasswordEncoder
+
+If credentials are valid:
+	authentication succeeds
+	we generate and return a JWT
+	If credentials are invalid:
+	Spring throws an exception (no controller logic runs)
+
+JWT login = manual version of what BasicAuthenticationFilter does automatically
+
+
+
 Step 3: write JwtAuthFilter that validate jwt token and put UsernamePasswordAuthenticationToken in security context
 -----------------------------------------------------------------------------
 
@@ -763,7 +868,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
+//This request claims to be from user X — should we TRUST it?
 @Service
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -807,8 +912,141 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 
 
+Note:
+1. Why OncePerRequestFilter?
+-------------------------------
+JWT filters must extend OncePerRequestFilter to ensure a single, predictable authentication setup per request
+
+	Why not a plain Servlet Filter? What problem it solves
+	OncePerRequestFilter guarantees:
+	This filter runs exactly ONCE per HTTP request.
+	Even if:
+		request is forwarded
+		async dispatch happens
+		error dispatch happens
+	A plain javax.servlet.Filter can run multiple times for the same request.
+
+	Why this matters for JWT
+	JWT logic must be:
+		deterministic
+		idempotent
+		run once per request
+
+	If a normal filter runs twice:
+		SecurityContext may be overwritten
+		duplicate authentication
+		weird bugs (hard to find)
+		Spring Security is very strict about this.
+		
+		
+2. What is this null in UsernamePasswordAuthenticationToken?
+-----------------------------------------------------
+Constructor you are using
+public UsernamePasswordAuthenticationToken(
+        Object principal,
+        Object credentials,
+        Collection<? extends GrantedAuthority> authorities
+)
+		
+
+principal → WHO the user is it contain:  UserDetails + username + account info
+---------
+credentials → PROOF (password) password / secret, is not needed anymore thats why we put it null
+--------
+	You already authenticated earlier during login.
+	Re-sending password on every request would be stupid and insecure.
+
+authorities → WHAT the user can do ie roles + permissions and it is used by @PreAuthorize
+--------------------
+
+
+If authorities is provided, Spring treats this token as authenticated.
+	So:
+	password not required
+	authentication already trusted
+	
+authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));	
+---------------------------------------------------------------------
+	In JWT apps, authentication already happened during login.
+	On every request, JWT filter only trusts the token and sets user info in SecurityContext.
+	setDetails() can attach request metadata like client IP.
+	This IP is used for logging and auditing, not for authentication.
+
+	JWT = who the user is, IP = where the request came from
+
+Summary
+-----------
+	OncePerRequestFilter ensures JWT logic runs exactly once per request.
+	null credentials mean “password already verified earlier.”
+	JWT filter does not authenticate users; it only prepares authorization context for Spring Security.
+	
+
+
+Goal: Log user IP only when needed, cleanly, declaratively.
+--------------------------------------------
+Step 1️: Create a custom annotation
+-------------------------------
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface LogClientIp {
+	}
+
+Step 2️: Aspect to capture IP (AOP way)
+------------------------------------
+	@Aspect
+	@Component
+	public class ClientIpAspect {
+		@Around("@annotation(LogClientIp)")
+		public Object logIp(ProceedingJoinPoint joinPoint) throws Throwable {
+
+
+			ServletRequestAttributes attrs =
+				(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+
+			HttpServletRequest request = attrs.getRequest();
+
+
+			String ip =
+				request.getHeader("X-Forwarded-For") != null
+					? request.getHeader("X-Forwarded-For").split(",")[0]
+					: request.getRemoteAddr();
+
+
+			Authentication auth =
+				SecurityContextHolder.getContext().getAuthentication();
+
+
+			String username =
+				(auth != null) ? auth.getName() : "anonymous";
+
+
+			System.out.println("User: " + username + " | IP: " + ip);
+
+
+			return joinPoint.proceed();
+		}
+	}
+Step 3️: Use it on any endpoint
+---------------------------
+	@LogClientIp
+	@GetMapping("/mgr")
+	public String mgr() {
+		return "mgr";
+	}
+
+That’s it.
+-----------------
+	No JWT filter changes.
+	No coupling.
+	No mess.
+	
+
 Step 4: Customized spring security so that jwtAuthFilter must be registerd before UsernamePasswordAuthenticationFilter
 -----------------------------------------------------------------------------
+This configuration wires JWT filter, authorization rules, and stateless policy into Spring Security’s filter chain
+
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
