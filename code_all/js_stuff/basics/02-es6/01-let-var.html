@@ -11,27 +11,28 @@
     <script>
         // let vs var 
         //scope problem, - var dont have block scope :()
-        var flag = true;
+        let flag = true;
         if (flag) {
-            var fname = "rajeev";
+            let fname = "rajeev";
         }
         console.log(fname); // Accessible — not block scoped
+        
 
         //Hoisting Issue with var
-        console.log(x); // Output: undefined
-        var x = 33;
+        // console.log(x); // Output: undefined
+        // var x = 33;
         //JavaScript hoists var declarations to the top (declaration only, not assignment).
 
 
-        console.log(x);
-        let x = 33; //  ReferenceError: Cannot access 'x' before initialization
+        // console.log(x);
+        // let x = 33; //  ReferenceError: Cannot access 'x' before initialization
         //Technically, let is hoisted, but it is in a Temporal Dead Zone (TDZ) 
 
 
         //redeclaring variables
-        var greeting = "good morning";
-        var greeting = "good evening"; //  No error
-        console.log(greeting); // Output: "good evening"
+        // var greeting = "good morning";
+        // var greeting = "good evening"; //  No error
+        // console.log(greeting); // Output: "good evening"
 
         //This may cause bugs when accidentally re-declaring variables.
     </script>

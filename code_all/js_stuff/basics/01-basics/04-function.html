@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04-functions</title>
+</head>
+
+<body>
+    <script>
+        //class
+
+        //function is god in js
+
+        // function add(a, b) {
+        //    return a+b;
+        // }
+        
+        // let a= function(a, b) {
+        //    return a+b;
+        // }
+        // a(2,5)
+
+        // class add{
+        // }
+ 
+        //lambda and normal function-- laxical scope
+
+        // let a= (a, b)=>  a+b;
+        
+        // a(2,5)
+
+        // console.log(typeof(a))
+
+
+        //callback: if fuction is pass as a arg to another fun, call back hell->
+        //  Promise -> asyn await-> fetch api
+        //rxjs 
+        let a=function(){
+            console.log('hello');
+        }
+
+        let b=function(a){
+            a();
+        }
+
+
+
+
+
+        // function addMany() {
+        //     var i = 1;
+        //     var sum = 1;
+        //     document.write("argument length" + arguments.length + "<br/>");
+        //     while (i < arguments.length) {
+        //         sum = sum + arguments[i];
+        //         i++;
+        //     }
+        //     document.write("sum of arguments" + sum);
+        // }
+
+        //  addMany(1, 2, 3);
+
+    </script>
+</body>
+
+</html>

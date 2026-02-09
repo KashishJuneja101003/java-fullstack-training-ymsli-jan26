@@ -11,6 +11,11 @@
     <script>
         var vehicles = new Array("car", "bus", "van");
 
+        //of es 6 of (enhace for loop) vs in
+        for(v  of vehicles){
+            console.log(v);
+        }
+
         document.write("the sec item is :" + vehicles[1] + "<br/>");
         for (i in vehicles) {
             document.write(vehicles[i] + "<br/>");
