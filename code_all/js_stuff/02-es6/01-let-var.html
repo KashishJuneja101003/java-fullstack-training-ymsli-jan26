@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01-let vs var</title>
+</head>
+
+<body>
+    <script>
+        // let vs var 
+        //scope problem, - var dont have block scope :()
+        var flag = true;
+        if (flag) {
+            var fname = "rajeev";
+        }
+        console.log(fname); // Accessible — not block scoped
+
+        //Hoisting Issue with var
+        console.log(x); // Output: undefined
+        var x = 33;
+        //JavaScript hoists var declarations to the top (declaration only, not assignment).
+
+
+        console.log(x);
+        let x = 33; //  ReferenceError: Cannot access 'x' before initialization
+        //Technically, let is hoisted, but it is in a Temporal Dead Zone (TDZ) 
+
+
+        //redeclaring variables
+        var greeting = "good morning";
+        var greeting = "good evening"; //  No error
+        console.log(greeting); // Output: "good evening"
+
+        //This may cause bugs when accidentally re-declaring variables.
+    </script>
+</body>
+
+</html>

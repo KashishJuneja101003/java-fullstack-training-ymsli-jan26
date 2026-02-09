@@ -1,0 +1,567 @@
+PHASE 2 — ENTITY-BASED BANK APP (NO DTOs YET)
+------------------------------------------
+Goal:
+ Correct JPA relationship
+ Correct repositories with @Query
+ Controllers working (entity exposure – acceptable for phase-1)
+ No DTOs, no MapStruct yet
+
+
+
+JPA ENTITIES (Account -- TxHistory)
+-----------------------------------
+Account (parent)
+@Entity
+@Table(name = "accounts")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Account {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String accountNumber;
+
+    @Column(nullable = false)
+    private String customerName;
+
+    private String email;
+    private String phone;
+
+    @Column(nullable = false)
+    private BigDecimal balance;
+
+    @OneToMany(
+        mappedBy = "account",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = false
+    )
+    private List<TxHistory> transactions = new ArrayList<>();
+}
+
+
+TxHistory (child, FK owner)
+----------------------------
+@Entity
+@Table(name = "tx_history")
+@Getter
+@Setter
+@NoArgsConstructor
+public class TxHistory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TxType type;
+
+    @Column(nullable = false)
+    private BigDecimal amount;
+
+    @Column(nullable = false)
+    private BigDecimal balanceAfterTx;
+
+    @Column(nullable = false)
+    private LocalDateTime txTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+}
+
+TxType enum
+------------
+public enum TxType {
+    DEPOSIT,
+    WITHDRAW,
+    TRANSFER_IN,
+    TRANSFER_OUT
+}
+
+Projection interfaces
+-------------------------
+
+public interface TxView {
+
+    TxType getType();
+    BigDecimal getAmount();
+    BigDecimal getBalanceAfterTx();
+    LocalDateTime getTxTime();
+}
+
+public interface AccountSummary {
+
+    Long getId();
+    String getAccountNumber();
+    String getCustomerName();
+    BigDecimal getBalance();
+}
+
+
+2️. JPA REPOSITORIES
+-------------------------
+
+AccountRepository
+-------------------
+public interface AccountRepository extends JpaRepository<Account, Long> {
+
+    Optional<Account> findByAccountNumber(String accountNumber);
+
+    boolean existsByAccountNumber(String accountNumber);
+
+	//BAD (CAUSES N+1)
+    @Query("select a from Account a")
+    List<Account> findAllAccounts(); // accessing a.getTransactions() later = N+1
+
+	//FETCH JOIN (FIX N+1)
+    @Query("""
+        select distinct a
+        from Account a
+        left join fetch a.transactions
+        where a.id = :id
+    """)
+    Optional<Account> findAccountWithTransactions(@Param("id") Long id);
+
+	//PROJECTION (BEST FOR APIs)
+    @Query("""
+        select a.id as id,
+               a.accountNumber as accountNumber,
+               a.customerName as customerName,
+               a.balance as balance
+        from Account a
+    """)
+    List<AccountSummary> findAccountSummaries();
+
+
+    @Query("""
+        select a.id as id,
+               a.accountNumber as accountNumber,
+               a.customerName as customerName,
+               a.balance as balance
+        from Account a
+        where a.accountNumber = :accNo
+    """)
+    Optional<AccountSummary> findAccountSummaryByAccountNumber(
+            @Param("accNo") String accNo);
+
+}
+
+
+
+TxHistoryRepository
+-------------------
+public interface TxHistoryRepository extends JpaRepository<TxHistory, Long> {
+
+	// TX LIST (PROJECTION)
+    @Query("""
+        select t.type as type,
+               t.amount as amount,
+               t.balanceAfterTx as balanceAfterTx,
+               t.txTime as txTime
+        from TxHistory t
+        where t.account.id = :accountId
+        order by t.txTime desc
+    """)
+    List<TxView> findTxByAccountId(@Param("accountId") Long accountId);
+
+	//TX BY TYPE
+    List<TxHistory> findByAccountIdAndType(
+            Long accountId, TxType type);
+
+
+	//TX COUNT (REPORTING)
+    @Query("""
+        select count(t)
+        from TxHistory t
+        where t.account.id = :accountId
+    """)
+    long countTxForAccount(@Param("accountId") Long accountId);
+}
+
+
+3️. SERVICE LAYER (BUSINESS RULES LIVE HERE)
+-----------------------------------------------
+
+public interface AccountService {
+    List<Account> getAllAccounts();                 // N+1 demo
+    Account getAccount(long id);
+    Account getAccountWithTransactions(long id);
+
+    // ========= READ (PROJECTION) =========
+    List<AccountSummary> getAccountSummaries();
+    AccountSummary getAccountSummaryByAccountNumber(String accNo);
+
+    List<TxView> getTransactionView(long accountId);
+    long getTransactionCount(long accountId);
+
+    //========= WRITE ========= 
+    void deposit(long accountId, BigDecimal amount);
+    void withdraw(long accountId, BigDecimal amount);
+}
+
+
+
+@Service
+@Transactional
+public class AccountServiceImpl implements AccountService {
+
+    private final AccountRepository accountRepo;
+    private final TxHistoryRepository txRepo;
+
+    public AccountServiceImpl(AccountRepository accountRepo,
+                              TxHistoryRepository txRepo) {
+        this.accountRepo = accountRepo;
+        this.txRepo = txRepo;
+    }
+
+    @Override
+    public List<Account> getAllAccounts() {
+        //  intentionally causes N+1 if tx accessed
+        return accountRepo.findAllAccounts();
+    }
+
+    @Override
+    public Account getAccount(long id) {
+        return accountRepo.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Account not found: " + id));
+    }
+
+    @Override
+    public Account getAccountWithTransactions(long id) {
+        //  fetch join — N+1 safe
+        return accountRepo.findAccountWithTransactions(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Account not found: " + id));
+    }
+
+
+	// READ — PROJECTION (API SAFE)
+    @Override
+    public List<AccountSummary> getAccountSummaries() {
+        return accountRepo.findAccountSummaries();
+    }
+
+    @Override
+    public AccountSummary getAccountSummaryByAccountNumber(String accNo) {
+        return accountRepo
+                .findAccountSummaryByAccountNumber(accNo)
+                .orElseThrow(() ->
+                        new RuntimeException("Account not found: " + accNo));
+    }
+
+    @Override
+    public List<TxView> getTransactionView(long accountId) {
+        return txRepo.findTxByAccountId(accountId);
+    }
+
+    @Override
+    public long getTransactionCount(long accountId) {
+        return txRepo.countTxForAccount(accountId);
+    }
+
+	// WRITE — BUSINESS COMMANDS
+    @Override
+    public void deposit(long accountId, BigDecimal amount) {
+        Account acc = getAccount(accountId);
+
+        acc.setBalance(acc.getBalance().add(amount));
+
+        txRepo.save(buildTx(
+                TxType.DEPOSIT, amount, acc));
+    }
+
+    @Override
+    public void withdraw(long accountId, BigDecimal amount) {
+        Account acc = getAccount(accountId);
+
+        if (acc.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        acc.setBalance(acc.getBalance().subtract(amount));
+
+        txRepo.save(buildTx(
+                TxType.WITHDRAW, amount, acc));
+    }
+
+	// INTERNAL HELPER
+    private TxHistory buildTx(
+            TxType type, BigDecimal amount, Account acc) {
+
+        TxHistory tx = new TxHistory();
+        tx.setType(type);
+        tx.setAmount(amount);
+        tx.setBalanceAfterTx(acc.getBalance());
+        tx.setTxTime(LocalDateTime.now());
+        tx.setAccount(acc);
+        return tx;
+    }
+}
+
+
+
+4️. CONTROLLERS (PHASE-1, ENTITY RETURN)
+------------------------------------------
+@RestController
+@RequestMapping("v1/accounts")
+public class AccountController {
+
+    private final AccountService service;
+
+    public AccountController(AccountService service) {
+        this.service = service;
+    }
+
+
+    //  Causes N+1 if transactions accessed
+    @GetMapping
+    public List<Account> getAllAccounts() {
+        return service.getAllAccounts();
+    }
+
+    @GetMapping("{id}")
+    public Account getAccountById(@PathVariable long id) {
+        return service.getAccount(id);
+    }
+
+    //  Fetch join – N+1 safe
+    @GetMapping("{id}/with-transactions")
+    public Account getAccountWithTransactions(@PathVariable long id) {
+        return service.getAccountWithTransactions(id);
+    }
+
+	//  PROJECTION READ (API SAFE)
+    @GetMapping("summary")
+    public List<AccountSummary> getAccountSummaries() {
+        return service.getAccountSummaries();
+    }
+
+    @GetMapping("summary/by-account-number/{accNo}")
+    public AccountSummary getAccountSummaryByAccountNumber(
+            @PathVariable String accNo) {
+        return service.getAccountSummaryByAccountNumber(accNo);
+    }
+}
+
+
+public class DepositRequest {
+    private long accountId;
+    private BigDecimal amount;
+    // getters / setters
+}
+
+public class WithdrawRequest {
+    private long accountId;
+    private BigDecimal amount;
+    // getters / setters
+}
+
+public class TransferRequest {
+    private long fromAccountId;
+    private long toAccountId;
+    private BigDecimal amount;
+
+    // getters / setters
+}
+
+public class TransactionResponse {
+
+    private String message;
+    private String status; // SUCCESS / PENDING_APPROVAL
+    private Long transactionId;
+
+    public TransactionResponse(String message,
+                               String status,
+                               Long transactionId) {
+        this.message = message;
+        this.status = status;
+        this.transactionId = transactionId;
+    }
+
+    // getters
+}
+
+
+
+AccountTransactionController
+--------------------------------
+@RestController
+@RequestMapping("v1/transactions")
+public class AccountTransactionController {
+
+    private final AccountService service;
+
+    public AccountTransactionController(AccountService service) {
+        this.service = service;
+    }
+
+  
+    @PutMapping("deposit")
+    public TransactionResponse deposit( @RequestBody DepositRequest request) {
+
+        service.deposit( request.getAccountId(),request.getAmount());
+
+        return new TransactionResponse("Deposit successful","SUCCESS",null );
+    }
+
+    @PutMapping("withdraw")
+    public TransactionResponse withdraw(@RequestBody WithdrawRequest request) {
+
+        service.withdraw(request.getAccountId(),request.getAmount());
+
+        return new TransactionResponse("Withdraw successful","SUCCESS", null);
+    }
+
+    @PutMapping("transfer")
+    public TransactionResponse transfer(  @RequestBody TransferRequest request) {
+
+        Long txId = service.transfer(
+                request.getFromAccountId(),
+                request.getToAccountId(),
+                request.getAmount()
+        );
+
+        return new TransactionResponse(
+                "Transfer initiated",
+                "SUCCESS",
+                txId
+        );
+    }
+
+
+    @GetMapping("account/{accountId}")
+    public List<TxView> getTransactionView(
+            @PathVariable long accountId) {
+        return service.getTransactionView(accountId);
+    }
+
+    @GetMapping("account/{accountId}/count")
+    public long getTransactionCount(
+            @PathVariable long accountId) {
+        return service.getTransactionCount(accountId);
+    }
+}
+
+
+PHASE 2 DONE
+------------
+You now have:
+Correct Account–TxHistory relationship
+
+All required @Query
+Fetch join to kill N+1
+Working controllers
+No DTO complexity yet
+
+
+
+PHASE 2 — DTO + MAPSTRUCT (NEXT EVOLUTION)
+-------------------------------------
+Goal:
+✔ Stop exposing entities
+✔ Use projection DTOs for read
+✔ Use request DTOs for write
+✔ Use MapStruct for mapping
+
+5️⃣ DTOs (READ + WRITE)
+AccountSummaryDto (READ)
+@Getter
+@Setter
+public class AccountSummaryDto {
+    private Long id;
+    private String accountNumber;
+    private String customerName;
+    private BigDecimal balance;
+}
+
+TxDto (READ)
+@Getter
+@Setter
+public class TxDto {
+    private TxType type;
+    private BigDecimal amount;
+    private BigDecimal balanceAfterTx;
+    private LocalDateTime txTime;
+}
+
+6️⃣ MapStruct Mapper
+Dependency (important)
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct</artifactId>
+    <version>1.5.5.Final</version>
+</dependency>
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct-processor</artifactId>
+    <version>1.5.5.Final</version>
+    <scope>provided</scope>
+</dependency>
+
+Mapper Interface
+@Mapper(componentModel = "spring")
+public interface AccountMapper {
+
+    AccountSummaryDto toSummary(Account account);
+
+    List<AccountSummaryDto> toSummaryList(
+            List<Account> accounts);
+
+    TxDto toTxDto(TxHistory tx);
+
+    List<TxDto> toTxDtoList(
+            List<TxHistory> txs);
+}
+
+7️⃣ NEW REST CONTROLLERS (DTO-ONLY)
+@RestController
+@RequestMapping("v2/accounts")
+public class AccountReadController {
+
+    private final AccountService service;
+    private final AccountMapper mapper;
+
+    public AccountReadController(
+            AccountService service,
+            AccountMapper mapper) {
+        this.service = service;
+        this.mapper = mapper;
+    }
+
+    @GetMapping
+    public List<AccountSummaryDto> all() {
+        return mapper.toSummaryList(
+                service.getAllAccounts());
+    }
+
+    @GetMapping("{id}")
+    public AccountSummaryDto byId(@PathVariable long id) {
+        return mapper.toSummary(
+                service.getAccount(id));
+    }
+}
+
+🧠 FINAL GOLDEN RULES (BANK APP)
+
+Entity ≠ API
+
+Phase-1: entity OK for learning
+
+Phase-2: DTO + MapStruct mandatory
+
+@OneToMany always LAZY
+
+Fetch join only when needed
+
+TxHistory is append-only
+
+Service owns business rules
+
+Controllers stay dumb

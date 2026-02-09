@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>06-for-of loop</title>
+</head>
+
+<body>
+    <script>
+        //Problem with for...in Loop (ES5)
+        let colors = ['Red', 'Blue', 'Green'];
+        for (let index in colors) {
+            console.log(colors[index]);
+        }
+
+        //ES6 Solution: for...of
+        // Introduced in ES6, for...of is the right loop for iterables like arrays,
+        // strings, sets, maps, etc.
+
+
+        colors = ['Red', 'Blue', 'Green'];
+
+        for (let color of colors) {
+            console.log(color);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07-es classess</title>
+</head>
+
+<body>
+    <script>
+        /*
+        Under the hood, classes are just functions.
+        Classes are not hoisted like regular functions.
+    */
+        class Person {
+            greet() { }
+        }
+
+        let p = new Person();
+
+        console.log(p.greet === Person.prototype.greet); // true
+
+        //Consturctors
+        // class Animal {
+        //     constructor(type) {
+        //         this.type = type;
+        //     }
+
+        //     identify() {
+        //         console.log(this.type);
+        //     }
+        // }
+
+        // let cat = new Animal('Cat');
+        // cat.identify(); // Cat
+
+
+        //Class getter setter
+        // class Person {
+        //     constructor(firstName, lastName) {
+        //         this.firstName = firstName;
+        //         this.lastName = lastName;
+        //     }
+
+        //     get fullName() {
+        //         return this.firstName + ' ' + this.lastName;
+        //     }
+
+        //     set fullName(str) {
+        //         let names = str.split(' ');
+        //         if (names.length === 2) {
+        //             this.firstName = names[0];
+        //             this.lastName = names[1];
+        //         } else {
+        //             throw 'Invalid name format';
+        //         }
+        //     }
+        // }
+
+        // let mary = new Person('rajeev', 'Gupta');
+        // console.log(mary.fullName); // rajeev Gupta
+
+        // mary.fullName = 'Rajeev Gupta';
+        // console.log(mary.fullName); // Rajeev Gupta
+
+
+        //Inheritance-ES6
+        // class Animal {
+        //     constructor(legs) {
+        //         this.legs = legs;
+        //     }
+
+        //     walk() {
+        //         console.log('walking on ' + this.legs + ' legs');
+        //     }
+        // }
+
+        // class Bird extends Animal {
+        //     constructor(legs) {
+        //         super(legs); // must call parent constructor
+        //     }
+
+        //     fly() {
+        //         console.log('flying');
+        //     }
+        // }
+
+        // let bird = new Bird(2);
+        // bird.walk(); // walking on 2 legs
+        // bird.fly();  // flying
+
+    </script>
+</body>
+
+</html>

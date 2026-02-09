@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>06-dom example</title>
+</head>
+
+<script>
+    function change() {
+        const name = prompt("Enter your name", "");
+        const food = prompt("Enter your favourite food", "");
+
+        const container = document.getElementById("sec");
+
+        // Clear existing content
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+
+        // Create new <p> elements
+        const p1 = document.createElement("p");
+        p1.textContent = "Name: " + name;
+
+        const p2 = document.createElement("p");
+        p2.textContent = "Food: " + food;
+
+        // Append to div
+        container.appendChild(p1);
+        container.appendChild(p2);
+    }
+
+    window.onload = change; // Run after page loads
+</script>
+</head>
+
+<body>
+    <div id="sec">
+        <p>Name: XXXX</p>
+        <p>Food: YYYY</p>
+    </div>
+</body>
+
+</html>

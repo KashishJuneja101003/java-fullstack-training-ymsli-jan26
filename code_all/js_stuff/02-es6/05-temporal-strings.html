@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05-temploral strings</title>
+</head>
+
+<body>
+    <script>
+        //   Template Literals (aka String Templates) Problem with Old-Style String Concatenation (ES5)
+
+        const person = {
+            name: "rajeev gupta",
+            address: "delhi",
+            phone: "43544344444"
+        };
+
+        let strMsg = "my name is " + person.name + ": " + " my address is " + person.address;
+
+        //Hard to read and maintain. Breaks easily when adding variables or formatting.
+
+
+        //ES6 Template Literals – Backtick Syntax
+
+        let strMsg2 = `my name is ${person.name} and my address is ${person.address}`;
+        console.log(strMsg2);
+
+    </script>
+</body>
+
+</html>

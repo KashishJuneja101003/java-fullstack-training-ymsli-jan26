@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04-functions</title>
+</head>
+
+<body>
+    <ul>
+        <li class="item">One</li>
+        <li class="item">Two</li>
+    </ul>
+    <p id="demo"></p>
+    <p class="info">Text</p>
+
+    <button id="clickBtn">Click Me</button>
+
+    <script>
+        document.getElementById("demo").innerText = "Hello using getElementById";
+        document.querySelector(".info").innerText = "Hello using querySelector";
+
+        const items = document.querySelectorAll(".item");
+        items.forEach(el => el.style.color = "blue");
+
+        document.getElementById("clickBtn").addEventListener("click", () => {
+            alert("Button was clicked!");
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03-rest operator</title>
+</head>
+
+<body>
+    <script>
+        /*
+        Advantages:
+        
+        Real array → can use .map(), .filter(), etc.
+         Cleaner and expressive
+         Works with arrow functions
+         Matches features in other languages (e.g., *args in Python, varargs in Java)
+        */
+        function showColors(message, ...colors) {
+            console.log(message);
+            console.log(colors); // ['Red', 'Blue']
+        }
+
+        showColors("Available colors:", "Red", "Blue");
+
+
+    </script>
+</body>
+
+</html>

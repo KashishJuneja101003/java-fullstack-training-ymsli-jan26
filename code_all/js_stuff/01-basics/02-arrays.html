@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01-Basics- Arrays</title>
+</head>
+
+<body>
+    <script>
+        var vehicles = new Array("car", "bus", "van");
+
+        document.write("the sec item is :" + vehicles[1] + "<br/>");
+        for (i in vehicles) {
+            document.write(vehicles[i] + "<br/>");
+
+        }
+
+        var someArray = new Array();
+        someArray[0] = "foo";
+        someArray[1] = "bar";
+        someArray[2] = 36;
+
+        for (i in someArray) {
+            document.write(someArray[i]);
+        }
+
+
+    </script>
+</body>
+
+</html>

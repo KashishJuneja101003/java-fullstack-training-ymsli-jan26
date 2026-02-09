@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01-Basics- Arrays</title>
+</head>
+
+<body>
+    <script>
+
+        // pop() – Removes from end
+
+        let week = ["sun", "mon", "tue", "wed"];
+        week.pop();       // removes "wed"
+        alert(week);      // Output: sun,mon,tue
+
+
+        // shift() – Removes from beginning
+
+        let nums = [3, 4, 5, 6];
+        nums.shift();     // removes 3
+        alert(nums);      // Output: 4,5,6
+
+        // Modifying Array with splice()
+
+        array.splice(startIndex, deleteCount, item1, item2, ...)
+
+        // Replace 1 item
+
+        nums = [3, 4, 5, 6];
+        nums.splice(2, 1, 10);      // Replace index 2 (5) with 10
+        alert(nums);               // Output: 3,4,10,6
+
+        // Remove 1 item
+
+        nums = [3, 4, 5, 6];
+        nums.splice(2, 1);          // Remove index 2 (5)
+        alert(nums);               // Output: 3,4,6
+
+        // Add multiple items
+
+        nums = [3, 4, 5, 6];
+        nums.splice(1, 2, 11, 12, 13);  // Remove 2 items from index 1 (4,5) and add 11,12,13
+        alert(nums);                   // Output: 3,11,12,13,6
+
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>00-data-type</title>
+</head>
+
+<body>
+    <script>
+        //      1. Primitive Data Types
+        // ------------------------
+        // These are immutable and passed by value.
+
+        // a. Number
+        // --------
+        let age = 30;
+        let price = 99.99;
+        console.log(typeof age);   // "number"
+
+        // b. String
+        // ------------
+        let name = "Alice";
+        console.log(typeof name);  // "string"
+
+        // c. Boolean
+        // ----------
+        let isActive = true;
+        console.log(typeof isActive);  // "boolean"
+
+        // d. Undefined
+        // ----------
+        let notAssigned;
+        console.log(typeof notAssigned);  // "undefined"
+
+        // e. Null
+        // ----------
+        let value = null;
+        console.log(typeof value);  // ⚠️ "object" (this is a JS quirk)
+
+
+        // a. Object
+        // ------------
+        let person = { name: "Bob", age: 25 };
+        console.log(typeof person);  // "object"
+
+        // b. Array
+        // -------------
+        let scores = [10, 20, 30];
+        console.log(typeof scores);      // "object"
+        console.log(Array.isArray(scores)); // true
+
+        // c. Function
+        // ---------
+        function greet() {
+            return "Hello!";
+        }
+        console.log(typeof greet);  // "function"
+    </script>
+</body>
+
+</html>

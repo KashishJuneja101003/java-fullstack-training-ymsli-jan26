@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>08-callback-programming</title>
+</head>
+
+<body>
+    <script>
+        // What is a Callback?
+        // A callback is a function passed as an argument 
+        // to another function to be “called back” later.
+
+        // function greet(name, callback) {
+        //     console.log("Hello " + name);
+        //     callback();
+        // }
+
+        // function bye() {
+        //     console.log("Goodbye!");
+        // }
+
+        // greet("Rajeev", bye);
+
+
+        //Asynchronous Callback Example
+
+        // console.log("Start");
+
+        // setTimeout(() => {
+        //     console.log("Inside setTimeout");
+        // }, 1000);
+
+        // console.log("End");
+
+
+        //Callback-hell nobody want
+
+        setTimeout(() => {
+            console.log("Task 1");
+            setTimeout(() => {
+                console.log("Task 2");
+                setTimeout(() => {
+                    console.log("Task 3");
+                }, 1000);
+            }, 1000);
+        }, 1000);
+        
+
+
+
+    </script>
+</body>
+
+</html>
