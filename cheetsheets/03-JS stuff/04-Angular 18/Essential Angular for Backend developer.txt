@@ -684,7 +684,7 @@ __________________________
 	different URLs and supporting those section programmatically is called routing
 
 	=> In simple words, as per url open different angular components is called routing
-
+	
 
 
 
@@ -935,7 +935,7 @@ Router passes the parameter → ActivatedRoute reads the parameter.
 
 
 
-
+A - Z basic deployment
 
 
 
