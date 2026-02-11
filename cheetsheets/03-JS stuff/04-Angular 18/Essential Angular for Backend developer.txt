@@ -1,0 +1,963 @@
+Essential Angular for banckend developer:
+--------------------------------------------
+- Angular getting started
+- Data binding
+- Angular directives
+- Angular services
+- Angular auth service jwt integration
+- JWT Interceptor
+
+
+Angular Data Binding — Ultra Short Cheat Sheet
+-------------------------------------------
+ng g c component/test -s -t --skip-tests
+
+
+Type				Syntax			Direction
+----------------------------------------------
+Interpolation		{{ }}			C → V
+Property binding	[ ]				C → V
+Event binding		( )				V → C
+Two-way binding		[()]			V ↔ C
+
+
+
+
+1. Interpolation {{ }}
+------------------------
+One-way binding (Component → View)
+
+
+
+@Component({
+  selector: 'app-test',
+  standalone: true,
+  template: `
+    <h4>{{20+20}}</h4>
+    {{title}}<br/>
+    {{name}}<br/>
+    {{fullname()}}
+  `
+})
+export class TestComponent {
+
+  title: string = 'angular demo';
+  name: string = 'rajeev';
+
+  fullname(): string {
+    return `my name is ${this.name}`;
+  }
+  
+}
+
+
+2. Property Binding [ ]
+----------------------
+his Angular component demonstrates the difference between
+ interpolation and property binding in action
+
+interpolation vs property binding
+----------------------------------
+
+interpolation
+----------------
+
+Name <input type="text" name="name" value={{name}}/> <br/>
+This uses interpolation: value={{name}}
+
+
+
+Angular will convert name (string) to a string literal and insert it in the HTML.
+Works, but not preferred for DOM properties like value.
+
+
+
+property binding
+---------------------
+Name <input type="text" name="name" [value]="name"/> <br/>
+Uses property binding: [value]="name"
+
+This is the correct and recommended way.
+
+Directly binds the value of the name property ('raj') to the input’s DOM property value.
+
+@Component({
+  selector: 'app-test',
+  template: `
+  
+  Name <input type="text" name="name" value ={{name}}/> <br/>
+  Name <input type="text" name="name" [value]="name"/> <br/>
+
+
+  <div hidden={{isHidden}}>this is a div</div>
+  <div [hidden]="isHidden">this is a div2</div>
+
+  `,
+  styleUrls: ['./test.component.css']
+})
+export class TestComponent implements OnInit {
+
+  name:string='raj';
+  isHidden:boolean=false;
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}
+
+
+
+3. Event Binding ( )
+-----------------------
+@Component({
+  selector: 'app-test',
+  standalone: true,
+  template: `
+    <button (click)="myEvent()">call event</button>
+    {{count}}
+  `
+})
+export class TestComponent {
+  count = 0;
+
+  myEvent() {
+    this.count++;
+  }
+}
+
+Another example
+
+@Component({
+  selector: 'app-test',
+  standalone: true,
+  template: `
+    <input (keyup)="callMethod($event)">
+    <p>{{data}}</p>
+  `
+})
+export class TestComponent {
+
+  data = '';
+
+  callMethod(event: KeyboardEvent) {
+    const input = (event.target as HTMLInputElement).value;
+    this.data = input;
+  }
+}
+
+
+Two-Way Binding [()] (ngModel)
+----------------------------
+View ↔ Component
+User input automatically updates component variable.
+
+Syntax
+[(ngModel)]="property"
+
+Important Rule
+You must import FormsModule.
+
+
+
+
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-test',
+  standalone: true,
+  imports: [FormsModule],
+  template: `
+    Email <input [(ngModel)]="email"><br>
+    <button (click)="getEmail()">click me</button>
+
+    {{email}}
+  `
+})
+export class TestComponent {
+
+  email = 'r@r.gupta';
+
+  getEmail() {
+    console.log(this.email);
+  }
+}
+
+
+
+Simple cal using angular 2+ way binding
+---------------------------------------
+    First no: <input [(ngModel)] ='num1' type="number" name="num1"/><br/>
+    Second no: <input [(ngModel)] ='num2' type="number" name="num2"/><br/>
+    <button  (click) = 'addition()'>Calculate</button>
+   
+	{{num1}} + {{num2}}={{result}}
+
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-cal',
+  templateUrl: './cal.component.html',
+  styleUrls: []
+})
+export class TestComponent {
+
+  public num1:number=0;
+  public num2:number=0;
+  public result:number=0;
+
+  addition() {
+    this.result= this.num1+ this.num2;
+  }
+
+}
+
+=> dont forget to add to the component ( in which we want to use) import list
+
+
+
+
+
+Below is the complete Angular frontend that supports both endpoints:
+------------------------------------------------------------------
+GET /api/employees → list of employees
+GET /api/employees/{id} → single employee
+
+	Includes:
+	---------
+	Proper project structure
+	Angular CLI commands
+	Models
+	Service with full error handling
+	Component for both use cases
+	Standalone configuration (Angular 18 style)
+
+
+
+
+ui---------- @Component ---------- @Service 
+
+
+
+Steps:
+-------------
+1. Create Angular Project
+ng new employee-app --standalone --routing=false --style=css
+
+cd employee-app
+
+ng g c component/emp -t -s --skip-tests
+
+
+generate model:
+-------------
+ng g i model/employee
+ng g i model/api-error
+
+
+export interface Employee {
+  id: number;
+  name: string;
+  salary: number;
+}
+
+export interface ApiError {
+  timestamp: string;
+  status: number;
+  message: string;
+}
+
+
+4. Employee Service
+--------------------------
+Create service:
+ng g s services/employee
+
+
+
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
+import { Employee } from '../model/employee.model';
+import { ApiError } from '../model/api-error.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class EmployeeService {
+
+  private baseUrl = 'http://localhost:8080/api/employees';
+
+  constructor(private http: HttpClient) {}
+
+  getEmployees(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(this.baseUrl)
+      .pipe(catchError(this.handleError));
+  }
+
+  getEmployee(id: number): Observable<Employee> {
+    return this.http.get<Employee>(`${this.baseUrl}/${id}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errMsg = 'Unknown error';
+
+    if (error.error && error.error.message) {
+      const apiError = error.error as ApiError;
+      errMsg = apiError.message;
+    } else if (error.message) {
+      errMsg = error.message;
+    }
+
+    return throwError(() => new Error(errMsg));
+  }
+}
+
+
+Update: app.config.ts
+--------------------------------
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+
+import { provideHttpClient } from '@angular/common/http';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient()
+  ]
+};
+
+
+
+Create  Employee Component
+----------------------------
+ng g c employee/employee --style=none --skip-tests
+
+
+
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { EmployeeService } from '../services/employee.service';
+import { Employee } from '../model/employee.model';
+
+
+@Component({
+  selector: 'app-employee',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './employee.component.html'
+})
+export class EmployeeComponent {
+
+
+  employees: Employee[] = [];
+  employee?: Employee;
+  error?: string;
+
+
+  constructor(private employeeService: EmployeeService) {}
+
+  // Load all employees
+  loadEmployees() {
+    this.employeeService.getEmployees().subscribe({
+      next: (data) => {
+        this.employees = data;
+        this.employee = undefined;
+        this.error = undefined;
+      },
+      error: (err) => {
+        this.error = err.message;
+        this.employees = [];
+        this.employee = undefined;
+      }
+    });
+  }
+
+
+  // Load employee by ID
+  loadEmployee(id: number) {
+    this.employeeService.getEmployee(id).subscribe({
+      next: (data) => {
+        this.employee = data;
+        this.employees = [];
+        this.error = undefined;
+      },
+      error: (err) => {
+        this.error = err.message;
+        this.employee = undefined;
+      }
+    });
+  }
+}
+
+
+
+employee.component.html
+-----------------------------
+
+<h2>Employee Management</h2>
+
+<button (click)="loadEmployees()">Load All Employees</button>
+<button (click)="loadEmployee(1)">Load Employee ID 1</button>
+<button (click)="loadEmployee(0)">Load Invalid Employee</button>
+
+<hr>
+
+<!-- Error -->
+<div *ngIf="error" style="color:red">
+  Error: {{ error }}
+</div>
+
+<!-- Single employee -->
+<div *ngIf="employee">
+  <h3>Single Employee</h3>
+  <p>ID: {{ employee.id }}</p>
+  <p>Name: {{ employee.name }}</p>
+  <p>Salary: {{ employee.salary }}</p>
+</div>
+
+<!-- Employee list -->
+<div *ngIf="employees.length > 0">
+  <h3>Employee List</h3>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Salary</th>
+    </tr>
+    <tr *ngFor="let emp of employees">
+      <td>{{ emp.id }}</td>
+      <td>{{ emp.name }}</td>
+      <td>{{ emp.salary }}</td>
+    </tr>
+  </table>
+</div>
+
+
+
+
+
+
+Bootstrap Employee Component main.ts
+------------------------------------
+Replace content of src/main.ts:
+
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { EmployeeComponent } from './app/employee/employee.component';
+
+
+bootstrapApplication(EmployeeComponent, appConfig)
+  .catch((err) => console.error(err));
+  
+  
+  
+  
+8. Run the Angular App
+ng serve
+
+
+
+
+Part 2 — Angular Employee App add JWT support
+-----------------------------------------
+
+Auth models
+Auth service
+JWT interceptor
+
+1. Models
+-------------
+ng g i model/login-request
+ng g i model/login-response
+
+login-request.ts
+-------------------
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+login-response.ts
+----------------
+export interface LoginResponse {
+  token: string;
+}
+
+2. Auth Service
+-------------------
+ng g s services/auth
+
+
+services/auth.service.ts
+--------------------------
+Note: JWT in localStorage for simplicity.
+But in production, it is safer to store it in an HttpOnly cookie to protect against XSS attacks
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { LoginRequest } from '../model/login-request';
+import { LoginResponse } from '../model/login-response';
+import { tap } from 'rxjs';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+
+  private baseUrl = 'http://localhost:8080/auth';
+
+  constructor(private http: HttpClient) {}
+
+  login(req: LoginRequest) {
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, req)
+      .pipe(
+        tap(res => localStorage.setItem('token', res.token))
+      );
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+  }
+}
+
+
+
+3. JWT Interceptor
+---------------------
+
+ng g interceptor interceptors/jwt --skip-tests
+
+
+interceptors/jwt.interceptor.ts
+----------------------------------
+
+import { HttpInterceptorFn } from '@angular/common/http';
+
+export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+
+  const token = localStorage.getItem('token');
+
+  if (token) {
+    req = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
+
+  return next(req);
+};
+
+
+
+
+
+4. Update app.config.ts
+----------------------------
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
+import { routes } from './app.routes';
+import { jwtInterceptor } from './interceptors/jwt.interceptor';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([jwtInterceptor]))
+  ]
+};
+
+
+
+
+5. Add Login Button in EmployeeComponent
+------------------------------------------
+employee.component.ts
+
+import { AuthService } from '../services/auth.service';
+
+
+constructor:
+
+constructor(
+  private employeeService: EmployeeService,
+  private authService: AuthService
+) {}
+
+
+add method:
+
+login() {
+  this.authService.login({
+    username: 'admin',
+    password: 'password'
+  }).subscribe(() => alert('Logged in'));
+}
+
+6. Update employee.component.html
+<h2>Employee Management</h2>
+
+<button (click)="login()">Login</button>
+<hr>
+
+<button (click)="loadEmployees()">Load All Employees</button>
+<button (click)="loadEmployee(1)">Load Employee ID 1</button>
+<button (click)="loadEmployee(0)">Load Invalid Employee</button>
+
+
+
+Whole flow:
+----------------
+AuthService stores the token after login, and the interceptor
+ automatically attaches that token to every outgoing request.
+
+What each part does
+---------------------
+
+1. EmployeeComponent
+	Calls AuthService.login() when user clicks Login.
+	Later calls EmployeeService to load data.
+
+2. AuthService
+	Sends login request to Spring Boot.
+	Gets JWT token in response.
+	Stores token in localStorage.
+
+So after login:
+	localStorage["token"] = JWT
+	This happens only once after login.
+
+3. JWT Interceptor
+	This runs automatically before every HTTP request.
+	It does only one job:
+	Reads token from localStorage.
+	Adds it to the request header.
+	Authorization: Bearer <token>
+
+
+Then sends the request to the server.
+--------------------------------------
+Full flow in one simple sequence
+-------------------------------------
+
+	EmployeeComponent
+	   ↓
+	AuthService.login()
+	   ↓
+	Token received
+	   ↓
+	Token saved in localStorage
+	   ↓
+	EmployeeComponent calls EmployeeService
+	   ↓
+	JWT Interceptor runs
+	   ↓
+	Adds token to request header
+	   ↓
+	Spring Boot verifies token
+	   ↓
+	Employee data returned
+
+
+
+
+
+Applying routing
+----------------------
+
+Introduction to routing?
+__________________________
+	=> web applications can have different sections that corrosponds to 
+	different URLs and supporting those section programmatically is called routing
+
+	=> In simple words, as per url open different angular components is called routing
+
+
+
+
+step 1: create an angular project with routing option
+-----------------------------------------------
+ng new myapp --standalone --routing --style=css
+
+step 2: create two components 
+------------------------------
+ng g c deptlist -t -s --standalone --skip-tests
+ng g c emplist -t -s --standalone --skip-tests
+ng g c page-not-found -t -s --standalone --skip-tests
+
+
+step 3: configure the route in app.routes.ts
+------------------------------------------
+ app.routes.ts
+ -------------
+import { Routes } from '@angular/router';
+import { DeptlistComponent } from './components/deptlist/deptlist.component';
+import { EmplistComponent } from './components/emplist/emplist.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+
+export const routes: Routes = [
+    { path: '', redirectTo: '/departments', pathMatch: 'full' }, // default
+    { path: 'departments', component: DeptlistComponent },
+    { path: 'employees', component: EmplistComponent },
+    { path: '**', component: PageNotFoundComponent } // wildcard
+];
+
+
+step 4: Update app.config.ts
+----------------------------
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { appRoutes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideRouter(appRoutes)]
+};
+
+
+step 5: check  main.ts.....Make sure this uses appConfig:
+---------------------------------------
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
+
+bootstrapApplication(AppComponent, appConfig)
+  .catch(err => console.error(err));
+
+
+
+
+step 6: Update app.component.ts to import RouterModule
+---------------------------------------------------
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterModule],
+  templateUrl: './app.component.html'
+})
+export class AppComponent {}
+
+
+step 7: Create Navigation in app.component.html
+-----------------------------------------
+<h1>Angular 18 Standalone Routing</h1>
+
+<nav>
+  <a routerLink="/departments">Departments</a> |
+  <a routerLink="/employees">Employees</a>
+</nav>
+
+<hr>
+
+<router-outlet></router-outlet>
+
+
+
+href vs routerLink
+------------------
+href 		: HTML attribute, full page reload
+routerLink 	: Angular directive, no reload, SPA behavior
+
+
+
+<!-- Not recommended for Angular apps -->
+<a href="/departments">Departments</a>
+
+<!-- Recommended in Angular -->
+<a routerLink="/departments">Departments</a>
+
+
+Use routerLink inside Angular apps for internal navigation.
+Use href only for external links (like https://google.com).
+
+
+
+
+
+Routing parameters:
+------------------
+	we want to nevigate to department detail component if 
+	we click an particular department
+
+Dept 			Deptdetail
+----------------------------------------
+
+angular   id		you selected dept with id =1
+node	-------> 
+mongo
+java
+
+
+step 1: update dept component
+----------------------------
+Note: Use CommonModule
+
+
+
+ <ul class="item">
+  <li *ngFor="let department of departments">
+    <span class="badge">{{department.id}}</span> {{department.name}}
+  </li>
+</ul>
+
+
+
+  public departments = [
+    {"id": 1, "name": "Angular"},
+    {"id": 2, "name": "Node"},
+    {"id": 3, "name": "MongoDB"},
+    {"id": 4, "name": "Ruby"},
+    {"id": 5, "name": "Bootstrap"}
+  ]
+
+
+
+step 2: generate new component 
+ng g c dept-detail -t -s --standalone --skip-tests
+
+step 3: update dept-list component
+----------------------------
+@Component({
+  selector: 'app-deptlist',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+     <ul class="item">
+    <li *ngFor="let department of departments">
+      <span class="badge">{{department.id}}</span> {{department.name}}
+    </li>
+</ul>
+  `,
+  styles: ``
+})
+export class DeptlistComponent {
+  public departments = [
+    {"id": 1, "name": "Angular"},
+    {"id": 2, "name": "Node"},
+    {"id": 3, "name": "MongoDB"},
+    {"id": 4, "name": "Ruby"},
+    {"id": 5, "name": "Bootstrap"}
+  ]
+}
+
+
+
+step 4: add route for this component in app-routing module
+
+{ path : 'departments/:id', component: DeptDetailComponent}
+
+
+
+
+step 5: update dept component to 
+-------------------------------
+
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-deptlist',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+   <ul class="item">
+	  <li (click)="onSelect(department)"  *ngFor="let department of departments">
+		<span class="badge">{{department.id}}</span> {{department.name}}
+	  </li>
+	</ul>
+  `,
+  styles: ``
+})
+export class DeptlistComponent {
+  public departments = [
+    {"id": 1, "name": "Angular"},
+    {"id": 2, "name": "Node"},
+    {"id": 3, "name": "MongoDB"},
+    {"id": 4, "name": "Ruby"},
+    {"id": 5, "name": "Bootstrap"}
+  ]
+  constructor(private router: Router) { }
+
+    onSelect(department: { id: any; }){
+    // from neviate from code to rooute we need router service
+    this.router.navigate(['/departments', department.id]);
+  }
+}
+
+
+
+Step 6: we want to access parameter (dept id) in department detail module and use it threre
+-----------------------------------------------------------------------------------------
+we have to use "ACTIVATED ROUTE SERVICE"
+
+go to dept detail compoent and update:
+-----------------------------------
+import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+@Component({
+  selector: 'app-dept-detail',
+  standalone: true,
+  imports: [],
+  template: `
+    <h3>you selected dept with id {{deptId}}</h3>
+  `,
+  styles: ``
+})
+export class DeptDetailComponent {
+   public deptId: any; 
+
+  constructor(private route: ActivatedRoute) { }
+
+  ngOnInit() {
+    // tslint:disable-next-line: radix
+    let id = parseInt(this.route.snapshot.paramMap.get('id') ?? '0');
+    this.deptId = id;
+  }
+}
+
+Understanding:
+Router passes the parameter → ActivatedRoute reads the parameter.
+
+
+
+
+
+
+
+
+
+
+
+When we run ng build --configuration=production
+-------------------------------------------------
+the Angular CLI uses Webpack internally to compile the application’s
+ TypeScript code into optimized JavaScript bundles.
+ 
+ During this process, Angular performs Ahead-of-Time (AOT) compilation, 
+ tree shaking, minification, and code splitting, 
+ and generates multiple bundles such as main.js, runtime.js, polyfills.js, styles.css, 
+ and any lazy-loaded chunks.
+
+
+These bundles are placed in the dist/ folder as static files.
+ When a user makes the first request,
+ the browser downloads index.html, which references these bundles. 
+ The browser then downloads and executes the JavaScript files
+ , loads the Angular application into memory, and bootstraps the root module.
+
+After this initial load, the Angular app runs entirely inside the browser memory, 
+and navigation is handled by the Angular router without reloading the page. 
+The server is only contacted for API calls or when new bundles need to be downloaded,
+ such as during lazy loading or when a new version of the app is deployed.

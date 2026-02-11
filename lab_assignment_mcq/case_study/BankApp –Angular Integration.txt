@@ -1,0 +1,1788 @@
+Angular Banking Application Cheatsheet
+============================================
+
+Session 1: Spring boot Angular Integration without Security and Joins
+----------------------------------------------------------------------
+Step 1: Displaying All Accounts
+Step 2: Account Details
+Step 4 –Add new account
+Step 4 –Update Account holder email and phone
+
+
+
+
+
+Step 1: Displaying All Accounts
+--------------------------------
+
+STEP 1.1: Create Angular Project
+
+ng new bankappclient --standalone --routing --style=css
+
+check it is running
+ng serve --open
+
+
+update app.component.html, delete all crap
+---------------------
+<h1>Hello, {{ title }}</h1>
+<router-outlet />
+
+
+STEP 1.2: Add Bootstrap
+
+index.html
+-----------
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+Test:
+------------
+<h1 class="text-center">Hello, {{ title }}</h1>
+<router-outlet />
+
+
+
+STEP 1.3: Create Account Model
+--------------------------
+ng g class model/account
+
+account.ts
+-------------
+export class Account {
+  id: number = 0;
+  name: string = '';
+  balance: number = 0;
+  email: string = '';
+  phone: string = '';
+}
+
+STEP 1.4: Create Account List Component
+-----------------------------------------
+ng g c account-list --skip-tests --inline-style
+
+
+
+STEP 1.5: Account List HTML
+-----------------------------
+account-list.component.html
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Balance</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+
+  <tbody>
+    <tr *ngFor="let acc of accounts">
+      <td>{{ acc.id }}</td>
+      <td>{{ acc.name }}</td>
+      <td>{{ acc.balance }}</td>
+      <td>{{ acc.email }}</td>
+      <td>{{ acc.phone }}</td>
+      <td>
+        <button class="btn btn-info">View</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+account-list.component.html
+----------------------
+don't forget to import CommonModule otherwise *ngFor will not work
+
+import { CommonModule } from '@angular/common';
+
+@Component({
+	 ..........
+  imports: [CommonModule],   //  ADD HERE
+})
+export class AccountListComponent {}
+
+
+
+
+STEP 1.6: Account List Component (hardcoded first)
+-------------------------------------------------
+account-list.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Account } from '../model/account';
+
+
+@Component({
+  selector: 'app-account-list',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './account-list.component.html'
+})
+export class AccountListComponent implements OnInit {
+
+
+  accounts: Account[] = [];
+
+
+  ngOnInit(): void {
+    this.accounts = [
+      {
+        id: 1,
+        name: 'Raj',
+        balance: 50000,
+        email: 'raj@gmail.com',
+        phone: '9999999999'
+      },
+      {
+        id: 2,
+        name: 'Amit',
+        balance: 120000,
+        email: 'amit@gmail.com',
+        phone: '8888888888'
+      }
+    ];
+  }
+}
+
+
+
+STEP 1.7: Configure Routing
+-----------------------------
+app.routes.ts
+
+import { Routes } from '@angular/router';
+import { AccountListComponent } from './account-list/account-list.component';
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
+];
+
+
+
+STEP 1.8: Update app.component.ts
+----------------------------------
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterModule],
+  templateUrl: './app.component.html'
+})
+export class AppComponent {}
+
+
+STEP 1.9: app.component.html
+---------------------------
+<div class="text-center">
+  <router-outlet></router-outlet>
+</div>
+
+
+
+
+STEP 1.10: Create Account Service
+-------------------------------
+ng g s services/account
+
+
+STEP 1.11: Provide HttpClient
+--------------------------------
+app.config.ts
+
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient()
+  ]
+};
+
+
+
+
+STEP 1.12: Account Service (REAL BACKEND)
+----------------------------------
+account.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Account } from '../model/account';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AccountService {
+  private baseUrl = 'http://localhost:8090/bankapp/v1/accounts';
+
+  constructor(private http: HttpClient) {}
+
+  getAllAccounts(): Observable<Account[]> {
+    return this.http.get<Account[]>(this.baseUrl);
+  }
+
+  createAccount(account: Account) {
+    return this.http.post(this.baseUrl, account);
+  }
+}
+
+
+STEP 1.13: Connect Service to List Component
+-------------------------------------------
+import { AccountService } from '../services/account.service';
+
+
+constructor(private accountService: AccountService) {}
+ngOnInit(): void {
+  this.getAccounts();
+}
+
+getAccounts(): void {
+  this.accountService.getAllAccounts().subscribe(data => {
+    this.accounts = data;
+  });
+}
+
+STEP 1.14: We can see all account to the screen integration is working
+
+
+
+
+
+Step 2:  Account Details
+--------------------------------
+Step 2.1: Update Account Service
+
+account.service.ts
+-------------------------
+getAccountById(id: number) {
+  return this.http.get<Account>(`${this.baseUrl}/${id}`);
+}
+
+
+Step 2. 2: Create Account Details Component
+-----------------------------------------------
+ng g c account-details --skip-tests --inline-style
+
+
+Step 2.3: Update Routing
+
+app.routes.ts
+------------
+import { AccountDetailsComponent } from './account-details/account-details.component';
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
+];
+
+Same pattern as employee-details/:id
+
+
+Step 2.4: Add View Button Action (List Page)
+-------------------------------------------
+account-list.component.ts
+
+import { Router } from '@angular/router';
+
+
+constructor(
+  private accountService: AccountService,
+  private router: Router
+) {}
+
+
+accountDetails(id: number): void {
+  this.router.navigate(['account-details', id]);
+}
+
+
+
+Step 2.5: Update Account List HTML
+
+<button
+  (click)="accountDetails(acc.id)"
+  class="btn btn-info">
+  View
+</button>
+
+
+Step 2.6: AccountDetailsComponent Code
+--------------------------------
+account-details.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Account } from '../model/account';
+import { AccountService } from '../services/account.service';
+
+
+@Component({
+  selector: 'app-account-details',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './account-details.component.html'
+})
+
+export class AccountDetailsComponent implements OnInit {
+
+  id: number = 0;
+  account: Account = new Account();
+
+
+  constructor(
+    private route: ActivatedRoute,
+    private accountService: AccountService
+  ) {}
+
+
+  ngOnInit(): void {
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.accountService.getAccountById(this.id).subscribe(data => {
+      this.account = data;
+    });
+  }
+}
+
+
+Step 2.7: Account Details HTML
+----------------------------------
+
+account-details.component.html
+
+<h3>View Account Details</h3>
+<div>
+  <div>
+    <label><b>Id:</b></label> {{ account.id }}
+  </div>
+  <div>
+    <label><b>Name:</b></label> {{ account.name }}
+  </div>
+
+  <div>
+    <label><b>Balance:</b></label> {{ account.balance }}
+  </div>
+
+  <div>
+    <label><b>Email:</b></label> {{ account.email }}
+  </div>
+
+  <div>
+    <label><b>Phone:</b></label> {{ account.phone }}
+  </div>
+</div>
+
+
+
+
+
+
+Step 3 – Create Account 
+----------------------------
+
+Step 3. 0: Update Account Service
+--------------------------------
+
+account.service.ts
+
+createAccount(account: Account) {
+  return this.http.post(this.baseUrl, account);
+}
+
+Step 3. 1: Create Create-Account Component
+----------------------------------------
+ng g c create-account --skip-tests --inline-style
+
+
+Step 3.2: Update Routing
+--------------------------
+app.routes.ts
+
+import { CreateAccountComponent } from './create-account/create-account.component';
+
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: 'create-account', component: CreateAccountComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
+];
+
+
+Step 3.3: Update Navbar 
+--------------------------
+
+app.component.html
+
+<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a routerLink="accounts"
+         routerLinkActive="active"
+         class="nav-link">
+        Account List
+      </a>
+    </li>
+
+
+    <li class="nav-item">
+      <a routerLink="create-account" routerLinkActive="active" class="nav-link">
+        Create Account
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<div class="text-center">
+  <router-outlet></router-outlet>
+</div>
+
+
+
+
+Step 3.4: Create empty Account object (form binding)
+----------------------------------------------
+create-account.component.ts
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Account } from '../model/account';
+import { AccountService } from '../services/account.service';
+
+
+@Component({
+  selector: 'app-create-account',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './create-account.component.html'
+})
+export class CreateAccountComponent {
+
+
+  account: Account = new Account();
+
+
+  constructor(private accountService: AccountService,private router: Router) {}
+
+  onSubmit(): void {
+    this.saveAccount();
+  }
+
+
+  saveAccount(): void {
+    this.accountService.createAccount(this.account).subscribe(() => {
+      this.goToAccountList();
+    });
+  }
+
+
+  goToAccountList(): void {
+    this.router.navigate(['/accounts']);
+  }
+}
+
+
+
+Step 3.5: Create Account Form
+--------------------------------
+create-account.component.html
+
+<div class="col-md-6 offset-md-3">
+  <h3>Create Account</h3>
+
+
+  <form (ngSubmit)="onSubmit()">
+
+
+    <div class="form-group">
+      <label>Name</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.name"
+        name="name">
+    </div>
+
+
+    <div class="form-group">
+      <label>Initial Balance</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="account.balance"
+        name="balance">
+    </div>
+
+
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        class="form-control"
+        [(ngModel)]="account.email"
+        name="email">
+    </div>
+
+
+    <div class="form-group">
+      <label>Phone</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.phone"
+        name="phone">
+    </div>
+
+
+    <br>
+
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+
+  </form>
+</div>
+
+Note:
+---------
+	=> Error:Can't bind to 'ngModel' since it isn't a known property of 'input'. (
+	=> dont forget to import FormsModule in CreateAccountComponent component
+
+
+
+
+
+
+
+
+Step 4 – Update Account holder email and phone
+-------------------------------------------------
+
+Step 4.0: Update Account Service
+-----------------------
+account.service.ts
+
+updateAccount(id: number, account: Account) {
+  return this.http.put(`${this.baseUrl}/${id}`, account);
+}
+
+
+
+Step 4. 1: Create Update Account Component
+
+ng g c update-account --skip-tests --inline-style
+
+Step 4. 2: Update Routing
+
+app.routes.ts
+
+import { UpdateAccountComponent } from './update-account/update-account.component';
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: 'create-account', component: CreateAccountComponent },
+  { path: 'update-account/:id', component: UpdateAccountComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
+];
+
+
+Step 4.3: Add Update Button (Account List)
+
+account-list.component.html
+
+<td>
+  <button
+    class="btn btn-info"
+    (click)="updateAccount(acc.id)">
+    Update
+  </button>
+</td>
+
+
+Step 4.4: Add Update Method
+
+account-list.component.ts
+
+updateAccount(id: number): void {
+  this.router.navigate(['update-account', id]);
+}
+
+
+Step 4.5: UpdateAccountComponent Code
+
+update-account.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Account } from '../model/account';
+import { AccountService } from '../services/account.service';
+
+
+@Component({
+  selector: 'app-update-account',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './update-account.component.html'
+})
+export class UpdateAccountComponent implements OnInit {
+
+
+  id: number = 0;
+  account: Account = new Account();
+
+
+  constructor(
+    private route: ActivatedRoute,
+    private accountService: AccountService,
+    private router: Router
+  ) {}
+
+
+  ngOnInit(): void {
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.accountService.getAccountById(this.id).subscribe(data => {
+      this.account = data;
+    });
+  }
+
+
+  onSubmit(): void {
+    this.accountService.updateAccount(this.id, this.account).subscribe(() => {
+      this.goToAccountList();
+    });
+  }
+
+
+  goToAccountList(): void {
+    this.router.navigate(['/accounts']);
+  }
+}
+
+
+Step 4.6: Update Account Form
+-----------------------------
+update-account.component.html
+
+<div class="col-md-6 offset-md-3">
+  <h3>Update Account</h3>
+
+  <p class="text-danger">
+    Name and Balance cannot be updated.
+  </p>
+
+  <form (ngSubmit)="onSubmit()">
+
+    <!-- Name (READ-ONLY) -->
+    <div class="form-group">
+      <label>Name</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.name"
+        name="name"
+        readonly>
+    </div>
+
+    <!-- Balance (READ-ONLY) -->
+    <div class="form-group">
+      <label>Balance</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="account.balance"
+        name="balance"
+        readonly>
+    </div>
+
+    <!-- Email (EDITABLE) -->
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        class="form-control"
+        [(ngModel)]="account.email"
+        name="email"
+        required>
+    </div>
+
+    <!-- Phone (EDITABLE) -->
+    <div class="form-group">
+      <label>Phone</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.phone"
+        name="phone"
+        required>
+    </div>
+
+    <br>
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+  </form>
+</div>
+
+Note:
+---------
+	=> Error:Can't bind to 'ngModel' since it isn't a known property of 'input'. (
+	=> dont forget to import FormsModule in UpdateAccountComponent component
+
+
+
+
+
+Step  5 – Delete Account 
+-------------------------------
+
+Step 5.1: Update Account Service
+
+account.service.ts
+deleteAccount(id: number) {
+  return this.http.delete(`${this.baseUrl}/${id}`);
+}
+
+Step 5.2: Add Delete Button (Account List)
+
+account-list.component.html
+
+<button
+  (click)="deleteAccount(acc.id)"
+  class="btn btn-danger"
+  style="margin-left: 10px">
+  Delete
+</button>
+
+
+Step 5.3: Add Delete Method in Component
+
+account-list.component.ts
+
+deleteAccount(id: number): void {
+  this.accountService.deleteAccount(id).subscribe(() => {
+    this.getAccounts();
+  });
+}
+
+
+Step 5.4: Ensure getAccounts() Exists
+
+account-list.component.ts
+
+getAccounts(): void {
+  this.accountService.getAllAccounts().subscribe(data => {
+    this.accounts = data;
+  });
+}
+
+
+
+
+
+Step  6 – Deposit operation
+-------------------------------
+
+Step 6.1: Create Deposit Component (no test, no CSS)
+----------------------------------------------
+ng g c deposit --skip-tests --inline-style
+
+
+Step 6.2: Create DepositRequest DTO (Angular)
+------------------------------
+Create file:
+
+ng g interface model/deposit-request
+
+export interface DepositRequest {
+  accountId: number;
+  amount: number;
+}
+Step 3: Update Routing
+
+app.routes.ts
+-------------------------
+import { DepositComponent } from './deposit/deposit.component';
+
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: 'create-account', component: CreateAccountComponent },
+  { path: 'update-account/:id', component: UpdateAccountComponent },
+  { path: 'deposit', component: DepositComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
+];
+
+Step 4: Update Navbar
+----------------------
+app.component.html
+
+<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a routerLink="accounts" routerLinkActive="active" class="nav-link">
+        Account List
+      </a>
+    </li>
+
+
+    <li class="nav-item">
+      <a routerLink="create-account" routerLinkActive="active" class="nav-link">
+        Create Account
+      </a>
+    </li>
+    
+    <li class="nav-item">
+      <a routerLink="deposit" routerLinkActive="active" class="nav-link">
+        Deposit
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<div class="text-center">
+  <router-outlet></router-outlet>
+</div>
+
+
+
+
+Step 5: Deposit Component Code
+-------------------------------
+deposit.component.ts
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AccountService } from '../services/account.service';
+import { DepositRequest } from '../dto/deposit-request';
+
+
+@Component({
+  selector: 'app-deposit',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './deposit.component.html'
+})
+export class DepositComponent {
+
+ accountId: number = 0;
+  amount: number = 0;
+
+  constructor(
+    private accountService: AccountService,
+    private router: Router
+  ) {}
+
+  onSubmit(): void {
+    const request: DepositRequest = {
+      accountId: this.accountId,
+      amount: this.amount
+    };
+
+    this.accountService.deposit(request).subscribe(() => {
+      this.router.navigate(['/accounts']);
+    });
+
+ 
+}
+Step 6: Deposit Form UI
+
+deposit.component.html
+--------------------------------
+dont forget to import form module FormsModule
+
+
+<div class="col-md-6 offset-md-3">
+  <h3>Deposit</h3>
+  <form (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label>Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="accountId"
+        name="accountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>Amount</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="amount"
+        name="amount"
+        required>
+    </div>
+
+    <br>
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+  </form>
+</div>
+
+
+Step 7: Update Account Service
+
+account.service.ts
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { DepositRequest } from '../dto/deposit-request';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AccountService {
+
+
+  private baseUrl = 'http://localhost:8090/bankapp/v1/accounts';
+
+  private baseUrl2 ='http://localhost:8090/bankapp/v1/transactions'
+
+  constructor(private http: HttpClient) {}
+
+  deposit(request: DepositRequest) {
+    return this.http.put<void>(`${this.baseUrl2}/deposit`, request);
+  }
+}
+
+
+
+
+
+
+Step 5: Withdraw Component Code
+-------------------------------
+
+Step 0: AccountService Method
+-------------------------------
+import { WithdrawRequest } from '../model/withdraw-request';
+
+
+withdraw(request: WithdrawRequest) {
+  return this.http.put<void>(`${this.baseUrl2}/withdraw`, request);
+}
+
+
+
+
+Step 1: Create Withdraw Component
+ng g c withdraw --skip-tests --inline-style
+
+
+Step 2: Create WithdrawRequest DTO
+---------------------------------------
+
+ng g interface model/withdraw-request
+
+src/app/model/withdraw-request.ts
+
+export interface WithdrawRequest {
+  accountId: number;
+  amount: number;
+}
+
+
+Step 3: Update Routing
+-----------------------------
+app.routes.ts
+
+import { WithdrawComponent } from './withdraw/withdraw.component';
+
+{ path: 'withdraw', component: WithdrawComponent },
+
+Add this route before the redirect.
+
+
+
+
+Step 4: Update Navbar app.component.html
+------------------------------
+
+Add this inside <ul>:
+
+<li class="nav-item">
+  <a routerLink="withdraw" routerLinkActive="active" class="nav-link">
+    Withdraw
+  </a>
+</li>
+
+
+
+
+
+Step 5: Withdraw Component Logic
+----------------------------
+withdraw.component.ts
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AccountService } from '../services/account.service';
+import { WithdrawRequest } from '../model/withdraw-request';
+
+
+@Component({
+  selector: 'app-withdraw',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './withdraw.component.html'
+})
+export class WithdrawComponent {
+
+
+  accountId: number = 0;
+  amount: number = 0;
+
+
+  constructor(
+    private accountService: AccountService,
+    private router: Router
+  ) {}
+
+
+  onSubmit(): void {
+    const request: WithdrawRequest = {
+      accountId: this.accountId,
+      amount: this.amount
+    };
+
+
+    this.accountService.withdraw(request).subscribe(() => {
+      this.router.navigate(['/accounts']);
+    });
+  }
+}
+
+
+Step 6:  Withdraw Form UI
+---------------------------
+withdraw.component.html
+dont forget to import form module FormsModule
+
+
+<div class="col-md-6 offset-md-3">
+  <h3>Withdraw</h3>
+
+
+  <form (ngSubmit)="onSubmit()">
+
+
+    <div class="form-group">
+      <label>Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="accountId"
+        name="accountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>Amount</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="amount"
+        name="amount"
+        required>
+    </div>
+
+
+    <br>
+
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+
+  </form>
+</div>
+
+
+
+
+
+
+Step 5: Transfer Component Code
+---------------------------------
+
+Step 1: Create Transfer Component
+--------------------------------------
+ng g c transfer --skip-tests --inline-style
+
+
+
+Step 2: Create TransferRequest DTO
+-----------------------------------
+ng g interface model/transfer-request
+
+export interface TransferRequest {
+  fromAccountId: number;
+  toAccountId: number;
+  amount: number;
+}
+
+
+
+Step 3: Update Navbar app.component.html
+-------------------------------------
+Add this inside <ul>:
+
+<li class="nav-item">
+  <a routerLink="transfer" routerLinkActive="active" class="nav-link">
+    Transfer
+  </a>
+</li>
+
+
+
+Step 4: Transfer Component Logic
+-------------------------------
+
+transfer.component.ts
+----------------------
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AccountService } from '../services/account.service';
+import { TransferRequest } from '../model/transfer-request';
+
+
+@Component({
+  selector: 'app-transfer',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './transfer.component.html'
+})
+export class TransferComponent {
+
+
+  fromAccountId: number = 0;
+  toAccountId: number = 0;
+  amount: number = 0;
+
+
+  constructor(
+    private accountService: AccountService,
+    private router: Router
+  ) {}
+
+
+  onSubmit(): void {
+    const request: TransferRequest = {
+      fromAccountId: this.fromAccountId,
+      toAccountId: this.toAccountId,
+      amount: this.amount
+    };
+
+
+    this.accountService.transfer(request).subscribe(() => {
+      this.router.navigate(['/accounts']);
+    });
+  }
+}
+
+
+Step 5: Update Routing
+------------------------
+
+app.routes.ts
+-----------------
+import { TransferComponent } from './transfer/transfer.component';
+
+{ path: 'transfer', component: TransferComponent },
+
+Add this route before the redirect.
+
+
+
+Step 6: Transfer Form UI
+---------------------------
+transfer.component.html
+-------------------------
+dont forget to import form module FormsModule
+
+<div class="col-md-6 offset-md-3">
+  <h3>Transfer</h3>
+
+
+  <form (ngSubmit)="onSubmit()">
+
+
+    <div class="form-group">
+      <label>From Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="fromAccountId"
+        name="fromAccountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>To Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="toAccountId"
+        name="toAccountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>Amount</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="amount"
+        name="amount"
+        required>
+    </div>
+
+
+    <br>
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+
+  </form>
+</div>
+
+
+
+Step 7: AccountService Method
+--------------------------------
+import { TransferRequest } from '../model/transfer-request';
+
+
+transfer(request: TransferRequest) {
+  return this.http.put<void>(`${this.baseUrl2}/transfer`, request);
+}
+
+
+
+
+
+
+
+
+
+angular security application:
+------------------------------------
+
+step 1:Create authentication service:
+---------------------------------------------
+=> Create a new authentication service where we check if the user name and password is correct then set it in session storage.
+
+=> Using sessionStorage properties we can save key/value pairs in a web browser.
+The sessionStorage object stores data for only one session.
+So the data gets deleted if the browser is closed.
+
+authenticate() Authenticate the username and password  
+isUserLoggedIn() - checks the session storage if user name exists. If it does then return true  
+logout() - This method clears the session storage of user name
+Command to create service
+
+
+ng g s services/authentication --skip-tests
+
+authentication.service.ts
+----------------------------------
+import { Injectable } from '@angular/core';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthenticationService {
+
+  authenticate(username: string, password: string): boolean {
+
+    // hardcoded credentials
+    if (username === 'admin' && password === 'admin123') {
+      sessionStorage.setItem('authenticatedUser', username);
+      return true;
+    }
+
+
+    return false;
+  }
+
+
+  isUserLoggedIn(): boolean {
+    const user = sessionStorage.getItem('authenticatedUser');
+    return !(user === null);
+  }
+
+
+  logout(): void {
+    sessionStorage.removeItem('authenticatedUser');
+  }
+}
+
+
+step 2: Create login component:
+--------------------------
+ng g c login --skip-tests --inline-style
+
+
+login.component.ts
+-----------------------
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthenticationService } from '../services/authentication.service';
+
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './login.component.html'
+})
+export class LoginComponent {
+
+
+  username: string = '';
+  password: string = '';
+  error: string = '';
+
+
+  constructor(
+    private authService: AuthenticationService,
+    private router: Router
+  ) {}
+
+
+  onSubmit(): void {
+
+
+    const success = this.authService.authenticate(this.username, this.password);
+
+
+    if (success) {
+      this.router.navigate(['/accounts']);
+    } else {
+      this.error = 'Invalid username or password';
+    }
+  }
+}
+
+
+
+
+login.component.html
+---------------------
+dont forget to import FormsModule
+---------------------------------
+
+<div class="col-md-4 offset-md-4">
+    <h3>Login</h3>
+
+    <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" class="form-control" [(ngModel)]="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" [(ngModel)]="password" name="password" required>
+        </div>
+
+        <div class="text-danger" *ngIf="error">
+            {{ error }}
+        </div>
+
+        <br>
+        <button type="submit" class="btn btn-success">
+            Login
+        </button>
+    </form>
+</div>
+
+
+
+
+step 3: Create route guard
+------------------------------
+
+ng g guard guards/auth --skip-tests
+
+Choose: CanActivate
+
+
+auth.guard.ts
+--------------------
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthenticationService } from '../services/authentication.service';
+
+
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AuthenticationService);
+  const router = inject(Router);
+
+
+  if (authService.isUserLoggedIn()) {
+    return true;
+  }
+
+  router.navigate(['/login']);
+  return false;
+};
+
+
+step 4: Update routing (protect bank routes)
+----------------------------
+app.routes.ts
+-------------------
+import { LoginComponent } from './login/login.component';
+import { authGuard } from './guards/auth.guard';
+
+
+export const routes: Routes = [
+
+
+  { path: 'login', component: LoginComponent },
+
+  { path: 'accounts', component: AccountListComponent, canActivate: [authGuard] },
+  { path: 'account-details/:id', component: AccountDetailsComponent, canActivate: [authGuard] },
+  { path: 'create-account', component: CreateAccountComponent, canActivate: [authGuard] },
+  { path: 'update-account/:id', component: UpdateAccountComponent, canActivate: [authGuard] },
+  { path: 'deposit', component: DepositComponent, canActivate: [authGuard] },
+  { path: 'withdraw', component: WithdrawComponent, canActivate: [authGuard] },
+  { path: 'transfer', component: TransferComponent, canActivate: [authGuard] },
+
+
+  { path: '', redirectTo: 'login', pathMatch: 'full' }
+];
+
+
+
+
+
+step 5:Add logout button in navbar
+------------------------------
+app.component.html
+
+Add inside <ul>:
+
+<li class="nav-item">
+  <button class="btn btn-danger" (click)="logout()">
+    Logout
+  </button>
+</li>
+
+
+
+step 6:Logout logic
+------------------------
+
+app.component.ts
+
+import { Component } from '@angular/core';
+import { RouterOutlet, Router } from '@angular/router';
+import { AuthenticationService } from './services/authentication.service';
+
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet],
+  templateUrl: './app.component.html'
+})
+export class AppComponent {
+
+
+  constructor(
+    private authService: AuthenticationService,
+    private router: Router
+  ) {}
+
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}
+
+
+
+
+
+
+Step : Now check it with Hardcoded credentials:
+------------------------------------------
+username: admin
+password: admin123
+
+
+
+
+
+
+
+
+
+Now with JWT
+------------
+PART 10 – JWT Authentication
+-------------------------
+
+step 1: Modify authentication service
+---------------------------------------
+services/authentication.service.ts
+
+Replace old service code with this:
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthenticationService {
+  private authUrl = 'http://localhost:8090/bankapp/authenticate';
+
+  constructor(private http: HttpClient) {}
+
+  authenticate(username: string, password: string): Observable<any> {
+    const body = {
+      username: username,
+      password: password
+    };
+
+    return this.http.post<any>(this.authUrl, body).pipe(
+      tap(response => {
+        // assuming backend returns { token: "..." }
+        sessionStorage.setItem('token', response.token);
+        sessionStorage.setItem('authenticatedUser', username);
+      })
+    );
+  }
+
+
+  isUserLoggedIn(): boolean {
+    return sessionStorage.getItem('token') !== null;
+  }
+
+
+  getToken(): string | null {
+    return sessionStorage.getItem('token');
+  }
+
+
+  logout(): void {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('authenticatedUser');
+  }
+}
+
+
+step 2: Modify login component
+---------------------------------
+login.component.ts
+
+Replace only onSubmit() method:
+--------------------------------
+
+onSubmit(): void {
+  this.authService
+    .authenticate(this.username, this.password)
+    .subscribe({
+      next: () => this.router.navigate(['/accounts']),
+      error: () => this.error = 'Invalid username or password'
+    });
+}
+
+
+
+
+step 3: Create JWT interceptor
+-------------------------------
+
+ng g interceptor interceptors/jwt --skip-tests
+
+step 4: JWT interceptor code
+
+interceptors/jwt.interceptor.ts
+
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthenticationService } from '../services/authentication.service';
+
+
+export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+
+  const authService = inject(AuthenticationService);
+  const token = authService.getToken();
+
+  if (token) {
+    const cloned = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return next(cloned);
+  }
+
+  return next(req);
+};
+
+
+
+
+step 5: Register interceptor
+----------------------------
+
+app.config.ts
+--------------
+Add interceptor to providers.
+---------------------------
+
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { jwtInterceptor } from './interceptors/jwt.interceptor';
+
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([jwtInterceptor]))
+  ]
+};
+
+
+step 6: No change in routes or guard
+---------------------------------------
+Your existing guard stays same:
+
+isUserLoggedIn(): boolean {
+  return sessionStorage.getItem('token') !== null;
+}
+
+
+Step 7: change to spring boot filter
+-------------------------------------
+first rather then returning string token return :
+-------------------------------------------------
+@Data
+@AllArgsConstructor
+public class AuthResponse {
+    private String token;
+}
+
+ie change the hello controller
+------------------------------
+@PostMapping(path = "authenticate")
+	public AuthResponse authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), 
+						authRequest.getPassword()));
+		//authentication i need to validate this object
+        if(authentication.isAuthenticated()){
+            return new AuthResponse(jwtService.generateToken(userDetailsService.loadUserByUsername(authRequest.getUsername())));
+        }else {
+            throw  new UsernameNotFoundException("user is invalid");
+        }
+	}
+	
+then change the filter
+--------------------
+@Component
+public class SimpleCorsFilter implements Filter {
+
+    @Override
+    public void doFilter(
+            ServletRequest request,
+            ServletResponse response,
+            FilterChain chain) {
+
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
+
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+        res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+
+        // IMPORTANT: handle preflight request
+        if ("OPTIONS".equalsIgnoreCase(req.getMethod())) {
+            res.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
+        try {
+            chain.doFilter(request, response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+
+
+
+Add OPTIONS handling
+--------------
+Modify filter:
+-------------
+if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+    res.setStatus(HttpServletResponse.SC_OK);
+    return;
+}
+
+Place this before chain.doFilter.
+
+That handles preflight requests.
