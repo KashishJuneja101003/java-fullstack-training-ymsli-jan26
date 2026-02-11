@@ -1,0 +1,230 @@
+Creating collections, document, storing data etc:
+______________________________________________________
+
+
+show dbs 		// List all databases
+use rajdb 		//Switches to inventory
+show collections  	//List all tables in the current selected database
+
+Creating collections, document, storing data etc
+__________________________________________
+
+RDBMS 	MongoDB
+-------------------
+Table 	<--->	Collection
+Column 	<--->	Key
+Value 	<--->	Value
+Records/Rows<--->Document/Object
+
+
+how to create and use database
+--------------------
+use rajdb;	// create as well switch to rajdb
+
+how to drop databse?
+-------------------
+db.dropDatabase();
+
+
+Create / insert single product documents
+---------------------------
+db.product.insertOne({
+    "name": "Laptop",
+    "price": 55000
+});
+
+db.product.insertOne({
+    "name": "Mobile",
+    "price": 25000
+});
+
+db.product.insertOne({
+    "name": "Headphones",
+    "price": 3000
+});
+
+Insert multiple product documents
+-------------------------------
+db.product.insertMany([
+    {
+        "name": "Keyboard",
+        "price": 1500
+    },
+    {
+        "name": "Mouse",
+        "price": 800
+    },
+    {
+        "name": "Monitor",
+        "price": 12000
+    },
+    {
+        "name": "Printer",
+        "price": 18000
+    },
+    {
+        "name": "Scanner",
+        "price": 22000
+    }
+]);
+
+Fetch all products
+---------------------
+db.product.find();
+
+db.product.find().pretty();
+
+
+Drop product collection
+-------------------
+db.product.drop();
+
+
+Drop database
+-------------------
+db.dropDatabase();
+
+
+
+UPDATE examples
+-------------------
+Update product price (single document)
+-----------------------------
+
+db.product.updateOne(
+    { "name": "Laptop" },
+    { $set: { "price": 60000 } }
+);
+
+db.product.updateOne(
+    { "_id": ObjectId("65a7c9e2f1a3b2c4d5e6f789") },
+    { $set: { "price": 60000 } }
+);
+
+
+Update multiple products (bulk update)
+---------------------------------------
+
+db.product.updateMany(
+    { "price": { $lt: 2000 } },
+    { $set: { "price": 2000 } }
+);
+
+Replace entire document (except _id)
+-----------------------------------
+db.product.replaceOne(
+    { "name": "Mouse" },
+    {
+        "name": "Wireless Mouse",
+        "price": 1200
+    }
+);
+
+DELETE examples
+-------------------
+Delete one product
+-------------------
+db.product.deleteOne(
+    { "name": "Printer" }
+);
+
+Delete multiple products
+---------------------------
+db.product.deleteMany(
+    { "price": { $gt: 50000 } }
+);
+
+Delete all products ( irreversible)
+---------------------------
+db.product.deleteMany({});
+
+Verify data
+-----------------
+db.product.find().pretty();
+
+
+
+Spring Data Mongodb 
+--------------------
+MONGODB DOMAIN (MongoRepository)
+--------------------
+Document
+--------------
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.math.BigDecimal;
+
+@Document(collection = "product")
+public class Product {
+
+    @Id
+    private String id;   // MongoDB ObjectId → String
+
+    private String name;
+    private BigDecimal price;
+
+    // getters/setters
+}
+
+Repository
+import org.springframework.data.mongodb.repository.MongoRepository;
+import java.math.BigDecimal;
+import java.util.List;
+
+public interface ProductRepository extends MongoRepository<Product, String> {
+    List<Product> findByName(String name);
+    List<Product> findByPriceGreaterThan(BigDecimal price);
+    List<Product> findByPriceBetween(BigDecimal min, BigDecimal max);
+}
+
+Custom Mongo Query (example)
+-----------------
+import org.springframework.data.mongodb.repository.Query;
+
+Give me all products whose price is less than the value I pass to the method.
+------------------------------------------------------------------------
+@Query("{ price: { $lt: ?0 } }")
+List<Product> findCheapProducts(BigDecimal price);
+
+db.product.find({ price: { $lt: 10000 } });
+
+
+Products with price greater than the given value.
+------------------------------------------
+@Query("{ price: { $gt: ?0 } }")
+List<Product> findExpensiveProducts(BigDecimal price);
+
+
+db.product.find({ price: { $gt: 50000 } });
+
+
+Products with price greater than the given value
+----------------------------------------
+@Query("{ price: { $gt: ?0 } }")
+List<Product> findExpensiveProducts(BigDecimal price);
+
+
+db.product.find({ price: { $gt: 50000 } });
+
+
+Products priced between min and max (inclusive).
+Price between range
+-----------------------------------------
+@Query("{ price: { $gte: ?0, $lte: ?1 } }")
+List<Product> findByPriceRange(BigDecimal min, BigDecimal max);
+
+
+db.product.find({
+    price: { $gte: 10000, $lte: 30000 }
+});
+
+
+
+What you should remember
+--------------------
+	JPA → SQL DB only
+	MongoRepository → MongoDB only
+	@Entity ❌ with Mongo
+	@Document ❌ with JPA
+	id → Integer/Long for JPA
+	id → String for MongoDB 
