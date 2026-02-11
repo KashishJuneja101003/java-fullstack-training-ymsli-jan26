@@ -16,6 +16,24 @@ import com.productapp.exceptions.ProductNotFoundException;
 @RestControllerAdvice
 public class ExceptionHandlerController {
 
+	@Value("${PRODUCT_NOT_FOUND_MESSAGE}")
+	private String errorMessage404;
+	
+	@Value("${INTERNAL_SERVER_ERROR_MESSAGE}")
+	private String errorMessage500;
+	
+//	@ExceptionHandler(Exception.class)
+//	public ResponseEntity<ErrorInfo> handle500(Exception e) {
+//		ErrorInfo errorInfo=new ErrorInfo(errorMessage500, HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+//				"it@yamlsi.com", LocalDateTime.now());
+//		
+//		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorInfo);
+//	}
+//	
+	//ProductNotFoundException
+	
+	
+	//MethodArgumentNotValidException
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorInfo> handle400(MethodArgumentNotValidException e) {
 		String errorMessage= e.getBindingResult()
@@ -40,5 +58,10 @@ public class ExceptionHandlerController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorInfo);
 	}
 	
-
+	
+	
+//	@ExceptionHandler(ProductNotFoundException.class)
+//	public ResponseEntity<String> handle404(ProductNotFoundException e) {
+//		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+//	}
 }

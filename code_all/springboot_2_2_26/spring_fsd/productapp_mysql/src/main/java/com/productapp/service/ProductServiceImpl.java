@@ -9,11 +9,14 @@ import com.productapp.dto.Product;
 import com.productapp.exceptions.ProductNotFoundException;
 import com.productapp.repo.ProductRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class ProductServiceImpl implements ProductService {
 
 	private ProductRepo productRepo;
-
+	
 	@Autowired
 	public ProductServiceImpl(ProductRepo productRepo) {
 		this.productRepo = productRepo;
@@ -25,9 +28,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Product getById(String id) {
+	public Product getById(int id) {
 		return productRepo.findById(id)
-				.orElseThrow(() -> new ProductNotFoundException("product with id " + id + " is not found"));
+				.orElseThrow(()-> new ProductNotFoundException("product with id "+ id +" is not found"));
 	}
 
 	@Override
@@ -37,18 +40,18 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Product deteteProduct(String id) {
-		Product productToDelete = getById(id);
+	public Product deteteProduct(int id) {
+		Product productToDelete= getById(id);
 		productRepo.delete(productToDelete);
 		return null;
 	}
 
 	@Override
-	public Product updateProduct(String id, Product product) {
-		Product productToUpdate = getById(id);
+	public Product updateProduct(int id, Product product) {
+		Product productToUpdate= getById(id);
 		productToUpdate.setPrice(product.getPrice());
 		productRepo.save(productToUpdate);
-
+		
 		return productToUpdate;
 	}
 

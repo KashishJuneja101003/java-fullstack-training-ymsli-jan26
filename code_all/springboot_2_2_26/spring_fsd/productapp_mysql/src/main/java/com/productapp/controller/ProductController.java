@@ -42,18 +42,18 @@ public class ProductController {
 	}
 
 	@GetMapping("products/{id}")
-	public ResponseEntity<Product> getById(@PathVariable(name = "id") String id) {
+	public ResponseEntity<Product> getById(@PathVariable(name = "id") int id) {
 		return ResponseEntity.status(HttpStatus.OK).body(productService.getById(id));
 	}
 
 	@DeleteMapping("products/{id}")
-	public ResponseEntity<Void> deleteById(@PathVariable(name = "id") String id) {
+	public ResponseEntity<Void> deleteById(@PathVariable(name = "id") int id) {
 		productService.deteteProduct(id);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 	@PutMapping("products/{id}")
-	public ResponseEntity<Product> updateById(@PathVariable(name = "id") String id, @RequestBody Product product) {
+	public ResponseEntity<Product> updateById(@PathVariable(name = "id") int id, @RequestBody Product product) {
 		Product updateProduct = productService.updateProduct(id, product);
 		return ResponseEntity.status(HttpStatus.OK).body(updateProduct);
 	}
@@ -63,3 +63,41 @@ public class ProductController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(productService.addProduct(product));
 	}
 }
+
+//@RestController
+//public class ProductController {
+//	
+//	private ProductService productService;
+//
+//	@Autowired
+//	public ProductController(ProductService productService) {
+//		this.productService = productService;
+//	}
+//	
+//	
+//	@GetMapping("products")
+//	public List<Product> getAll(){
+//		return productService.getAll();
+//	}
+//	
+//
+//	@GetMapping("products/{id}")
+//	public Product getById(@PathVariable(name = "id") int id){
+//		return productService.getById(id);
+//	}
+//	
+//	@DeleteMapping("products/{id}")
+//	public Product deleteById(@PathVariable(name = "id") int id){
+//		return productService.deteteProduct(id);
+//	}
+//	
+//	@PutMapping("products/{id}")
+//	public Product updateById(@PathVariable(name = "id") int id,@RequestBody Product product){
+//		return productService.updateProduct(id, product);
+//	}
+//	
+//	@PostMapping("products")
+//	public Product addProduct(@RequestBody Product product){
+//		return productService.addProduct(product);
+//	}
+//}

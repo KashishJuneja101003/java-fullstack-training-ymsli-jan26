@@ -6,9 +6,9 @@ import com.productapp.dto.Product;
 
 public interface ProductService {
 	public List<Product> getAll();
-	public Product getById(String id);
+	public Product getById(int id);
 	public Product addProduct(Product product);
-	public Product deteteProduct(String id);
-	public Product updateProduct(String id,Product product);
+	public Product deteteProduct(int id);
+	public Product updateProduct(int id,Product product);
 	
 }

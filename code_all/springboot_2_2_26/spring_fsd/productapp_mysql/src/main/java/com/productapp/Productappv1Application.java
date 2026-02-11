@@ -24,8 +24,8 @@ public class Productappv1Application implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		productRepo.save(new Product("Laptop", BigDecimal.valueOf(78900.00)));
-		productRepo.save(new Product("Laptop stand", BigDecimal.valueOf(700.00)));
+//		productRepo.save(new Product("Laptop", BigDecimal.valueOf(78900.00)));
+//		productRepo.save(new Product("Laptop stand", BigDecimal.valueOf(700.00)));
 	}
 }
 
