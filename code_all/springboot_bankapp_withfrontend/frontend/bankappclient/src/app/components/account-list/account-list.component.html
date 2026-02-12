@@ -1,0 +1,28 @@
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Balance</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+
+  <tbody>
+    <tr *ngFor="let acc of accounts">
+      <td>{{ acc.id }}</td>
+      <td>{{ acc.name }}</td>
+      <td>{{ acc.balance }}</td>
+      <td>{{ acc.email }}</td>
+      <td>{{ acc.phone }}</td>
+      <td>
+        <button class="btn btn-info">View</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+

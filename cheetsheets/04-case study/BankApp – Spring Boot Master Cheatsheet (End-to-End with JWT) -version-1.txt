@@ -281,6 +281,8 @@ allow basic transactions opertions on accounts
 
 step : let first create dto with naming convesions XXXRequest XXXResponse
 -----------------------------------------------------------------------------
+records: immutable 
+
 public record DepositRequest(Integer accountId,BigDecimal amount) {}
 
 public record TransferRequest (
@@ -859,6 +861,8 @@ public class SecurityBeansConfig {
 }
 
 
+
+
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
@@ -909,7 +913,25 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint{
 
 
 
+Security configuration:
+---------------------------
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import lombok.AllArgsConstructor;
 
 @Configuration
 @EnableWebSecurity(debug = true) // Spring sec aop
@@ -955,9 +977,9 @@ public class SecConfig {
 
 
 
-
 JwtAuthFilter
 -------------------------
+import java.io.IOException;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -1014,12 +1036,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		}
 		filterChain.doFilter(request, response);
 	}
-}
 
 
 JwtService
 --------------------
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -1118,6 +1138,37 @@ public class JwtService {
 }
 
 
+CorsConfig
+---------------
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+@Configuration
+public class CorsConfig {
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+}
 
 Finally hello world controller:
 ----------------------------------
@@ -1275,469 +1326,990 @@ Otherwise → 403 Forbidden
 
 
 
+Angular Banking Application Cheatsheet
+============================================
 
-
-angular security application:
-----------------------------
-
-step 1:
-Create  authentication service:
--------------------------------
-	=> Create a new authentication service where we check if the user name and password is 
-	correct then set it in session storage. 
-
-	=> Using sessionStorage properties we can save key/value pairs in a web browser.
-	 The sessionStorage object stores data for only one session . 
-	So the data gets deleted if the browser is closed
-
-	authenticate() Authenticate the username and password
-	isUserLoggedIn() -checks the session storage if user name exists. If it does then return true
-	logout()- This method clears the session storage of user name
+Session 1: Spring boot Angular Integration without Security and Joins
+----------------------------------------------------------------------
+Step 1: Displaying All Accounts
+Step 2: Account Details
+Step 4 –Add new account
+Step 4 –Update Account holder email and phone
 
 
 
-ng g s authentication
 
 
-import { Injectable } from '@angular/core';
+Step 1: Displaying All Accounts
+--------------------------------
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthenticationService {
+STEP 1.1: Create Angular Project
 
-  constructor() { }
+ng new bankappclient --standalone --routing --style=css
 
-  authenticate(username:string, password:string) {
-    if (username === "raj" && password === "raj123") {
-      sessionStorage.setItem('username', username)
-      return true;
-    } else {
-      return false;
-    }
-  }
+check it is running
+ng serve --open
 
-  isUserLoggedIn() {
-    let user = sessionStorage.getItem('username')
-    console.log(!(user === null))
-    return !(user === null)
-  }
 
-  logOut() {
-    sessionStorage.removeItem('username')
-  }
+update app.component.html, delete all crap
+---------------------
+<h1>Hello, {{ title }}</h1>
+<router-outlet />
+
+
+STEP 1.2: Add Bootstrap
+
+index.html
+-----------
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+Test:
+------------
+<h1 class="text-center">Hello, {{ title }}</h1>
+<router-outlet />
+
+
+
+STEP 1.3: Create Account Model
+--------------------------
+
+
+ng g class models/account
+
+account.ts
+-------------
+export class Account {
+  id: number = 0;
+  name: string = '';
+  balance: number = 0;
+  email: string = '';
+  phone: string = '';
 }
 
+STEP 1.4: Create Account List Component
+-----------------------------------------
+ng g c account-list --skip-tests --inline-style
 
 
 
+STEP 1.5: Account List HTML
+-----------------------------
+account-list.component.html
 
-step 2: create a login component:
-------------------------------
-ng g c login
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Balance</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+
+  <tbody>
+    <tr *ngFor="let acc of accounts">
+      <td>{{ acc.id }}</td>
+      <td>{{ acc.name }}</td>
+      <td>{{ acc.balance }}</td>
+      <td>{{ acc.email }}</td>
+      <td>{{ acc.phone }}</td>
+      <td>
+        <button class="btn btn-info">View</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthenticationService } from '../authentication.service';
+account-list.component.html
+----------------------
+don't forget to import CommonModule otherwise *ngFor will not work
+
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+	 ..........
+  imports: [CommonModule],   //  ADD HERE
 })
+export class AccountListComponent {}
 
-export class LoginComponent implements OnInit {
 
-  username: string = 'raj'
-  password: string = ''
-  invalidLogin = false
 
-  constructor(private router: Router,
-    private loginservice: AuthenticationService) { }
 
-  ngOnInit() {
-  }
+STEP 1.6: Account List Component (hardcoded first)
+-------------------------------------------------
+account-list.component.ts
 
-  checkLogin() {
-    if (this.loginservice.authenticate(this.username, this.password)) {
-      this.router.navigate([''])
-      this.invalidLogin = false
-    } else
-      this.invalidLogin = true
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Account } from '../model/account';
+
+
+@Component({
+  selector: 'app-account-list',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './account-list.component.html'
+})
+export class AccountListComponent implements OnInit {
+
+
+  accounts: Account[] = [];
+
+
+  ngOnInit(): void {
+    this.accounts = [
+      {
+        id: 1,
+        name: 'Raj',
+        balance: 50000,
+        email: 'raj@gmail.com',
+        phone: '9999999999'
+      },
+      {
+        id: 2,
+        name: 'Amit',
+        balance: 120000,
+        email: 'amit@gmail.com',
+        phone: '8888888888'
+      }
+    ];
   }
 }
 
 
-from: (dont forget FormsModule module)
---------
 
-<div class="container">
-  <div>
-    User Name : <input type="text" name="username" [(ngModel)]="username">
-    Password : <input type="password" name="password" [(ngModel)]="password">
-  </div>
-  <button (click)=checkLogin() class="btn btn-success">
-    Login
-  </button>
+STEP 1.7: Configure Routing
+-----------------------------
+app.routes.ts
+
+import { Routes } from '@angular/router';
+import { AccountListComponent } from './account-list/account-list.component';
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
+];
+
+
+
+STEP 1.8: Update app.component.ts
+----------------------------------
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterModule],
+  templateUrl: './app.component.html'
+})
+export class AppComponent {}
+
+
+STEP 1.9: app.component.html
+---------------------------
+<div class="text-center">
+  <router-outlet></router-outlet>
 </div>
 
 
 
-Add the login path to the routing module.
------------------------------
 
-import { LoginComponent } from './login/login.component';
+STEP 1.10: Create Account Service
+-------------------------------
+ng g s services/account
 
-const routes: Routes = [
-  
-  { path: 'login', component: LoginComponent },
+
+STEP 1.11: Provide HttpClient
+--------------------------------
+app.config.ts
+
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient()
+  ]
+};
+
+
+
+
+STEP 1.12: Account Service (REAL BACKEND)
+----------------------------------
+account.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Account } from '../model/account';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AccountService {
+  private baseUrl = 'http://localhost:8090/bankapp/v1/accounts';
+
+  constructor(private http: HttpClient) {}
+
+  getAllAccounts(): Observable<Account[]> {
+    return this.http.get<Account[]>(this.baseUrl);
+  }
+
+  createAccount(account: Account) {
+    return this.http.post(this.baseUrl, account);
+  }
+}
+
+
+STEP 1.13: Connect Service to List Component
+-------------------------------------------
+import { AccountService } from '../services/account.service';
+
+
+constructor(private accountService: AccountService) {}
+ngOnInit(): void {
+  this.getAccounts();
+}
+
+getAccounts(): void {
+  this.accountService.getAllAccounts().subscribe(data => {
+    this.accounts = data;
+  });
+}
+
+STEP 1.14: We can see all account to the screen integration is working
+-----------------------------------------------
+
+
+Step 2:  Account Details
+--------------------------------
+Step 2.1: Update Account Service
+
+account.service.ts
+-------------------------
+getAccountById(id: number) {
+  return this.http.get<Account>(`${this.baseUrl}/${id}`);
+}
+
+
+Step 2. 2: Create Account Details Component
+-----------------------------------------------
+ng g c account-details --skip-tests --inline-style
+
+
+Step 2.3: Update Routing
+
+app.routes.ts
+------------
+import { AccountDetailsComponent } from './account-details/account-details.component';
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
 ];
 
+Same pattern as employee-details/:id
 
 
+Step 2.4: Add View Button Action (List Page)
+-------------------------------------------
+account-list.component.ts
 
-
-Create a Logout Component
----------------------------
-ng g c logout
-
-
-import { Component, OnInit } from '@angular/core';
-import { AuthenticationService } from '../authentication.service';
 import { Router } from '@angular/router';
 
-@Component({
-  selector: 'app-logout',
-  templateUrl: './logout.component.html',
-  styleUrls: ['./logout.component.css']
-})
-export class LogoutComponent implements OnInit {
 
-  constructor( private authentocationService: AuthenticationService,private router: Router) {
+constructor(
+  private accountService: AccountService,
+  private router: Router
+) {}
 
-  }
 
-  ngOnInit() {
-    this.authentocationService.logOut();
-    this.router.navigate(['login']);
-  }
-
+accountDetails(id: number): void {
+  this.router.navigate(['account-details', id]);
 }
 
 
-add logout path to rountes:
-------------------------
-import { LogoutComponent } from './logout/logout.component';
+
+Step 2.5: Update Account List HTML
+
+<button
+  (click)="accountDetails(acc.id)"
+  class="btn btn-info">
+  View
+</button>
 
 
-const routes: Routes = [
+Step 2.6: AccountDetailsComponent Code
+--------------------------------
+account-details.component.ts
 
-  { path: 'logout', component: LogoutComponent },
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Account } from '../model/account';
+import { AccountService } from '../services/account.service';
+
+
+@Component({
+  selector: 'app-account-details',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './account-details.component.html'
+})
+
+export class AccountDetailsComponent implements OnInit {
+
+  id: number = 0;
+  account: Account = new Account();
+
+
+  constructor(
+    private route: ActivatedRoute,
+    private accountService: AccountService
+  ) {}
+
+
+  ngOnInit(): void {
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.accountService.getAccountById(this.id).subscribe(data => {
+      this.account = data;
+    });
+  }
+}
+
+
+Step 2.7: Account Details HTML
+----------------------------------
+
+account-details.component.html
+
+<h3>View Account Details</h3>
+<div>
+  <div>
+    <label><b>Id:</b></label> {{ account.id }}
+  </div>
+  <div>
+    <label><b>Name:</b></label> {{ account.name }}
+  </div>
+
+  <div>
+    <label><b>Balance:</b></label> {{ account.balance }}
+  </div>
+
+  <div>
+    <label><b>Email:</b></label> {{ account.email }}
+  </div>
+
+  <div>
+    <label><b>Phone:</b></label> {{ account.phone }}
+  </div>
+</div>
+
+
+
+
+
+
+Step 3 – Create Account 
+----------------------------
+
+Step 3. 0: Update Account Service
+--------------------------------
+
+account.service.ts
+
+createAccount(account: Account) {
+  return this.http.post(this.baseUrl, account);
+}
+
+Step 3. 1: Create Create-Account Component
+----------------------------------------
+ng g c create-account --skip-tests --inline-style
+
+
+Step 3.2: Update Routing
+--------------------------
+app.routes.ts
+
+import { CreateAccountComponent } from './create-account/create-account.component';
+
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: 'create-account', component: CreateAccountComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
 ];
 
 
+Step 3.3: Update Navbar 
+--------------------------
 
-
-Modify existing header component to add login , logout menu options
-------------------------------------------------------------------------
+app.component.html
 
 <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
   <ul class="navbar-nav">
+    <li class="nav-item">
+      <a routerLink="accounts"
+         routerLinkActive="active"
+         class="nav-link">
+        Account List
+      </a>
+    </li>
+
 
     <li class="nav-item">
-      <a routerLink="login" routerLinkActive="active" class="nav-link">Login</a>
-    </li>
-    <li class="nav-item">
-      <a routerLink="logout" routerLinkActive="active" class="nav-link">Logout</a>
+      <a routerLink="create-account" routerLinkActive="active" class="nav-link">
+        Create Account
+      </a>
     </li>
   </ul>
 </nav>
 
+<div class="text-center">
+  <router-outlet></router-outlet>
+</div>
 
 
-We need to inject AuthenticationService to AppComponent
-----------------------------------------------------------------
 
+
+Step 3.4: Create empty Account object (form binding)
+----------------------------------------------
+create-account.component.ts
 
 import { Component } from '@angular/core';
-import { AuthenticationService } from './authentication.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Account } from '../model/account';
+import { AccountService } from '../services/account.service';
+
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'app-create-account',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './create-account.component.html'
 })
-export class AppComponent implements OnInit{
-  constructor(public loginService:AuthenticationService) { }
+export class CreateAccountComponent {
 
-  title = 'empclient';
 
- ngOnInit() {
-    
+  account: Account = new Account();
+
+
+  constructor(private accountService: AccountService,private router: Router) {}
+
+  onSubmit(): void {
+    this.saveAccount();
   }
-}
 
 
-Now change old navbar:
---------------------------------------
-<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
-  <ul class="navbar-nav">
-    <li class="nav-item">
-      <a routerLink="employees" routerLinkActive="active" class="nav-link">Employee List</a>
-    </li>
-    <li class="nav-item">
-      <a routerLink="create-employee" routerLinkActive="active" class="nav-link">Add Employee</a>
-    </li>
-    <li class="nav-item">
-      <a routerLink="login" routerLinkActive="active" class="nav-link">Login</a>
-    </li>
-    <li class="nav-item">
-      <a routerLink="logout" routerLinkActive="active" class="nav-link">Logout</a>
-    </li>
-  </ul>
-</nav>
-
-to this:
------------
-<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
-  <ul class="navbar-nav">
-    <li class="nav-item">
-      <a *ngIf="loginService.isUserLoggedIn()"  routerLink="employees" routerLinkActive="active" class="nav-link">Employee List</a>
-    </li>
-    <li class="nav-item">
-      <a *ngIf="loginService.isUserLoggedIn()" routerLink="create-employee" routerLinkActive="active" class="nav-link">Add Employee</a>
-    </li>
-    <li class="nav-item">
-      <a *ngIf="!loginService.isUserLoggedIn()" routerLink="login" routerLinkActive="active" class="nav-link">Login</a>
-    </li>
-    <li class="nav-item">
-      <a *ngIf="loginService.isUserLoggedIn()" routerLink="logout" routerLinkActive="active" class="nav-link">Logout</a>
-    </li>
-  </ul>
-</nav>
+  saveAccount(): void {
+    this.accountService.createAccount(this.account).subscribe(() => {
+      this.goToAccountList();
+    });
+  }
 
 
-
-
-
-Need of auth service:Create the AuthGaurd Service
---------------------------------------------------
-	=> But what will happen if the user directly tries to access a page without login. 
-	For example if a user directly navigates to localhost:4200 He will be able to view the page. 
-
-	=> So we should first check if the user is logged in and only then allow the user to view the page. We achive 			
-	this using the CanActivate interface.
-
-	=> we will use service for this
-
-
-Create service:
--------------------
-ng generate service authGaurd
-
-
-
-
-
-import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { AuthenticationService } from './authentication.service';
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGaurdService implements CanActivate{
-
-  constructor(private router: Router,
-    private authService: AuthenticationService) { }
-
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    if (this.authService.isUserLoggedIn())
-      return true;
-
-    this.router.navigate(['login']);
-    return false;
-
+  goToAccountList(): void {
+    this.router.navigate(['/accounts']);
   }
 }
 
 
 
-Modify the app.routing.ts to activate route only if the user is logged in using the above AuthGaurdService.
---------------------------------------------------------------------------------------------
+Step 3.5: Create Account Form
+--------------------------------
+create-account.component.html
 
-import { AuthGaurdService } from './auth-gaurd.service';
+<div class="col-md-6 offset-md-3">
+  <h3>Create Account</h3>
 
-const routes: Routes = [
-  {path:'employees', component: EmployeeComponent, canActivate:[AuthGaurdService]},
-  {path:'create-employee', component: CreateEmployeeComponent, canActivate:[AuthGaurdService]},
-  {path:'update-employee/:id', component: UpdateEmployeeComponent, canActivate:[AuthGaurdService]},
-  {path:'employee-details/:id', component: EmployeeDetailsComponent,canActivate:[AuthGaurdService] },
-  { path: 'login', component: LoginComponent },
-  { path: 'logout', component: LogoutComponent ,canActivate:[AuthGaurdService]},
-  {path:'', redirectTo:'employees', pathMatch:'full'}
+
+  <form (ngSubmit)="onSubmit()">
+
+
+    <div class="form-group">
+      <label>Name</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.name"
+        name="name">
+    </div>
+
+
+    <div class="form-group">
+      <label>Initial Balance</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="account.balance"
+        name="balance">
+    </div>
+
+
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        class="form-control"
+        [(ngModel)]="account.email"
+        name="email">
+    </div>
+
+
+    <div class="form-group">
+      <label>Phone</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.phone"
+        name="phone">
+    </div>
+
+
+    <br>
+
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+
+  </form>
+</div>
+
+Note:
+---------
+	=> Error:Can't bind to 'ngModel' since it isn't a known property of 'input'. (
+	=> dont forget to import FormsModule in CreateAccountComponent component
+
+
+
+
+
+
+
+
+Step 4 – Update Account holder email and phone
+-------------------------------------------------
+
+Step 4.0: Update Account Service
+-----------------------
+account.service.ts
+
+updateAccount(id: number, account: Account) {
+  return this.http.put(`${this.baseUrl}/${id}`, account);
+}
+
+
+
+Step 4. 1: Create Update Account Component
+
+ng g c update-account --skip-tests --inline-style
+
+Step 4. 2: Update Routing
+
+app.routes.ts
+
+import { UpdateAccountComponent } from './update-account/update-account.component';
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: 'create-account', component: CreateAccountComponent },
+  { path: 'update-account/:id', component: UpdateAccountComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
 ];
 
 
+Step 4.3: Add Update Button (Account List)
+
+account-list.component.html
+
+<td>
+  <button
+    class="btn btn-info"
+    (click)="updateAccount(acc.id)">
+    Update
+  </button>
+</td>
 
 
-Angular + Basic Authentication
-----------------------------------
-@CrossOrigin(origins = "http://localhost:4200")
+Step 4.4: Add Update Method
 
+account-list.component.ts
 
-
-Now we will apply spring boot:
---------------------------------------------
-Step 1: add security dependency to the project
-
-step2: configure hard coded sec as of now
---------------------------------------------
-
-@Configuration
-public class SecurityConfig {
-
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    	http
-        .csrf(csrf -> csrf.disable())
-        .cors(Customizer.withDefaults()) // this enables your corsConfigurationSource bean
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .anyRequest().authenticated()
-        )
-        .httpBasic(Customizer.withDefaults());
-
-    return http.build();
-    }
-
-    @Bean
-     InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User
-            .withUsername("raj")
-            .password("raj123")
-            .roles("USER")
-            .build();
-
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    // Only for testing/demo (use BCryptPasswordEncoder in real apps)
-    @Bean
-     PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }
+updateAccount(id: number): void {
+  this.router.navigate(['update-account', id]);
 }
 
-step 3: dont forget to config cors policy
-----------------------------------------
+
+Step 4.5: UpdateAccountComponent Code
+
+update-account.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Account } from '../model/account';
+import { AccountService } from '../services/account.service';
 
 
-@Configuration
-public class CorsConfig {
+@Component({
+  selector: 'app-update-account',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './update-account.component.html'
+})
+export class UpdateAccountComponent implements OnInit {
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration config = new CorsConfiguration();
+  id: number = 0;
+  account: Account = new Account();
 
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+  constructor(
+    private route: ActivatedRoute,
+    private accountService: AccountService,
+    private router: Router
+  ) {}
 
-        source.registerCorsConfiguration("/**", config);
 
-        return source;
-    }
+  ngOnInit(): void {
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.accountService.getAccountById(this.id).subscribe(data => {
+      this.account = data;
+    });
+  }
+
+
+  onSubmit(): void {
+    this.accountService.updateAccount(this.id, this.account).subscribe(() => {
+      this.goToAccountList();
+    });
+  }
+
+
+  goToAccountList(): void {
+    this.router.navigate(['/accounts']);
+  }
 }
 
-step4: Create dto and and rest end point 
--------------------------------------------
-public class AuthResponse {
-	private String status;
 
-	public AuthResponse(String status) {
-		this.status = status;
-	}
+Step 4.6: Update Account Form
+-----------------------------
+update-account.component.html
 
-	public String getStatus() {
-		return status;
-	}
+<div class="col-md-6 offset-md-3">
+  <h3>Update Account</h3>
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+  <p class="text-danger">
+    Name and Balance cannot be updated.
+  </p>
 
+  <form (ngSubmit)="onSubmit()">
+
+    <!-- Name (READ-ONLY) -->
+    <div class="form-group">
+      <label>Name</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.name"
+        name="name"
+        readonly>
+    </div>
+
+    <!-- Balance (READ-ONLY) -->
+    <div class="form-group">
+      <label>Balance</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="account.balance"
+        name="balance"
+        readonly>
+    </div>
+
+    <!-- Email (EDITABLE) -->
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        class="form-control"
+        [(ngModel)]="account.email"
+        name="email"
+        required>
+    </div>
+
+    <!-- Phone (EDITABLE) -->
+    <div class="form-group">
+      <label>Phone</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="account.phone"
+        name="phone"
+        required>
+    </div>
+
+    <br>
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+  </form>
+</div>
+
+Note:
+---------
+	=> Error:Can't bind to 'ngModel' since it isn't a known property of 'input'. (
+	=> dont forget to import FormsModule in UpdateAccountComponent component
+
+
+
+
+
+Step  5 – Delete Account 
+-------------------------------
+
+Step 5.1: Update Account Service
+
+account.service.ts
+deleteAccount(id: number) {
+  return this.http.delete(`${this.baseUrl}/${id}`);
 }
 
- Create rest end point
------------------------
-@GetMapping("/validateLogin")
-public AuthResponse validateLogin() {
-		return new AuthResponse("User successfully authenticated");
+Step 5.2: Add Delete Button (Account List)
+
+account-list.component.html
+
+<button
+  (click)="deleteAccount(acc.id)"
+  class="btn btn-danger"
+  style="margin-left: 10px">
+  Delete
+</button>
+
+
+Step 5.3: Add Delete Method in Component
+
+account-list.component.ts
+
+deleteAccount(id: number): void {
+  this.accountService.deleteAccount(id).subscribe(() => {
+    this.getAccounts();
+  });
 }
-	
+
+
+Step 5.4: Ensure getAccounts() Exists
+
+account-list.component.ts
+
+getAccounts(): void {
+  this.accountService.getAllAccounts().subscribe(data => {
+    this.accounts = data;
+  });
+}
 
 
 
 
-Step 5: Implement changes for Basic Authentication on the Angular side
-----------------------------------------------------------------
-In the EmployeeService we will be adding the basic auth header
- before making the REST calls.
+
+Step  6 – Deposit operation
+-------------------------------
+
+Step 6.1: Create Deposit Component (no test, no CSS)
+----------------------------------------------
+ng g c deposit --skip-tests --inline-style
 
 
+Step 6.2: Create DepositRequest DTO (Angular)
+------------------------------
+Create file:
+
+ng g interface model/deposit-request
+
+export interface DepositRequest {
+  accountId: number;
+  amount: number;
+}
+Step 3: Update Routing
+
+app.routes.ts
+-------------------------
+import { DepositComponent } from './deposit/deposit.component';
+
+
+export const routes: Routes = [
+  { path: 'accounts', component: AccountListComponent },
+  { path: 'account-details/:id', component: AccountDetailsComponent },
+  { path: 'create-account', component: CreateAccountComponent },
+  { path: 'update-account/:id', component: UpdateAccountComponent },
+  { path: 'deposit', component: DepositComponent },
+  { path: '', redirectTo: 'accounts', pathMatch: 'full' }
+];
+
+Step 4: Update Navbar
+----------------------
+app.component.html
+
+<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a routerLink="accounts" routerLinkActive="active" class="nav-link">
+        Account List
+      </a>
+    </li>
+
+
+    <li class="nav-item">
+      <a routerLink="create-account" routerLinkActive="active" class="nav-link">
+        Create Account
+      </a>
+    </li>
+    
+    <li class="nav-item">
+      <a routerLink="deposit" routerLinkActive="active" class="nav-link">
+        Deposit
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<div class="text-center">
+  <router-outlet></router-outlet>
+</div>
+
+
+
+
+Step 5: Deposit Component Code
+-------------------------------
+deposit.component.ts
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AccountService } from '../services/account.service';
+import { DepositRequest } from '../dto/deposit-request';
+
+
+@Component({
+  selector: 'app-deposit',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './deposit.component.html'
+})
+export class DepositComponent {
+
+ accountId: number = 0;
+  amount: number = 0;
+
+  constructor(
+    private accountService: AccountService,
+    private router: Router
+  ) {}
+
+  onSubmit(): void {
+    const request: DepositRequest = {
+      accountId: this.accountId,
+      amount: this.amount
+    };
+
+    this.accountService.deposit(request).subscribe(() => {
+      this.router.navigate(['/accounts']);
+    });
+
+ 
+}
+Step 6: Deposit Form UI
+
+deposit.component.html
+--------------------------------
+dont forget to import form module FormsModule
+
+
+<div class="col-md-6 offset-md-3">
+  <h3>Deposit</h3>
+  <form (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label>Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="accountId"
+        name="accountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>Amount</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="amount"
+        name="amount"
+        required>
+    </div>
+
+    <br>
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+  </form>
+</div>
+
+
+Step 7: Update Account Service
+
+account.service.ts
+
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { DepositRequest } from '../dto/deposit-request';
 
-import { from, Observable } from 'rxjs';
-import {HttpClient, HttpHeaders} from '@angular/common/http'
-import { Employee } from './employee';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EmployeeService {
+export class AccountService {
 
-  private baseURL="http://localhost:8080/employee";
-  constructor(private httpClient: HttpClient) { }
 
-  getEmployeesList(): Observable<Employee[]>{
-    let username='raj'
-    let password='raj123'
-    const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    return this.httpClient.get<Employee[]>(`${this.baseURL}`,{headers});
-  }
+  private baseUrl = 'http://localhost:8090/bankapp/v1/accounts';
 
-  createEmployee(employee: Employee): Observable<Object>{
-    let username='raj'
-    let password='raj123'
-    const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    return this.httpClient.post(`${this.baseURL}`, employee,{headers});
-  }
-  updateEmployee(id: number, employee: Employee): Observable<Object>{
-    let username='raj'
-    let password='raj123'
-    const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    return this.httpClient.put(`${this.baseURL}/${id}`, employee,{headers});
-  }
+  private baseUrl2 ='http://localhost:8090/bankapp/v1/transactions'
 
-  getEmployeeById(id: number): Observable<Employee>{
-    let username='raj'
-    let password='raj123'
-    const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    return this.httpClient.get<Employee>(`${this.baseURL}/${id}`,{headers});
-  }
+  constructor(private http: HttpClient) {}
 
-  deleteEmployee(id: number): Observable<Object>{
-    let username='raj'
-    let password='raj123'
-    const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    return this.httpClient.delete(`${this.baseURL}/${id}`,{headers});
+  deposit(request: DepositRequest) {
+    return this.http.put<void>(`${this.baseUrl2}/deposit`, request);
   }
 }
 
@@ -1746,297 +2318,799 @@ export class EmployeeService {
 
 
 
+Step 5: Withdraw Component Code
+-------------------------------
 
-Step 6: Previously the authentication.service.ts used to check the credentials against hardcoded values. 
-Now we will make a REST call using Basic Auth header. Only if the User object is returned will be login be successful.
------------------------------------------------------------------------------------------------------------------------
+Step 0: AccountService Method
+-------------------------------
+import { WithdrawRequest } from '../model/withdraw-request';
 
+
+withdraw(request: WithdrawRequest) {
+  return this.http.put<void>(`${this.baseUrl2}/withdraw`, request);
+}
+
+
+
+
+Step 1: Create Withdraw Component
+ng g c withdraw --skip-tests --inline-style
+
+
+Step 2: Create WithdrawRequest DTO
+---------------------------------------
+
+ng g interface model/withdraw-request
+
+src/app/model/withdraw-request.ts
+
+export interface WithdrawRequest {
+  accountId: number;
+  amount: number;
+}
+
+
+Step 3: Update Routing
+-----------------------------
+app.routes.ts
+
+import { WithdrawComponent } from './withdraw/withdraw.component';
+
+{ path: 'withdraw', component: WithdrawComponent },
+
+Add this route before the redirect.
+
+
+
+
+Step 4: Update Navbar app.component.html
+------------------------------
+
+Add this inside <ul>:
+
+<li class="nav-item">
+  <a routerLink="withdraw" routerLinkActive="active" class="nav-link">
+    Withdraw
+  </a>
+</li>
+
+
+
+
+
+Step 5: Withdraw Component Logic
+----------------------------
+withdraw.component.ts
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AccountService } from '../services/account.service';
+import { WithdrawRequest } from '../model/withdraw-request';
+
+
+@Component({
+  selector: 'app-withdraw',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './withdraw.component.html'
+})
+export class WithdrawComponent {
+
+
+  accountId: number = 0;
+  amount: number = 0;
+
+
+  constructor(
+    private accountService: AccountService,
+    private router: Router
+  ) {}
+
+
+  onSubmit(): void {
+    const request: WithdrawRequest = {
+      accountId: this.accountId,
+      amount: this.amount
+    };
+
+
+    this.accountService.withdraw(request).subscribe(() => {
+      this.router.navigate(['/accounts']);
+    });
+  }
+}
+
+
+Step 6:  Withdraw Form UI
+---------------------------
+withdraw.component.html
+dont forget to import form module FormsModule
+
+
+<div class="col-md-6 offset-md-3">
+  <h3>Withdraw</h3>
+
+
+  <form (ngSubmit)="onSubmit()">
+
+
+    <div class="form-group">
+      <label>Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="accountId"
+        name="accountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>Amount</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="amount"
+        name="amount"
+        required>
+    </div>
+
+
+    <br>
+
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+
+  </form>
+</div>
+
+
+
+
+
+
+Step 5: Transfer Component Code
+---------------------------------
+
+Step 1: Create Transfer Component
+--------------------------------------
+ng g c transfer --skip-tests --inline-style
+
+
+
+Step 2: Create TransferRequest DTO
+-----------------------------------
+ng g interface model/transfer-request
+
+export interface TransferRequest {
+  fromAccountId: number;
+  toAccountId: number;
+  amount: number;
+}
+
+
+
+Step 3: Update Navbar app.component.html
+-------------------------------------
+Add this inside <ul>:
+
+<li class="nav-item">
+  <a routerLink="transfer" routerLinkActive="active" class="nav-link">
+    Transfer
+  </a>
+</li>
+
+
+
+Step 4: Transfer Component Logic
+-------------------------------
+
+transfer.component.ts
+----------------------
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AccountService } from '../services/account.service';
+import { TransferRequest } from '../model/transfer-request';
+
+
+@Component({
+  selector: 'app-transfer',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './transfer.component.html'
+})
+export class TransferComponent {
+
+
+  fromAccountId: number = 0;
+  toAccountId: number = 0;
+  amount: number = 0;
+
+
+  constructor(
+    private accountService: AccountService,
+    private router: Router
+  ) {}
+
+
+  onSubmit(): void {
+    const request: TransferRequest = {
+      fromAccountId: this.fromAccountId,
+      toAccountId: this.toAccountId,
+      amount: this.amount
+    };
+
+
+    this.accountService.transfer(request).subscribe(() => {
+      this.router.navigate(['/accounts']);
+    });
+  }
+}
+
+
+Step 5: Update Routing
+------------------------
+
+app.routes.ts
+-----------------
+import { TransferComponent } from './transfer/transfer.component';
+
+{ path: 'transfer', component: TransferComponent },
+
+Add this route before the redirect.
+
+
+
+Step 6: Transfer Form UI
+---------------------------
+transfer.component.html
+-------------------------
+dont forget to import form module FormsModule
+
+<div class="col-md-6 offset-md-3">
+  <h3>Transfer</h3>
+
+
+  <form (ngSubmit)="onSubmit()">
+
+
+    <div class="form-group">
+      <label>From Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="fromAccountId"
+        name="fromAccountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>To Account Id</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="toAccountId"
+        name="toAccountId"
+        required>
+    </div>
+
+
+    <div class="form-group">
+      <label>Amount</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="amount"
+        name="amount"
+        required>
+    </div>
+
+
+    <br>
+
+    <button type="submit" class="btn btn-success">
+      Submit
+    </button>
+
+
+  </form>
+</div>
+
+
+
+Step 7: AccountService Method
+--------------------------------
+import { TransferRequest } from '../model/transfer-request';
+
+
+transfer(request: TransferRequest) {
+  return this.http.put<void>(`${this.baseUrl2}/transfer`, request);
+}
+
+
+
+
+
+
+
+
+
+angular security application:
+------------------------------------
+
+step 1:Create authentication service:
+---------------------------------------------
+=> Create a new authentication service where we check if the user name and password is correct then set it in session storage.
+
+=> Using sessionStorage properties we can save key/value pairs in a web browser.
+The sessionStorage object stores data for only one session.
+So the data gets deleted if the browser is closed.
+
+authenticate() Authenticate the username and password  
+isUserLoggedIn() - checks the session storage if user name exists. If it does then return true  
+logout() - This method clears the session storage of user name
+Command to create service
+
+
+ng g s services/authentication --skip-tests
+
+authentication.service.ts
+----------------------------------
 import { Injectable } from '@angular/core';
-import { HttpClientService } from './http-client.service';
-import { HttpClient,HttpHeaders } from '@angular/common/http';
-import { map } from 'rxjs/operators';
 
-export class AuthResponse{
-  constructor(public status:string) {}
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthenticationService {
-  constructor(private httpClient:HttpClient) {  }
 
-	authenticate(username: string, password: string) {
-	  const headers = new HttpHeaders({
-		Authorization: 'Basic ' + btoa(`${username}:${password}`)
-	  });
+  authenticate(username: string, password: string): boolean {
 
-	  return this.httpClient.get<AuthResponse>('http://localhost:8080/validateLogin', { headers }).pipe(
-		map(userData => {
-		  sessionStorage.setItem('username', username);
-		  return userData;
-		})
-	  );
-	}
-  isUserLoggedIn() {
-    let user = sessionStorage.getItem('username')
-    console.log(!(user === null))
-    return !(user === null)
+    // hardcoded credentials
+    if (username === 'admin' && password === 'admin123') {
+      sessionStorage.setItem('authenticatedUser', username);
+      return true;
+    }
+
+
+    return false;
   }
 
-  logOut() {
-    sessionStorage.removeItem('username')
+
+  isUserLoggedIn(): boolean {
+    const user = sessionStorage.getItem('authenticatedUser');
+    return !(user === null);
   }
-}
 
-Note:
--------------
-export class AuthResponse {
-  status: string = '';
 
-  constructor(status: string) {
-    this.status = status;
+  logout(): void {
+    sessionStorage.removeItem('authenticatedUser');
   }
 }
 
 
+step 2: Create login component:
+--------------------------
+ng g c login --skip-tests --inline-style
 
-Step 7: modify checkLogin method
------------------------------------
 
-In the login.service.ts we check if the valid user is returned by the authentication service. 
-If yes then login is successful and the user is forwarded to the employee page.
-
-import { Component, OnInit } from '@angular/core';
+login.component.ts
+-----------------------
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthenticationService } from '../service/authentication.service';
+import { CommonModule } from '@angular/common';
+import { AuthenticationService } from '../services/authentication.service';
+
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './login.component.html'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
 
-  username = ''
-  password = ''
-  invalidLogin = false
 
-  constructor(private router: Router,
-    private loginservice: AuthenticationService) { }
+  username: string = '';
+  password: string = '';
+  error: string = '';
 
-  ngOnInit() {
+
+  constructor(
+    private authService: AuthenticationService,
+    private router: Router
+  ) {}
+
+
+  onSubmit(): void {
+
+
+    const success = this.authService.authenticate(this.username, this.password);
+
+
+    if (success) {
+      this.router.navigate(['/accounts']);
+    } else {
+      this.error = 'Invalid username or password';
+    }
   }
-
-  checkLogin() {
-    (this.loginservice.authenticate(this.username, this.password).subscribe(
-      data => {
-        this.router.navigate([''])
-        this.invalidLogin = false
-      },
-      error => {
-        this.invalidLogin = true
-
-      }
-    )
-    );
-
-  }
-
 }
 
 
-Step 8: Angular Spring Boot Basic Auth Using HTTPInterceptor Example
--------------------------------------------------------------------
-	We had seen we had to duplicate the code for adding Basic Auth 
-	Headers to the HTTPRequest before making HTTP calls. 
-
-	In the authentication.service.ts if the authentication for the user entered username and password is 
-	successful, we will be saving the basicAuth string which we are adding the 
-	Authorization Header for basic Authenication in the session.
 
 
+login.component.html
+---------------------
+dont forget to import FormsModule
+---------------------------------
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+<div class="col-md-4 offset-md-4">
+    <h3>Login</h3>
+
+    <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" class="form-control" [(ngModel)]="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" [(ngModel)]="password" name="password" required>
+        </div>
+
+        <div class="text-danger" *ngIf="error">
+            {{ error }}
+        </div>
+
+        <br>
+        <button type="submit" class="btn btn-success">
+            Login
+        </button>
+    </form>
+</div>
+
+
+
+
+step 3: Create route guard
+------------------------------
+
+ng g guard guards/auth --skip-tests
+
+Choose: CanActivate
+
+
+auth.guard.ts
+--------------------
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthenticationService } from '../services/authentication.service';
+
+
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AuthenticationService);
+  const router = inject(Router);
+
+
+  if (authService.isUserLoggedIn()) {
+    return true;
+  }
+
+  router.navigate(['/login']);
+  return false;
+};
+
+
+step 4: Update routing (protect bank routes)
+----------------------------
+app.routes.ts
+-------------------
+import { LoginComponent } from './login/login.component';
+import { authGuard } from './guards/auth.guard';
+
+
+export const routes: Routes = [
+
+
+  { path: 'login', component: LoginComponent },
+
+  { path: 'accounts', component: AccountListComponent, canActivate: [authGuard] },
+  { path: 'account-details/:id', component: AccountDetailsComponent, canActivate: [authGuard] },
+  { path: 'create-account', component: CreateAccountComponent, canActivate: [authGuard] },
+  { path: 'update-account/:id', component: UpdateAccountComponent, canActivate: [authGuard] },
+  { path: 'deposit', component: DepositComponent, canActivate: [authGuard] },
+  { path: 'withdraw', component: WithdrawComponent, canActivate: [authGuard] },
+  { path: 'transfer', component: TransferComponent, canActivate: [authGuard] },
+
+
+  { path: '', redirectTo: 'login', pathMatch: 'full' }
+];
+
+
+
+
+
+step 5:Add logout button in navbar
+------------------------------
+app.component.html
+
+Add inside <ul>:
+
+<li class="nav-item">
+  <button class="btn btn-danger" (click)="logout()">
+    Logout
+  </button>
+</li>
+
+
+
+step 6:Logout logic
+------------------------
+
+app.component.ts
+
+import { Component } from '@angular/core';
+import { RouterOutlet, Router } from '@angular/router';
+import { AuthenticationService } from './services/authentication.service';
+
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet],
+  templateUrl: './app.component.html'
+})
+export class AppComponent {
+
+
+  constructor(
+    private authService: AuthenticationService,
+    private router: Router
+  ) {}
+
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}
+
+
+
+
+
+
+Step : Now check it with Hardcoded credentials:
+------------------------------------------
+username: admin
+password: admin123
+
+
+
+
+
+
+
+
+
+Now with JWT
+------------
+PART 10 – JWT Authentication
+-------------------------
+
+step 1: Modify authentication service
+---------------------------------------
+services/authentication.service.ts
+
+Replace old service code with this:
+
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 
-export class AuthResponse{
-  constructor(public status:string) {}
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthenticationService {
-  constructor(private httpClient:HttpClient) {  }
+  private authUrl = 'http://localhost:8090/bankapp/authenticate';
 
-	authenticate(username: string, password: string) {
-	  const authString = 'Basic ' + btoa(`${username}:${password}`);
-	  const headers = new HttpHeaders({ Authorization: authString });
+  constructor(private http: HttpClient) {}
 
-	  return this.httpClient.get<AuthResponse>('http://localhost:8080/validateLogin', { headers }).pipe(
-		map(userData => {
-		  sessionStorage.setItem('username', username);
-		  sessionStorage.setItem('basicauth', authString);
-		  return userData;
-		})
-	  );
-	}
+  authenticate(username: string, password: string): Observable<any> {
+    const body = {
+      username: username,
+      password: password
+    };
 
-  isUserLoggedIn() {
-    let user = sessionStorage.getItem('username')
-    console.log(!(user === null))
-    return !(user === null)
+    return this.http.post<any>(this.authUrl, body).pipe(
+      tap(response => {
+        // assuming backend returns { token: "..." }
+        sessionStorage.setItem('token', response.token);
+        sessionStorage.setItem('authenticatedUser', username);
+      })
+    );
   }
 
-  logOut() {
-    sessionStorage.removeItem('username')
+
+  isUserLoggedIn(): boolean {
+    return sessionStorage.getItem('token') !== null;
   }
+
+
+  getToken(): string | null {
+    return sessionStorage.getItem('token');
+  }
+
+
+  logout(): void {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('authenticatedUser');
+  }
+}
+
+
+step 2: Modify login component
+---------------------------------
+login.component.ts
+
+Replace only onSubmit() method:
+--------------------------------
+
+onSubmit(): void {
+  this.authService
+    .authenticate(this.username, this.password)
+    .subscribe({
+      next: () => this.router.navigate(['/accounts']),
+      error: () => this.error = 'Invalid username or password'
+    });
 }
 
 
 
 
-Step 9: HttpInterceptor service:
-----------------------------------
-	Next we will be creating a new HttpInterceptor service called BasicAuthInterceptor Service. 
-	
-	This service will check if the session has valid username and basicAuth String,
-	then it will update the headers of all outgoing HTTP requests. We implement the interceptor by extending the HttpInterceptor.
+step 3: Create JWT interceptor
+-------------------------------
 
+ng g interceptor interceptors/jwt --skip-tests
 
-ng g service BasicAuthHtppInterceptor
----------------------------------------
+step 4: JWT interceptor code
+
+interceptors/jwt.interceptor.ts
 
 import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthenticationService } from '../services/authentication.service';
 
-export const basicAuthInterceptor: HttpInterceptorFn = (req, next) => {
-  const username = sessionStorage.getItem('username');
-  const authHeader = sessionStorage.getItem('basicauth');
 
-  if (username && authHeader) {
-    req = req.clone({
+export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+
+  const authService = inject(AuthenticationService);
+  const token = authService.getToken();
+
+  if (token) {
+    const cloned = req.clone({
       setHeaders: {
-        Authorization: authHeader
+        Authorization: `Bearer ${token}`
       }
     });
+    return next(cloned);
   }
 
   return next(req);
 };
 
 
-Note : Dont forget to Register the interceptor main.ts
--------------------------------------------------------
-import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { AppComponent } from './app/app.component';
+
+
+step 5: Register interceptor
+----------------------------
+
+app.config.ts
+--------------
+Add interceptor to providers.
+---------------------------
+
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { basicAuthInterceptor } from './app/services/basic-auth-htpp-interceptor.service';
+import { jwtInterceptor } from './interceptors/jwt.interceptor';
 
-bootstrapApplication(AppComponent, {
-  ...appConfig,
+
+export const appConfig: ApplicationConfig = {
   providers: [
-    ...appConfig.providers || [],
-    provideHttpClient(
-      withInterceptors([basicAuthInterceptor])
-    )
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([jwtInterceptor]))
   ]
-});
+};
 
 
+step 6: No change in routes or guard
+---------------------------------------
+Your existing guard stays same:
 
-
-
-Step 10: Finally we will remove the hardcoded basic auth logic from the Http client service.
------------------------------------------------------------------------------------------
-
-import { Injectable } from '@angular/core';
-
-import { from, Observable } from 'rxjs';
-import {HttpClient, HttpHeaders} from '@angular/common/http'
-import { Employee } from './employee';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class EmployeeService {
-
-  private baseURL="http://localhost:8080/employee";
-  constructor(private httpClient: HttpClient) { }
-
-  getEmployeesList(): Observable<Employee[]>{
-    // let username='raj'
-    // let password='raj123'
-    // const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    // return this.httpClient.get<Employee[]>(`${this.baseURL}`,{headers});
-    return this.httpClient.get<Employee[]>(`${this.baseURL}`);
-  }
-
-  createEmployee(employee: Employee): Observable<Object>{
-    // let username='raj'
-    // let password='raj123'
-    // const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-   // return this.httpClient.post(`${this.baseURL}`, employee,{headers});
-   return this.httpClient.post(`${this.baseURL}`, employee);
-  }
-  updateEmployee(id: number, employee: Employee): Observable<Object>{
-    // let username='raj'
-    // let password='raj123'
-    // const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    // return this.httpClient.put(`${this.baseURL}/${id}`, employee,{headers});
-
-    return this.httpClient.put(`${this.baseURL}/${id}`, employee);
-  }
-
-  getEmployeeById(id: number): Observable<Employee>{
-    // let username='raj'
-    // let password='raj123'
-    // const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    //return this.httpClient.get<Employee>(`${this.baseURL}/${id}`,{headers});
-    return this.httpClient.get<Employee>(`${this.baseURL}/${id}`);
-  }
-
-  deleteEmployee(id: number): Observable<Object>{
-    // let username='raj'
-    // let password='raj123'
-    // const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
-    // return this.httpClient.delete(`${this.baseURL}/${id}`,{headers});
-    return this.httpClient.delete(`${this.baseURL}/${id}`);
-  }
+isUserLoggedIn(): boolean {
+  return sessionStorage.getItem('token') !== null;
 }
 
 
-
-
-
-
-
-authenticate method in case of jwt based security:
+Step 7: change to spring boot filter
+-------------------------------------
+first rather then returning string token return :
 -------------------------------------------------
+@Data
+@AllArgsConstructor
+public class AuthResponse {
+    private String token;
+}
 
+ie change the hello controller
+------------------------------
+@PostMapping(path = "authenticate")
+	public AuthResponse authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), 
+						authRequest.getPassword()));
+		//authentication i need to validate this object
+        if(authentication.isAuthenticated()){
+            return new AuthResponse(jwtService.generateToken(userDetailsService.loadUserByUsername(authRequest.getUsername())));
+        }else {
+            throw  new UsernameNotFoundException("user is invalid");
+        }
+	}
+	
+then change the filter
+--------------------
+@Component
+public class SimpleCorsFilter implements Filter {
 
-	authenticate(username: string, password: string) {
-  return this.httpClient.post<any>('http://localhost:8080/authenticate', { username, password }).pipe(
-    map(userData => {
-    
-      sessionStorage.setItem('username', username);
-       let tokenStr= 'Bearer '+userData.token;
-      sessionStorage.setItem('token', tokenStr);
-      return userData;
-    }),
-    catchError(error => {
-      console.error('Authentication failed', error);
-      return throwError(() => error);
-    })
-  );
+    @Override
+    public void doFilter(
+            ServletRequest request,
+            ServletResponse response,
+            FilterChain chain) {
+
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
+
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+        res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+
+        // IMPORTANT: handle preflight request
+        if ("OPTIONS".equalsIgnoreCase(req.getMethod())) {
+            res.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
+        try {
+            chain.doFilter(request, response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 
 
 
 
+Add OPTIONS handling
+--------------
+Modify filter:
+-------------
+if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+    res.setStatus(HttpServletResponse.SC_OK);
+    return;
+}
 
+Place this before chain.doFilter.
 
-
-
+That handles preflight requests.

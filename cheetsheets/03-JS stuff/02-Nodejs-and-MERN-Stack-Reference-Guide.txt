@@ -411,6 +411,7 @@ app.use((req, res, next) => {
 Hello world example:
 ------------------
 //Custom middleware (executes before every route)
+
 app.use((req, res, next) => {
   console.log(' Middleware called -', req.method, req.url);
   next(); // hand over to next middleware or route handler
@@ -418,7 +419,7 @@ app.use((req, res, next) => {
 
 // Simple route
 app.get('/', (req, res) => {
-  res.send('👋 Hello, Express + Middleware!');
+  res.send(' Hello, Express + Middleware!');
 });
 
 // Start server
@@ -470,6 +471,7 @@ const callback2 = (req, res, next) => {
 };
 
 app.get('/home', [callback1, callback2], (req, res) => res.send('home'));
+
 
 
 Middleware on Specific Routes Using Router
