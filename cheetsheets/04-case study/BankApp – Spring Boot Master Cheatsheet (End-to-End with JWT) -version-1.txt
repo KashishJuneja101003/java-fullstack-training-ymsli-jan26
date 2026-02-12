@@ -1389,7 +1389,8 @@ export class Account {
 
 STEP 1.4: Create Account List Component
 -----------------------------------------
-ng g c account-list --skip-tests --inline-style
+
+ng g c components/account-list --skip-tests --inline-style
 
 
 
@@ -1609,7 +1610,8 @@ getAccountById(id: number) {
 
 Step 2. 2: Create Account Details Component
 -----------------------------------------------
-ng g c account-details --skip-tests --inline-style
+
+ng g c components/account-details --skip-tests --inline-style
 
 
 Step 2.3: Update Routing
@@ -1740,7 +1742,7 @@ createAccount(account: Account) {
 
 Step 3. 1: Create Create-Account Component
 ----------------------------------------
-ng g c create-account --skip-tests --inline-style
+ng g c components/create-account --skip-tests --inline-style
 
 
 Step 3.2: Update Routing

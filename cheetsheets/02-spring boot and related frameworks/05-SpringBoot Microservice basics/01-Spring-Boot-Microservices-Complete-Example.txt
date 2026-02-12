@@ -45,9 +45,6 @@ Zipkin: 9411
 open feign : declartive rest client
 
 
-
-
-
 Step 1: import given code, run both coupons and product service
 
 Step 2: Apply OpenFeign to products microservice to call coupons microservice:

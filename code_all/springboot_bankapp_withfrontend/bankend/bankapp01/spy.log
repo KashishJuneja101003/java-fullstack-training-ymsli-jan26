@@ -1,0 +1,2 @@
+1770881785070|2|statement|connection 0|url jdbc:p6spy:mysql://localhost:3306/bankapp02|select a1_0.id,a1_0.balance,a1_0.email,a1_0.name,a1_0.phone from account_table2 a1_0|select a1_0.id,a1_0.balance,a1_0.email,a1_0.name,a1_0.phone from account_table2 a1_0
+1770881785122|1|commit|connection 0|url jdbc:p6spy:mysql://localhost:3306/bankapp02||
