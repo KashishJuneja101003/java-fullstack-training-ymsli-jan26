@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.productapp.dto.Coupon;
-//@FeignClient("COUPONS")
 
-@FeignClient(name = "coupon-service", url = "http://localhost:8083")
+@FeignClient("COUPONS")
+//@FeignClient(name = "coupon-service", url = "http://localhost:8083")
 public interface CouponServiceProxy {
     @GetMapping("coupon/{couponCode}")
     public Coupon getCouponByCode(@PathVariable String couponCode);
